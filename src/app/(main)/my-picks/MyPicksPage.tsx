@@ -1,161 +1,136 @@
 'use client'
 
-import { useState } from "react";
+import { useMemo } from "react";
 import { BoutCard } from "@/components/BoutCard";
 import { Card } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Target, Calendar, CheckCircle, XCircle, Clock, Trophy } from "lucide-react";
-import type { VictoryMethod } from "@/types/picks";
-
-// Mock data
-const myPicksData = {
-  "ufc-310": {
-    eventName: "UFC 310",
-    eventDate: "Dec 7, 2024",
-    status: "pending" as const,
-    picks: [
-      {
-        order: 1,
-        fighterRed: "Alexandre Pantoja",
-        fighterBlue: "Kai Asakura",
-        weightClass: "Flyweight",
-        rounds: 5,
-        isMainEvent: true,
-        selectedFighter: "red" as const,
-        selectedMethod: "SUB" as VictoryMethod,
-        selectedRound: 3 as const,
-        cardSection: "main" as const,
-      },
-      {
-        order: 2,
-        fighterRed: "Shavkat Rakhmonov",
-        fighterBlue: "Ian Machado Garry",
-        weightClass: "Welterweight",
-        rounds: 5,
-        isCoMain: true,
-        selectedFighter: "blue" as const,
-        selectedMethod: "DEC" as VictoryMethod,
-        cardSection: "main" as const,
-      },
-    ],
-  },
-  "ufc-309": {
-    eventName: "UFC 309",
-    eventDate: "Nov 16, 2024",
-    status: "completed" as const,
-    picks: [
-      {
-        order: 1,
-        fighterRed: "Jon Jones",
-        fighterBlue: "Stipe Miocic",
-        weightClass: "Heavyweight",
-        rounds: 5,
-        isMainEvent: true,
-        selectedFighter: "red" as const,
-        selectedMethod: "KO/TKO" as VictoryMethod,
-        selectedRound: 3 as const,
-        winner: "red" as const,
-        actualMethod: "KO/TKO" as VictoryMethod,
-        actualRound: 3 as const,
-        points: 3 as const, // PERFECT PICK!
-        cardSection: "main" as const,
-      },
-      {
-        order: 2,
-        fighterRed: "Charles Oliveira",
-        fighterBlue: "Michael Chandler",
-        weightClass: "Lightweight",
-        rounds: 5,
-        isCoMain: true,
-        selectedFighter: "red" as const,
-        selectedMethod: "DEC" as VictoryMethod,
-        winner: "red" as const,
-        actualMethod: "DEC" as VictoryMethod,
-        points: 2 as const, // Ganador + método
-        cardSection: "main" as const,
-      },
-      {
-        order: 3,
-        fighterRed: "Bo Nickal",
-        fighterBlue: "Paul Craig",
-        weightClass: "Middleweight",
-        rounds: 3,
-        selectedFighter: "red" as const,
-        selectedMethod: "SUB" as VictoryMethod,
-        selectedRound: 2 as const,
-        winner: "red" as const,
-        actualMethod: "SUB" as VictoryMethod,
-        actualRound: 1 as const,
-        points: 2 as const, // Ganador + método (round incorrecto)
-        cardSection: "main" as const,
-      },
-      {
-        order: 4,
-        fighterRed: "Mauricio Ruffy",
-        fighterBlue: "James Llontop",
-        weightClass: "Lightweight",
-        rounds: 3,
-        selectedFighter: "blue" as const,
-        selectedMethod: "KO/TKO" as VictoryMethod,
-        selectedRound: 1 as const,
-        winner: "red" as const,
-        actualMethod: "KO/TKO" as VictoryMethod,
-        actualRound: 1 as const,
-        points: 0 as const, // Ganador incorrecto = 0 puntos
-        cardSection: "prelims" as const,
-      },
-    ],
-  },
-};
+import { Skeleton } from "@/components/ui/skeleton";
+import { Target, Calendar, CheckCircle, XCircle, Clock, Trophy, AlertCircle } from "lucide-react";
+import { useAllMyPicks, useEvents } from "@/lib/hooks";
+import type { Pick, Event, Bout } from "@/lib/api";
+import api from "@/lib/api";
 
 export function MyPicksPage() {
-  const [eventFilter, setEventFilter] = useState<string>("all");
-  const [cardSection, setCardSection] = useState<string>("all");
+  const { data: picks, isLoading: picksLoading, error: picksError } = useAllMyPicks();
+  const { data: eventsData, isLoading: eventsLoading } = useEvents({ limit: 50 });
 
-  const events = Object.entries(myPicksData);
-  const pendingEvents = events.filter(([_, e]) => e.status === "pending");
-  const completedEvents = events.filter(([_, e]) => e.status === "completed");
+  const isLoading = picksLoading || eventsLoading;
+  const isAuthenticated = api.isAuthenticated();
 
-  const calculateStats = () => {
+  // Group picks by event
+  const picksByEvent = useMemo(() => {
+    if (!picks || !eventsData?.events) return { pending: [], completed: [] };
+
+    const eventsMap = new Map(eventsData.events.map(e => [e.id, e]));
+    const grouped: Record<number, { event: Event; picks: Pick[] }> = {};
+
+    for (const pick of picks) {
+      const event = eventsMap.get(pick.event_id);
+      if (!event) continue;
+
+      if (!grouped[pick.event_id]) {
+        grouped[pick.event_id] = { event, picks: [] };
+      }
+      grouped[pick.event_id].picks.push(pick);
+    }
+
+    const entries = Object.values(grouped);
+    const pending = entries.filter(e => e.event.status === 'scheduled');
+    const completed = entries.filter(e => e.event.status !== 'scheduled');
+
+    return { pending, completed };
+  }, [picks, eventsData]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    if (!picks) return { correct: 0, incorrect: 0, pending: 0, total: 0, totalPoints: 0, perfect3Pointers: 0 };
+
     let correct = 0;
     let incorrect = 0;
     let pending = 0;
     let totalPoints = 0;
     let perfect3Pointers = 0;
 
-    events.forEach(([_, event]) => {
-      event.picks.forEach((pick) => {
-        if (pick.winner === undefined) {
-          pending++;
-        } else {
-          const points = pick.points || 0;
-          totalPoints += points;
-
-          if (points > 0) {
-            correct++;
-          } else {
-            incorrect++;
-          }
-
-          if (points === 3) {
+    for (const pick of picks) {
+      if (pick.is_correct === null || pick.is_correct === undefined) {
+        pending++;
+      } else {
+        totalPoints += pick.points_awarded;
+        if (pick.is_correct) {
+          correct++;
+          if (pick.points_awarded === 3) {
             perfect3Pointers++;
           }
+        } else {
+          incorrect++;
         }
-      });
-    });
+      }
+    }
 
-    return {
-      correct,
-      incorrect,
-      pending,
-      total: correct + incorrect + pending,
-      totalPoints,
-      perfect3Pointers,
-    };
+    return { correct, incorrect, pending, total: picks.length, totalPoints, perfect3Pointers };
+  }, [picks]);
+
+  // Not authenticated state
+  if (!isAuthenticated) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
+        <div className="flex items-center gap-3">
+          <Target className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">My Picks</h1>
+        </div>
+        <Card className="card-gradient p-8 text-center">
+          <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-xl font-semibold mb-2">Sign in to see your picks</h2>
+          <p className="text-muted-foreground">
+            Create an account or sign in to start making predictions
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6">
+        <div className="flex items-center gap-3">
+          <Target className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">My Picks</h1>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-20 rounded-lg" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-32 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (picksError) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6">
+        <div className="flex items-center gap-3">
+          <Target className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">My Picks</h1>
+        </div>
+        <div className="flex items-center gap-2 text-destructive p-4 bg-destructive/10 rounded-lg">
+          <AlertCircle className="h-5 w-5" />
+          <span>Failed to load picks. Please try again later.</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Format date helper
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
-
-  const stats = calculateStats();
 
   return (
     <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
@@ -198,43 +173,51 @@ export function MyPicksPage() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <Select value={cardSection} onValueChange={setCardSection}>
-          <SelectTrigger className="w-[140px] bg-secondary border-border">
-            <SelectValue placeholder="Card Section" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Sections</SelectItem>
-            <SelectItem value="main">Main Card</SelectItem>
-            <SelectItem value="prelims">Prelims</SelectItem>
-            <SelectItem value="early">Early Prelims</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Empty state */}
+      {picks?.length === 0 && (
+        <Card className="card-gradient p-8 text-center">
+          <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-xl font-semibold mb-2">No picks yet</h2>
+          <p className="text-muted-foreground">
+            Go to an upcoming event and make your predictions!
+          </p>
+        </Card>
+      )}
 
       {/* Pending Picks */}
-      {pendingEvents.length > 0 && (
+      {picksByEvent.pending.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock className="h-5 w-5 text-warning" />
             Pending Results
           </h2>
-          {pendingEvents.map(([eventId, event]) => (
-            <div key={eventId} className="mb-6">
+          {picksByEvent.pending.map(({ event, picks: eventPicks }) => (
+            <div key={event.id} className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{event.eventName}</span>
-                <span className="text-sm text-muted-foreground">• {event.eventDate}</span>
+                <span className="font-medium">{event.name}</span>
+                <span className="text-sm text-muted-foreground">• {formatDate(event.date)}</span>
               </div>
               <div className="space-y-3">
-                {event.picks.map((pick) => (
-                  <BoutCard
-                    key={pick.order}
-                    {...pick}
-                    pickStatus="pending"
-                    isLocked
-                  />
+                {eventPicks.map((pick, index) => (
+                  <Card key={pick.id} className="card-gradient p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bout #{pick.bout_id}</p>
+                        <p className="font-medium">
+                          Picked: <span className={pick.picked_corner === 'red' ? 'text-fighter-red' : 'text-fighter-blue'}>
+                            {pick.picked_corner.toUpperCase()} corner
+                          </span>
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {pick.picked_method}{pick.picked_round ? ` in R${pick.picked_round}` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <Clock className="h-5 w-5 text-warning" />
+                      </div>
+                    </div>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -243,27 +226,46 @@ export function MyPicksPage() {
       )}
 
       {/* Completed Picks */}
-      {completedEvents.length > 0 && (
+      {picksByEvent.completed.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-success" />
             Completed
           </h2>
-          {completedEvents.map(([eventId, event]) => (
-            <div key={eventId} className="mb-6">
+          {picksByEvent.completed.map(({ event, picks: eventPicks }) => (
+            <div key={event.id} className="mb-6">
               <div className="flex items-center gap-2 mb-3">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{event.eventName}</span>
-                <span className="text-sm text-muted-foreground">• {event.eventDate}</span>
+                <span className="font-medium">{event.name}</span>
+                <span className="text-sm text-muted-foreground">• {formatDate(event.date)}</span>
               </div>
               <div className="space-y-3">
-                {event.picks.map((pick) => (
-                  <BoutCard
-                    key={pick.order}
-                    {...pick}
-                    pickStatus={pick.selectedFighter === pick.winner ? "correct" : "incorrect"}
-                    isLocked
-                  />
+                {eventPicks.map((pick) => (
+                  <Card key={pick.id} className={`card-gradient p-4 ${pick.is_correct ? 'border-success/30' : 'border-destructive/30'}`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">Bout #{pick.bout_id}</p>
+                        <p className="font-medium">
+                          Picked: <span className={pick.picked_corner === 'red' ? 'text-fighter-red' : 'text-fighter-blue'}>
+                            {pick.picked_corner.toUpperCase()} corner
+                          </span>
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {pick.picked_method}{pick.picked_round ? ` in R${pick.picked_round}` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        {pick.is_correct ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-success">+{pick.points_awarded}</span>
+                            <CheckCircle className="h-5 w-5 text-success" />
+                          </div>
+                        ) : (
+                          <XCircle className="h-5 w-5 text-destructive" />
+                        )}
+                      </div>
+                    </div>
+                  </Card>
                 ))}
               </div>
             </div>

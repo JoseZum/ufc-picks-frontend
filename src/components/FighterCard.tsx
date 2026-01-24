@@ -13,9 +13,9 @@ interface FighterCardProps {
     losses: number
     draws: number
   }
-  age: number
-  height: number // in cm
-  reach: number // in cm
+  age?: number // optional - may not have data
+  height?: number // in cm, optional
+  reach?: number // in cm, optional
   side: "red" | "blue"
   isSelected?: boolean
   onSelect?: () => void
@@ -82,9 +82,11 @@ export function FighterCard({
       </div>
 
       {/* Nationality */}
-      <div className="flex justify-center">
-        <FlagBadge country={country} countryCode={countryCode} />
-      </div>
+      {country && country !== "Unknown" && (
+        <div className="flex justify-center">
+          <FlagBadge country={country} countryCode={countryCode} />
+        </div>
+      )}
 
       {/* Fighting Out Of */}
       {fightingOutOf && (
@@ -97,24 +99,28 @@ export function FighterCard({
       {/* Record */}
       <div className="text-center">
         <p className="text-xs text-muted-foreground mb-1">Record</p>
-        <p className="text-xl font-bold">{`${record.wins}–${record.losses}–${record.draws}`}</p>
+        <p className="text-xl font-bold">
+          {record.wins === 0 && record.losses === 0 && record.draws === 0
+            ? "N/A"
+            : `${record.wins}–${record.losses}–${record.draws}`}
+        </p>
       </div>
 
       {/* Age */}
       <div className="text-center">
         <p className="text-xs text-muted-foreground mb-1">Age</p>
-        <p className="text-lg font-semibold">{age}</p>
+        <p className="text-lg font-semibold">{age && age > 0 ? age : "N/A"}</p>
       </div>
 
       {/* Height & Reach */}
       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
         <div className="text-center">
           <p className="text-xs text-muted-foreground mb-1">Height</p>
-          <p className="font-medium">{height} cm</p>
+          <p className="font-medium">{height && height > 0 ? `${height} cm` : "N/A"}</p>
         </div>
         <div className="text-center">
           <p className="text-xs text-muted-foreground mb-1">Reach</p>
-          <p className="font-medium">{reach} cm</p>
+          <p className="font-medium">{reach && reach > 0 ? `${reach} cm` : "N/A"}</p>
         </div>
       </div>
     </Card>

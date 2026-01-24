@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
@@ -25,38 +25,64 @@ import {
   Settings,
   LogOut,
   Camera,
+  Loader2,
 } from "lucide-react";
+import { useCurrentUser, useLogout, useUpdateProfile } from "@/lib/hooks";
+import { toast } from "sonner";
 
 // Helper function to format numbers consistently
 const formatNumber = (num: number): string => {
   return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-// Mock user data
-const userData = {
-  username: "FightFanatic",
-  email: "fighter@example.com",
-  avatarUrl: "",
-  joinDate: "March 2024",
-  stats: {
-    totalPicks: 142,
-    correctPicks: 97,
-    accuracy: 68,
-    totalPoints: 1150,
-    rank: 24,
-  },
-};
-
 export function ProfilePage() {
   const router = useRouter();
+  const logout = useLogout();
+  const { data: user, isLoading } = useCurrentUser();
+  const updateProfileMutation = useUpdateProfile();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [username, setUsername] = useState(userData.username);
+  const [username, setUsername] = useState("");
+
+  // Initialize username when user data loads
+  useEffect(() => {
+    if (user?.name) {
+      setUsername(user.name);
+    }
+  }, [user?.name]);
 
   const handleLogout = () => {
-    // Here you would clear auth tokens/session
-    // For now, just navigate to auth page
+    logout();
     router.push("/auth");
   };
+
+  const handleSaveProfile = async () => {
+    if (!username.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+
+    try {
+      await updateProfileMutation.mutateAsync({ name: username.trim() });
+      toast.success("Profile updated successfully");
+      setIsEditOpen(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    router.push("/auth");
+    return null;
+  }
 
   return (
     <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
@@ -71,8 +97,8 @@ export function ProfilePage() {
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
             <UserAvatar
-              src={userData.avatarUrl}
-              name={userData.username}
+              src={user.profile_picture}
+              name={user.name}
               size="xl"
               showRing
             />
@@ -82,11 +108,11 @@ export function ProfilePage() {
           </div>
 
           <div className="text-center sm:text-left flex-1">
-            <h2 className="text-2xl font-bold">{userData.username}</h2>
-            <p className="text-muted-foreground">{userData.email}</p>
+            <h2 className="text-2xl font-bold">{user.name}</h2>
+            <p className="text-muted-foreground">{user.email}</p>
             <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 text-sm text-muted-foreground">
               <Calendar className="h-4 w-4" />
-              <span>Joined {userData.joinDate}</span>
+              <span>Joined {new Date(user.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
             </div>
           </div>
 
@@ -115,8 +141,8 @@ export function ProfilePage() {
                   <Label>Profile Photo</Label>
                   <div className="flex items-center gap-4">
                     <UserAvatar
-                      src={userData.avatarUrl}
-                      name={userData.username}
+                      src={user.profile_picture}
+                      name={user.name}
                       size="lg"
                     />
                     <Button variant="secondary" size="sm">
@@ -124,8 +150,19 @@ export function ProfilePage() {
                     </Button>
                   </div>
                 </div>
-                <Button className="w-full" onClick={() => setIsEditOpen(false)}>
-                  Save Changes
+                <Button
+                  className="w-full"
+                  onClick={handleSaveProfile}
+                  disabled={updateProfileMutation.isPending}
+                >
+                  {updateProfileMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
                 </Button>
               </div>
             </DialogContent>
@@ -141,7 +178,7 @@ export function ProfilePage() {
               <Target className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{userData.stats.totalPicks}</p>
+              <p className="text-2xl font-bold">-</p>
               <p className="text-xs text-muted-foreground">Total Picks</p>
             </div>
           </div>
@@ -153,7 +190,7 @@ export function ProfilePage() {
               <CheckCircle className="h-5 w-5 text-success" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{userData.stats.correctPicks}</p>
+              <p className="text-2xl font-bold">-</p>
               <p className="text-xs text-muted-foreground">Correct</p>
             </div>
           </div>
@@ -165,7 +202,7 @@ export function ProfilePage() {
               <Percent className="h-5 w-5 text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{userData.stats.accuracy}%</p>
+              <p className="text-2xl font-bold">-%</p>
               <p className="text-xs text-muted-foreground">Accuracy</p>
             </div>
           </div>
@@ -177,7 +214,7 @@ export function ProfilePage() {
               <Trophy className="h-5 w-5 text-ufc-red" />
             </div>
             <div>
-              <p className="text-2xl font-bold">#{userData.stats.rank}</p>
+              <p className="text-2xl font-bold">-</p>
               <p className="text-xs text-muted-foreground">Rank</p>
             </div>
           </div>
@@ -189,9 +226,7 @@ export function ProfilePage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-1">Total Points</p>
-            <p className="text-4xl font-bold text-primary">
-              {formatNumber(userData.stats.totalPoints)}
-            </p>
+            <p className="text-4xl font-bold text-primary">-</p>
           </div>
           <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
             <Trophy className="h-8 w-8 text-primary" />

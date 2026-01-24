@@ -17,8 +17,11 @@ interface TimeLeft {
 
 export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     const calculateTimeLeft = () => {
       const difference = targetDate.getTime() - new Date().getTime();
       
@@ -39,6 +42,27 @@ export function CountdownTimer({ targetDate, className }: CountdownTimerProps) {
 
     return () => clearInterval(timer);
   }, [targetDate]);
+
+  // No renderizar hasta que se monte en el cliente
+  if (!mounted) {
+    return (
+      <div className={cn("flex items-center justify-center gap-3", className)}>
+        {["Days", "Hours", "Min", "Sec"].map((label, index) => (
+          <div key={label} className="flex items-center gap-3">
+            <div className="text-center">
+              <div className="bg-secondary border border-border rounded-lg px-3 py-2 min-w-[60px]">
+                <span className="text-2xl font-bold text-foreground tabular-nums">00</span>
+              </div>
+              <span className="text-xs text-muted-foreground mt-1 block">{label}</span>
+            </div>
+            {index < 3 && (
+              <span className="text-2xl font-bold text-muted-foreground mb-5">:</span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const timeBlocks = [
     { label: "Days", value: timeLeft.days },

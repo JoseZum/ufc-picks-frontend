@@ -3,72 +3,86 @@
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
 import { EventCard } from "@/components/EventCard";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar, Filter } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar, Filter, AlertCircle } from "lucide-react";
+import { useEvents } from "@/lib/hooks";
+import { getEventPosterUrl } from "@/lib/api";
+import type { Event } from "@/lib/api";
 
-// Mock data
-const eventsData = [
-  {
-    id: "ufc-310",
-    name: "UFC 310",
-    date: "Dec 7, 2024",
-    location: "Las Vegas, NV",
-    isUpcoming: true,
-    fightsCount: 13,
-    mainEvent: { fighterRed: "Alexandre Pantoja", fighterBlue: "Kai Asakura" },
-  },
-  {
-    id: "ufc-fight-night-248",
-    name: "UFC Fight Night 248",
-    date: "Dec 14, 2024",
-    location: "Tampa, FL",
-    isUpcoming: true,
-    fightsCount: 12,
-    mainEvent: { fighterRed: "Covington", fighterBlue: "Buckley" },
-  },
-  {
-    id: "ufc-309",
-    name: "UFC 309",
-    date: "Nov 16, 2024",
-    location: "New York, NY",
-    isUpcoming: false,
-    fightsCount: 14,
-    mainEvent: { fighterRed: "Jon Jones", fighterBlue: "Stipe Miocic" },
-  },
-  {
-    id: "ufc-fight-night-247",
-    name: "UFC Fight Night 247",
-    date: "Nov 9, 2024",
-    location: "Macau, China",
-    isUpcoming: false,
-    fightsCount: 11,
-    mainEvent: { fighterRed: "Yan Xiaonan", fighterBlue: "Tabatha Ricci" },
-  },
-  {
-    id: "ufc-308",
-    name: "UFC 308",
-    date: "Oct 26, 2024",
-    location: "Abu Dhabi, UAE",
-    isUpcoming: false,
-    fightsCount: 13,
-    mainEvent: { fighterRed: "Ilia Topuria", fighterBlue: "Max Holloway" },
-  },
-];
+// Helper to format date for display
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+}
+
+// Helper to format location
+function formatLocation(location?: { venue?: string; city?: string; country?: string }): string {
+  if (!location) return 'TBD';
+  const parts = [location.city, location.country].filter(Boolean);
+  return parts.join(', ') || 'TBD';
+}
+
+// Helper to check if event is upcoming
+function isEventUpcoming(event: Event): boolean {
+  return event.status === 'scheduled';
+}
 
 export function EventsPage() {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [yearFilter, setYearFilter] = useState<string>("2024");
+  const [yearFilter, setYearFilter] = useState<string>("2026");
 
-  const filteredEvents = eventsData.filter((event) => {
-    if (statusFilter === "upcoming" && !event.isUpcoming) return false;
-    if (statusFilter === "completed" && event.isUpcoming) return false;
+  // Fetch events from API
+  const { data, isLoading, error } = useEvents({ limit: 50 });
+  const events = data?.events || [];
+
+  // Filter events based on status
+  const filteredEvents = events.filter((event) => {
+    if (statusFilter === "upcoming" && !isEventUpcoming(event)) return false;
+    if (statusFilter === "completed" && isEventUpcoming(event)) return false;
     return true;
   });
 
-  const upcomingEvents = filteredEvents.filter((e) => e.isUpcoming);
-  const completedEvents = filteredEvents.filter((e) => !e.isUpcoming);
+  const upcomingEvents = filteredEvents.filter((e) => isEventUpcoming(e));
+  const completedEvents = filteredEvents.filter((e) => !isEventUpcoming(e));
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6">
+        <div className="flex items-center gap-3">
+          <Calendar className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">Events</h1>
+        </div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6">
+        <div className="flex items-center gap-3">
+          <Calendar className="h-6 w-6 text-primary" />
+          <h1 className="text-2xl font-bold">Events</h1>
+        </div>
+        <div className="flex items-center gap-2 text-destructive p-4 bg-destructive/10 rounded-lg">
+          <AlertCircle className="h-5 w-5" />
+          <span>Failed to load events. Please try again later.</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
@@ -98,9 +112,8 @@ export function EventsPage() {
             <SelectValue placeholder="Year" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="2024">2024</SelectItem>
-            <SelectItem value="2023">2023</SelectItem>
-            <SelectItem value="2022">2022</SelectItem>
+            <SelectItem value="2026">2026</SelectItem>
+            <SelectItem value="2025">2025</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -116,7 +129,13 @@ export function EventsPage() {
             {upcomingEvents.map((event) => (
               <EventCard
                 key={event.id}
-                {...event}
+                id={String(event.id)}
+                name={event.name}
+                date={formatDate(event.date)}
+                location={formatLocation(event.location)}
+                isUpcoming={true}
+                fightsCount={event.total_bouts}
+                posterUrl={getEventPosterUrl(event)}
                 onClick={() => router.push(`/events/${event.id}`)}
               />
             ))}
@@ -134,12 +153,25 @@ export function EventsPage() {
             {completedEvents.map((event) => (
               <EventCard
                 key={event.id}
-                {...event}
+                id={String(event.id)}
+                name={event.name}
+                date={formatDate(event.date)}
+                location={formatLocation(event.location)}
+                isUpcoming={false}
+                fightsCount={event.total_bouts}
+                posterUrl={getEventPosterUrl(event)}
                 onClick={() => router.push(`/events/${event.id}`)}
               />
             ))}
           </div>
         </section>
+      )}
+
+      {/* Empty state */}
+      {events.length === 0 && (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>No events found</p>
+        </div>
       )}
     </div>
   );

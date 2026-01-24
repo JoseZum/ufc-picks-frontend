@@ -7,176 +7,147 @@ import { CountdownTimer } from "@/components/CountdownTimer";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Calendar, MapPin, Clock } from "lucide-react";
-import type { Pick } from "@/types/picks";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft, Calendar, MapPin, Clock, AlertCircle } from "lucide-react";
+import { useEvent, useEventBouts, useMyPicks, useCreatePick } from "@/lib/hooks";
+import type { Bout } from "@/lib/api";
+import api, { getFighterImageUrl, getEventPosterUrl } from "@/lib/api";
 
-// Mock data
-const eventDetails = {
-  id: "ufc-310",
-  name: "UFC 310",
-  subtitle: "Pantoja vs Asakura",
-  posterUrl: "/api/placeholder/338/488",
-  date: new Date("2024-12-07T23:00:00"),
-  displayDate: "Dec 7, 2024 • 10:00 PM ET",
-  location: "T-Mobile Arena, Las Vegas, NV",
-  picksOpen: true,
-  mainCard: [
-    {
-      order: 1,
-      fightId: "pantoja-asakura",
-      fighterRed: "Alexandre Pantoja",
-      fighterBlue: "Kai Asakura",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Flyweight",
-      rounds: 5,
-      isMainEvent: true,
-    },
-    {
-      order: 2,
-      fightId: "rakhmonov-garry",
-      fighterRed: "Shavkat Rakhmonov",
-      fighterBlue: "Ian Machado Garry",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Welterweight",
-      rounds: 5,
-      isCoMain: true,
-    },
-    {
-      order: 3,
-      fightId: "gane-volkov",
-      fighterRed: "Ciryl Gane",
-      fighterBlue: "Alexander Volkov",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Heavyweight",
-      rounds: 3,
-    },
-    {
-      order: 4,
-      fightId: "mitchell-gracie",
-      fighterRed: "Bryce Mitchell",
-      fighterBlue: "Kron Gracie",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Featherweight",
-      rounds: 3,
-    },
-    {
-      order: 5,
-      fightId: "landwehr-choi",
-      fighterRed: "Nate Landwehr",
-      fighterBlue: "Dooho Choi",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Featherweight",
-      rounds: 3,
-    },
-  ],
-  prelims: [
-    {
-      order: 6,
-      fightId: "brown-battle",
-      fighterRed: "Randy Brown",
-      fighterBlue: "Bryan Battle",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Welterweight",
-      rounds: 3,
-    },
-    {
-      order: 7,
-      fightId: "reyes-smith",
-      fighterRed: "Dominick Reyes",
-      fighterBlue: "Anthony Smith",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Light Heavyweight",
-      rounds: 3,
-    },
-    {
-      order: 8,
-      fightId: "weidman-anders",
-      fighterRed: "Chris Weidman",
-      fighterBlue: "Eryk Anders",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Middleweight",
-      rounds: 3,
-    },
-    {
-      order: 9,
-      fightId: "luque-gorimbo",
-      fighterRed: "Vicente Luque",
-      fighterBlue: "Themba Gorimbo",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Welterweight",
-      rounds: 3,
-    },
-  ],
-  earlyPrelims: [
-    {
-      order: 10,
-      fightId: "evloev-sterling",
-      fighterRed: "Movsar Evloev",
-      fighterBlue: "Aljamain Sterling",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Featherweight",
-      rounds: 3,
-    },
-    {
-      order: 11,
-      fightId: "nzechukwu-brzeski",
-      fighterRed: "Kennedy Nzechukwu",
-      fighterBlue: "Lukasz Brzeski",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Heavyweight",
-      rounds: 3,
-    },
-    {
-      order: 12,
-      fightId: "durden-van",
-      fighterRed: "Cody Durden",
-      fighterBlue: "Joshua Van",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Flyweight",
-      rounds: 3,
-    },
-    {
-      order: 13,
-      fightId: "chiesa-griffin",
-      fighterRed: "Michael Chiesa",
-      fighterBlue: "Max Griffin",
-      imageUrlRed: "/api/placeholder/261/261",
-      imageUrlBlue: "/api/placeholder/261/261",
-      weightClass: "Welterweight",
-      rounds: 3,
-    },
-  ],
-};
+// Helper to format date for display
+function formatDisplayDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  }) + ' • ' + date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+}
+
+// Helper to format location
+function formatLocation(location?: { venue?: string; city?: string; country?: string }): string {
+  if (!location) return 'TBD';
+  const parts = [location.venue, location.city, location.country].filter(Boolean);
+  return parts.join(', ') || 'TBD';
+}
+
+interface TransformedBout {
+  order: number;
+  boutId: number;
+  fightId: string;
+  fighterRed: string;
+  fighterBlue: string;
+  imageUrlRed?: string;
+  imageUrlBlue?: string;
+  weightClass: string;
+  rounds: number;
+  isMainEvent: boolean;
+  isCoMain: boolean;
+  isTitleFight: boolean;
+}
+
+// Transform API bout to display format
+function transformBout(bout: Bout, index: number): TransformedBout {
+  const redFighter = bout.fighters.red;
+  const blueFighter = bout.fighters.blue;
+
+  return {
+    order: index + 1,
+    boutId: bout.id,
+    fightId: String(bout.id),
+    fighterRed: redFighter?.fighter_name || 'TBD',
+    fighterBlue: blueFighter?.fighter_name || 'TBD',
+    imageUrlRed: redFighter ? getFighterImageUrl(redFighter) : undefined,
+    imageUrlBlue: blueFighter ? getFighterImageUrl(blueFighter) : undefined,
+    weightClass: bout.weight_class,
+    rounds: bout.rounds_scheduled,
+    isMainEvent: index === 0,
+    isCoMain: index === 1,
+    isTitleFight: bout.is_title_fight,
+  };
+}
 
 export function EventDetailPage({ id }: { id: string }) {
   const router = useRouter();
-  const [picks, setPicks] = useState<Record<number, Pick>>({});
+  const [localPicks, setLocalPicks] = useState<Record<number, { fighter: "red" | "blue" }>>({});
 
-  const handleMakePick = (order: number, fighter: "red" | "blue") => {
-    setPicks((prev) => ({
+  // Parse event ID as number for API calls
+  const eventId = parseInt(id, 10);
+
+  // Fetch event and bouts from API
+  const { data: event, isLoading: eventLoading, error: eventError } = useEvent(eventId);
+  const { data: bouts, isLoading: boutsLoading, error: boutsError } = useEventBouts(eventId);
+  const { data: existingPicks } = useMyPicks(eventId);
+  const createPickMutation = useCreatePick();
+
+  const isLoading = eventLoading || boutsLoading;
+  const error = eventError || boutsError;
+  const isAuthenticated = api.isAuthenticated();
+
+  const handleMakePick = (boutId: number, order: number, fighter: "red" | "blue") => {
+    setLocalPicks((prev) => ({
       ...prev,
       [order]: { fighter },
     }));
   };
 
-  const totalBouts =
-    eventDetails.mainCard.length +
-    eventDetails.prelims.length +
-    eventDetails.earlyPrelims.length;
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6">
+        <Button variant="ghost" size="sm" disabled className="text-muted-foreground">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Events
+        </Button>
+        <Skeleton className="h-64 w-full rounded-lg" />
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-  const picksCount = Object.keys(picks).length;
+  // Error state
+  if (error || !event) {
+    return (
+      <div className="container max-w-4xl py-6 px-4 space-y-6">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push("/events")}
+          className="text-muted-foreground"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Events
+        </Button>
+        <div className="flex items-center gap-2 text-destructive p-4 bg-destructive/10 rounded-lg">
+          <AlertCircle className="h-5 w-5" />
+          <span>Failed to load event details. Please try again later.</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Transform bouts for display
+  const transformedBouts = (bouts || []).map((bout, index) => transformBout(bout, index));
+
+  // Split bouts into sections (simplified: first 5 main card, rest prelims)
+  const mainCardBouts = transformedBouts.slice(0, 5);
+  const prelimBouts = transformedBouts.slice(5);
+
+  const totalBouts = transformedBouts.length;
+  const picksCount = Object.keys(localPicks).length;
+  const picksOpen = event.status === 'scheduled';
+  const eventDate = new Date(event.date);
+
+  // Get main event fighter names for subtitle
+  const mainEvent = transformedBouts[0];
+  const subtitle = mainEvent ? `${mainEvent.fighterRed} vs ${mainEvent.fighterBlue}` : '';
 
   const CardSection = ({
     title,
@@ -185,7 +156,7 @@ export function EventDetailPage({ id }: { id: string }) {
   }: {
     title: string;
     emoji: string;
-    bouts: typeof eventDetails.mainCard;
+    bouts: TransformedBout[];
   }) => (
     <section>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -196,12 +167,21 @@ export function EventDetailPage({ id }: { id: string }) {
         {bouts.map((bout) => (
           <BoutCard
             key={bout.order}
-            {...bout}
+            order={bout.order}
+            fighterRed={bout.fighterRed}
+            fighterBlue={bout.fighterBlue}
+            imageUrlRed={bout.imageUrlRed}
+            imageUrlBlue={bout.imageUrlBlue}
+            weightClass={bout.weightClass}
+            rounds={bout.rounds}
+            isMainEvent={bout.isMainEvent}
+            isCoMain={bout.isCoMain}
             cardSection="main"
-            selectedFighter={picks[bout.order]?.fighter}
-            isLocked={!eventDetails.picksOpen}
-            eventId={eventDetails.id}
-            onMakePick={(fighter) => handleMakePick(bout.order, fighter)}
+            selectedFighter={localPicks[bout.order]?.fighter}
+            isLocked={!picksOpen}
+            eventId={String(eventId)}
+            fightId={bout.fightId}
+            onMakePick={(fighter) => handleMakePick(bout.boutId, bout.order, fighter)}
           />
         ))}
       </div>
@@ -225,18 +205,15 @@ export function EventDetailPage({ id }: { id: string }) {
       <Card className="card-gradient p-6 border-primary/30">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Event Poster */}
-          <div className="flex-shrink-0">
-            <div
-              className="rounded-lg overflow-hidden border-2 border-primary/30 shadow-lg"
-              style={{
-                width: '338px',
-                height: '488px'
-              }}
-            >
+          <div className="flex-shrink-0 mx-auto md:mx-0">
+            <div className="w-40 h-56 md:w-48 md:h-64 rounded-lg overflow-hidden bg-secondary/50 border border-border">
               <img
-                src={eventDetails.posterUrl}
-                alt={`${eventDetails.name} poster`}
+                src={event.poster_image_url ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${event.poster_image_url}` : getEventPosterUrl(event)}
+                alt={event.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/placeholder-event.svg';
+                }}
               />
             </div>
           </div>
@@ -245,30 +222,30 @@ export function EventDetailPage({ id }: { id: string }) {
           <div className="flex-1 flex flex-col">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h1 className="text-2xl font-bold">{eventDetails.name}</h1>
-                <p className="text-primary font-semibold">{eventDetails.subtitle}</p>
+                <h1 className="text-2xl font-bold">{event.name}</h1>
+                <p className="text-primary font-semibold">{subtitle}</p>
               </div>
-              <StatusBadge status={eventDetails.picksOpen ? "open" : "locked"} />
+              <StatusBadge status={picksOpen ? "open" : "locked"} />
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground mb-4">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>{eventDetails.displayDate}</span>
+                <span>{formatDisplayDate(event.date)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                <span>{eventDetails.location}</span>
+                <span>{formatLocation(event.location)}</span>
               </div>
             </div>
 
-            {eventDetails.picksOpen && (
+            {picksOpen && (
               <div className="bg-secondary/50 rounded-lg p-4 mb-4">
                 <p className="text-xs text-muted-foreground text-center mb-2">
                   <Clock className="h-3 w-3 inline mr-1" />
                   Picks lock when event starts
                 </p>
-                <CountdownTimer targetDate={eventDetails.date} />
+                <CountdownTimer targetDate={eventDate} />
               </div>
             )}
 
@@ -279,7 +256,7 @@ export function EventDetailPage({ id }: { id: string }) {
               <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all duration-300"
-                  style={{ width: `${(picksCount / totalBouts) * 100}%` }}
+                  style={{ width: `${totalBouts > 0 ? (picksCount / totalBouts) * 100 : 0}%` }}
                 />
               </div>
             </div>
@@ -288,12 +265,22 @@ export function EventDetailPage({ id }: { id: string }) {
       </Card>
 
       {/* Fight Cards */}
-      <CardSection title="Main Card" emoji="🔥" bouts={eventDetails.mainCard} />
-      <CardSection title="Prelims" emoji="🟡" bouts={eventDetails.prelims} />
-      <CardSection title="Early Prelims" emoji="⚪" bouts={eventDetails.earlyPrelims} />
+      {mainCardBouts.length > 0 && (
+        <CardSection title="Main Card" emoji="🔥" bouts={mainCardBouts} />
+      )}
+      {prelimBouts.length > 0 && (
+        <CardSection title="Prelims" emoji="🟡" bouts={prelimBouts} />
+      )}
+
+      {/* Empty state */}
+      {transformedBouts.length === 0 && (
+        <Card className="card-gradient p-8 text-center">
+          <p className="text-muted-foreground">No fights announced yet for this event.</p>
+        </Card>
+      )}
 
       {/* Sticky Save Button */}
-      {eventDetails.picksOpen && picksCount > 0 && (
+      {picksOpen && picksCount > 0 && isAuthenticated && (
         <div className="fixed bottom-20 md:bottom-6 left-0 right-0 px-4 md:left-64">
           <div className="container max-w-4xl">
             <Button size="lg" className="w-full shadow-lg">
@@ -301,6 +288,14 @@ export function EventDetailPage({ id }: { id: string }) {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Sign in prompt */}
+      {picksOpen && !isAuthenticated && (
+        <Card className="card-gradient p-4 text-center">
+          <p className="text-muted-foreground mb-3">Sign in to make your picks</p>
+          <Button onClick={() => router.push("/auth")}>Sign In</Button>
+        </Card>
       )}
     </div>
   );

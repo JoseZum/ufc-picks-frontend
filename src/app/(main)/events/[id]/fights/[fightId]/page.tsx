@@ -4,14 +4,16 @@ import { FightPage } from './FightPage'
 export async function generateMetadata({
   params
 }: {
-  params: { id: string; fightId: string }
+  params: Promise<{ id: string; fightId: string }>
 }): Promise<Metadata> {
+  const { id, fightId } = await params
   return {
-    title: `Fight ${params.fightId} - ${params.id} - UFC Picks`,
+    title: `Fight ${fightId} - ${id} - UFC Picks`,
     description: 'Make your pick for this fight',
   }
 }
 
-export default function Page({ params }: { params: { id: string; fightId: string } }) {
-  return <FightPage eventId={params.id} fightId={params.fightId} />
+export default async function Page({ params }: { params: Promise<{ id: string; fightId: string }> }) {
+  const { id, fightId } = await params
+  return <FightPage eventId={id} fightId={fightId} />
 }

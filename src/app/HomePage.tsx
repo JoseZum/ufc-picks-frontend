@@ -7,33 +7,27 @@ import { LeaderboardRow } from "@/components/LeaderboardRow"
 import { StatusBadge } from "@/components/StatusBadge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowRight, Calendar, Flame, Target, Trophy } from "lucide-react"
-
-// Mock data
-const nextEvent = {
-  id: "ufc-310",
-  name: "UFC 310",
-  subtitle: "Pantoja vs Asakura",
-  date: new Date("2024-12-07T23:00:00"),
-  location: "T-Mobile Arena, Las Vegas",
-  fightsCount: 13,
-  picksOpen: true,
-  mainEvent: {
-    fighterRed: "Alexandre Pantoja",
-    fighterBlue: "Kai Asakura",
-    weightClass: "Flyweight Title",
-  },
-}
-
-const topUsers = [
-  { rank: 1, username: "PredictorKing", points: 2450, accuracy: 78 },
-  { rank: 2, username: "UFCAnalyst", points: 2380, accuracy: 75 },
-  { rank: 3, username: "FightPicksPro", points: 2290, accuracy: 73 },
-  { rank: 4, username: "OctagonOracle", points: 2180, accuracy: 71 },
-  { rank: 5, username: "MMAProphet", points: 2050, accuracy: 68 },
-]
+import { ArrowRight, Calendar, Flame, Target, Trophy, Loader2 } from "lucide-react"
+import { useEvents, useGlobalLeaderboard, useEventBouts } from "@/lib/hooks"
+import { getFighterImageUrl } from "@/lib/api"
 
 export function HomePage() {
+  // Obtener el próximo evento
+  const { data: events, isLoading: eventsLoading } = useEvents({ 
+    status: 'scheduled', 
+    limit: 1 
+  });
+  const nextEvent = events?.[0];
+
+  // Obtener las peleas del próximo evento para mostrar el main event
+  const { data: bouts } = useEventBouts(nextEvent?.id || 0);
+  const mainEventBout = bouts?.[0]; // La primera pelea es el main event
+
+  // Obtener el top del leaderboard
+  const { data: leaderboard, isLoading: leaderboardLoading } = useGlobalLeaderboard({ 
+    limit: 5
+  });
+  const topUsers = leaderboard || [];
   const router = useRouter()
 
   return (
@@ -51,78 +45,81 @@ export function HomePage() {
         </div>
 
         {/* Next Event Hero */}
-        <Card className="card-gradient border-primary/30 p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-
-          <div className="relative">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-primary" />
-                <span className="text-sm text-muted-foreground">Next Event</span>
-              </div>
-              <StatusBadge status={nextEvent.picksOpen ? "open" : "locked"} />
+        {eventsLoading ? (
+          <Card className="card-gradient border-primary/30 p-6 relative overflow-hidden">
+            <div className="flex items-center justify-center h-64">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
+          </Card>
+        ) : nextEvent ? (
+          <Card className="card-gradient border-primary/30 p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
 
-            <h2 className="text-2xl font-bold text-foreground mb-1">{nextEvent.name}</h2>
-            <p className="text-primary font-semibold mb-4">{nextEvent.subtitle}</p>
-
-            <div className="bg-secondary/50 rounded-lg p-4 mb-4">
-              <p className="text-xs text-muted-foreground text-center mb-3">Main Event</p>
-              <div className="flex items-center justify-center gap-4">
-                <div className="text-right">
-                  <div className="w-2 h-2 rounded-full bg-fighter-red inline-block mr-2" />
-                  <span className="font-semibold">{nextEvent.mainEvent.fighterRed}</span>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="text-sm text-muted-foreground">Next Event</span>
                 </div>
-                <span className="text-muted-foreground font-bold">VS</span>
-                <div className="text-left">
-                  <span className="font-semibold">{nextEvent.mainEvent.fighterBlue}</span>
-                  <div className="w-2 h-2 rounded-full bg-fighter-blue inline-block ml-2" />
-                </div>
+                <StatusBadge status={nextEvent.status === 'scheduled' ? "open" : "locked"} />
               </div>
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                {nextEvent.mainEvent.weightClass}
+
+              <h2 className="text-2xl font-bold text-foreground mb-1">{nextEvent.name}</h2>
+              {mainEventBout && (
+                <p className="text-primary font-semibold mb-2">
+                  {mainEventBout.fighters.red?.fighter_name || 'TBD'} vs {mainEventBout.fighters.blue?.fighter_name || 'TBD'}
+                </p>
+              )}
+              {nextEvent.location && (
+                <p className="text-sm text-muted-foreground mb-4">
+                  {nextEvent.location.city}, {nextEvent.location.country}
+                </p>
+              )}
+
+              <p className="text-xs text-muted-foreground text-center mb-4">
+                Countdown to Event Start
               </p>
-            </div>
+              <CountdownTimer targetDate={new Date(nextEvent.date)} />
 
-            <p className="text-xs text-muted-foreground text-center mb-4">
-              Countdown to Event Start
-            </p>
-            <CountdownTimer targetDate={nextEvent.date} />
-
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Button
-                onClick={() => router.push(`/events/${nextEvent.id}`)}
-                className="flex-1 gap-2"
-                size="lg"
-              >
-                <Target className="h-4 w-4" />
-                Make Picks
-              </Button>
-              <Button
-                onClick={() => router.push("/leaderboards")}
-                variant="secondary"
-                className="flex-1 gap-2"
-                size="lg"
-              >
-                <Trophy className="h-4 w-4" />
-                View Leaderboard
-              </Button>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Button
+                  onClick={() => router.push(`/events/${nextEvent.id}`)}
+                  className="flex-1 gap-2"
+                  size="lg"
+                >
+                  <Target className="h-4 w-4" />
+                  Make Picks
+                </Button>
+                <Button
+                  onClick={() => router.push("/leaderboards")}
+                  variant="secondary"
+                  className="flex-1 gap-2"
+                  size="lg"
+                >
+                  <Trophy className="h-4 w-4" />
+                  View Leaderboard
+                </Button>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        ) : (
+          <Card className="card-gradient border-primary/30 p-6">
+            <p className="text-center text-muted-foreground">No upcoming events</p>
+          </Card>
+        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3">
           <Card className="card-gradient p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">42</p>
+            <p className="text-2xl font-bold text-foreground">-</p>
             <p className="text-xs text-muted-foreground">Your Picks</p>
           </Card>
           <Card className="card-gradient p-4 text-center">
-            <p className="text-2xl font-bold text-success">68%</p>
+            <p className="text-2xl font-bold text-success">-</p>
             <p className="text-xs text-muted-foreground">Accuracy</p>
           </Card>
           <Card className="card-gradient p-4 text-center">
-            <p className="text-2xl font-bold text-primary">#24</p>
+            <p className="text-2xl font-bold text-primary">-</p>
             <p className="text-xs text-muted-foreground">Your Rank</p>
           </Card>
         </div>
@@ -145,17 +142,24 @@ export function HomePage() {
             </Button>
           </div>
 
-          <div className="space-y-1">
-            {topUsers.map((user) => (
-              <LeaderboardRow
-                key={user.rank}
-                rank={user.rank}
-                username={user.username}
-                points={user.points}
-                accuracy={user.accuracy}
-              />
-            ))}
-          </div>
+          {leaderboardLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {topUsers.map((user) => (
+                <LeaderboardRow
+                  key={user.user_id}
+                  rank={user.rank}
+                  username={user.username}
+                  avatarUrl={user.avatar_url}
+                  points={user.total_points}
+                  accuracy={Math.round(user.accuracy * 100)}
+                />
+              ))}
+            </div>
+          )}
         </Card>
       </div>
     </AppLayout>

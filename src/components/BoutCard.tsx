@@ -1,13 +1,15 @@
 'use client'
 
+import { useState } from "react";
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
 import { PickDetails } from "./PickDetails";
 import type { VictoryMethod } from "@/types/picks";
+
+const PLACEHOLDER_IMAGE = "/placeholder-fighter.svg";
 
 interface BoutCardProps {
   order: number;
@@ -60,7 +62,12 @@ export function BoutCard({
   className,
 }: BoutCardProps) {
   const router = useRouter()
+  const [redImageError, setRedImageError] = useState(false);
+  const [blueImageError, setBlueImageError] = useState(false);
   const showResult = winner !== undefined;
+
+  const redImageSrc = redImageError ? PLACEHOLDER_IMAGE : (imageUrlRed || PLACEHOLDER_IMAGE);
+  const blueImageSrc = blueImageError ? PLACEHOLDER_IMAGE : (imageUrlBlue || PLACEHOLDER_IMAGE);
 
   const handleCardClick = () => {
     if (eventId && fightId) {
@@ -103,22 +110,21 @@ export function BoutCard({
       <div className="flex items-center gap-4">
         {/* Red Corner */}
         <div className="flex-1 flex items-center gap-3">
-          {imageUrlRed && (
-            <div
-              className="rounded-lg overflow-hidden border-2 border-fighter-red flex-shrink-0"
-              style={{
-                width: '80px',
-                height: '80px',
-                aspectRatio: '1 / 1'
-              }}
-            >
-              <img
-                src={imageUrlRed}
-                alt={fighterRed}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
+          <div
+            className="rounded-lg overflow-hidden border-2 border-fighter-red flex-shrink-0 bg-secondary"
+            style={{
+              width: '80px',
+              height: '80px',
+              aspectRatio: '1 / 1'
+            }}
+          >
+            <img
+              src={redImageSrc}
+              alt={fighterRed}
+              className="w-full h-full object-cover"
+              onError={() => setRedImageError(true)}
+            />
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-fighter-red flex-shrink-0" />
@@ -147,22 +153,21 @@ export function BoutCard({
               <span className="text-xs text-primary mt-1 block">Your Pick</span>
             )}
           </div>
-          {imageUrlBlue && (
-            <div
-              className="rounded-lg overflow-hidden border-2 border-fighter-blue flex-shrink-0"
-              style={{
-                width: '80px',
-                height: '80px',
-                aspectRatio: '1 / 1'
-              }}
-            >
-              <img
-                src={imageUrlBlue}
-                alt={fighterBlue}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
+          <div
+            className="rounded-lg overflow-hidden border-2 border-fighter-blue flex-shrink-0 bg-secondary"
+            style={{
+              width: '80px',
+              height: '80px',
+              aspectRatio: '1 / 1'
+            }}
+          >
+            <img
+              src={blueImageSrc}
+              alt={fighterBlue}
+              className="w-full h-full object-cover"
+              onError={() => setBlueImageError(true)}
+            />
+          </div>
         </div>
       </div>
 
