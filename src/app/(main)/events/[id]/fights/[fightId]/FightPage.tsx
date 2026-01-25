@@ -202,6 +202,13 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             isSelected={selectedFighter === "red"}
             onSelect={() => handleSelectFighter("red")}
             disabled={pickConfirmed || !picksOpen}
+            nickname={fighterRed.nickname}
+            ufcRanking={fighterRed.ufc_ranking}
+            last5Fights={fighterRed.last_5_fights}
+            bettingOdds={fighterRed.betting_odds}
+            titleStatus={fighterRed.title_status}
+            latestWeight={fighterRed.latest_weight}
+            gym={fighterRed.gym}
           />
         )}
 
@@ -232,6 +239,13 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             isSelected={selectedFighter === "blue"}
             onSelect={() => handleSelectFighter("blue")}
             disabled={pickConfirmed || !picksOpen}
+            nickname={fighterBlue.nickname}
+            ufcRanking={fighterBlue.ufc_ranking}
+            last5Fights={fighterBlue.last_5_fights}
+            bettingOdds={fighterBlue.betting_odds}
+            titleStatus={fighterBlue.title_status}
+            latestWeight={fighterBlue.latest_weight}
+            gym={fighterBlue.gym}
           />
         )}
       </div>

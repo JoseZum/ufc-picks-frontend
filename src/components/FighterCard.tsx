@@ -20,6 +20,15 @@ interface FighterCardProps {
   isSelected?: boolean
   onSelect?: () => void
   disabled?: boolean
+
+  // Nuevos campos scrapeados
+  nickname?: string
+  ufcRanking?: { position: number, division: string }
+  last5Fights?: string[] // ["W", "L", "W", "W", "W"]
+  bettingOdds?: { line: string, description: string }
+  titleStatus?: string // "Champion" | "Challenger"
+  latestWeight?: { lbs: number, kgs: number }
+  gym?: { primary: string, other: string[] }
 }
 
 export function FighterCard({
@@ -36,7 +45,14 @@ export function FighterCard({
   side,
   isSelected = false,
   onSelect,
-  disabled = false
+  disabled = false,
+  nickname,
+  ufcRanking,
+  last5Fights,
+  bettingOdds,
+  titleStatus,
+  latestWeight,
+  gym
 }: FighterCardProps) {
   const cornerClass = side === "red" ? "border-fighter-red" : "border-fighter-blue"
   const selectedClass = isSelected
@@ -76,10 +92,53 @@ export function FighterCard({
       {/* Fighter Name */}
       <div className="text-center">
         <h2 className="text-2xl font-bold">{name}</h2>
-        {ranking && (
-          <p className="text-sm text-primary font-medium mt-1">{ranking}</p>
+        {nickname && (
+          <p className="text-sm text-muted-foreground italic">"{nickname}"</p>
+        )}
+        {(ranking || ufcRanking) && (
+          <p className="text-sm text-primary font-medium mt-1">
+            {ufcRanking
+              ? `#${ufcRanking.position} ${ufcRanking.division}`
+              : ranking
+            }
+          </p>
+        )}
+        {titleStatus && (
+          <p className="text-xs font-bold text-amber-500 mt-1">{titleStatus}</p>
         )}
       </div>
+
+      {/* Betting Odds */}
+      {bettingOdds && (
+        <div className="text-center p-2 bg-secondary/50 rounded-md">
+          <p className="text-xs text-muted-foreground">Betting Odds</p>
+          <p className="font-bold text-lg">{bettingOdds.line}</p>
+          <p className="text-xs text-muted-foreground">{bettingOdds.description}</p>
+        </div>
+      )}
+
+      {/* Last 5 Fights */}
+      {last5Fights && last5Fights.length > 0 && (
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground mb-2">Last 5 Fights</p>
+          <div className="flex justify-center gap-1">
+            {last5Fights.map((result, i) => (
+              <div
+                key={i}
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  result === "W"
+                    ? "bg-green-500/20 text-green-600 border border-green-500"
+                    : result === "L"
+                    ? "bg-red-500/20 text-red-600 border border-red-500"
+                    : "bg-gray-500/20 text-gray-600 border border-gray-500"
+                }`}
+              >
+                {result}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Nationality */}
       {country && country !== "Unknown" && (
@@ -112,8 +171,8 @@ export function FighterCard({
         <p className="text-lg font-semibold">{age && age > 0 ? age : "N/A"}</p>
       </div>
 
-      {/* Height & Reach */}
-      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+      {/* Height & Reach & Weight */}
+      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border/50">
         <div className="text-center">
           <p className="text-xs text-muted-foreground mb-1">Height</p>
           <p className="font-medium">{height && height > 0 ? `${height} cm` : "N/A"}</p>
@@ -122,7 +181,28 @@ export function FighterCard({
           <p className="text-xs text-muted-foreground mb-1">Reach</p>
           <p className="font-medium">{reach && reach > 0 ? `${reach} cm` : "N/A"}</p>
         </div>
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground mb-1">Weight</p>
+          <p className="font-medium">
+            {latestWeight
+              ? `${latestWeight.lbs} lbs`
+              : "N/A"}
+          </p>
+        </div>
       </div>
+
+      {/* Gym */}
+      {gym && gym.primary && (
+        <div className="text-center pt-2 border-t border-border/50">
+          <p className="text-xs text-muted-foreground mb-1">Gym</p>
+          <p className="text-sm font-medium">{gym.primary}</p>
+          {gym.other && gym.other.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {gym.other.join(", ")}
+            </p>
+          )}
+        </div>
+      )}
     </Card>
   )
 }

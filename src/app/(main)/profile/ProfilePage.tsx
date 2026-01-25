@@ -24,7 +24,6 @@ import {
   Trophy,
   Settings,
   LogOut,
-  Camera,
   Loader2,
 } from "lucide-react";
 import { useCurrentUser, useLogout, useUpdateProfile } from "@/lib/hooks";
@@ -102,9 +101,6 @@ export function ProfilePage() {
               size="xl"
               showRing
             />
-            <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-primary rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors">
-              <Camera className="h-4 w-4 text-primary-foreground" />
-            </button>
           </div>
 
           <div className="text-center sm:text-left flex-1">
@@ -136,19 +132,6 @@ export function ProfilePage() {
                     onChange={(e) => setUsername(e.target.value)}
                     className="bg-secondary border-border"
                   />
-                </div>
-                <div className="space-y-2">
-                  <Label>Profile Photo</Label>
-                  <div className="flex items-center gap-4">
-                    <UserAvatar
-                      src={user.profile_picture}
-                      name={user.name}
-                      size="lg"
-                    />
-                    <Button variant="secondary" size="sm">
-                      Change Photo
-                    </Button>
-                  </div>
                 </div>
                 <Button
                   className="w-full"
