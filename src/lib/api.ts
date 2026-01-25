@@ -209,20 +209,67 @@ export async function getEvent(eventId: number): Promise<Event> {
 export interface Fighter {
   fighter_name: string;
   corner: 'red' | 'blue';
+
+  // Basic info
+  nickname?: string;
   nationality?: string;
+  fighting_out_of?: string;
+
+  // Records
   record_at_fight?: {
     wins: number;
     losses: number;
     draws: number;
   };
+  last_5_fights?: string[]; // ["W", "L", "W", "W", "W"]
+
+  // Rankings
   ranking?: {
     position: number;
     division: string;
   };
+  ufc_ranking?: {
+    position: number;
+    division: string;
+  };
+
+  // Betting & Title
+  betting_odds?: {
+    line: string;
+    description: string;
+  };
+  title_status?: string; // "Champion" | "Challenger"
+
+  // Physical stats
   age_at_fight_years?: number;
+  age_at_fight?: {
+    years: number;
+    months: number;
+    days: number;
+  };
   height_cm?: number;
+  height?: {
+    feet: number;
+    inches: number;
+    cm: number;
+  };
   reach_cm?: number;
-  fighting_out_of?: string;
+  reach?: {
+    inches: number;
+    cm: number;
+  };
+  latest_weight?: {
+    lbs: number;
+    kgs: number;
+  };
+
+  // Training
+  gym?: {
+    primary: string;
+    other: string[];
+  };
+
+  // Tapology data
   tapology_id?: string;
   tapology_url?: string;
   profile_image_url?: string;
