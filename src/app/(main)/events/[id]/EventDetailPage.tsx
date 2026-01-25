@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, MapPin, Clock, AlertCircle } from "lucide-react";
 import { useEvent, useEventBouts, useMyPicks, useCreatePick } from "@/lib/hooks";
 import type { Bout } from "@/lib/api";
-import api, { getFighterImageUrl, getEventPosterUrl } from "@/lib/api";
+import api, { getFighterImageUrl, getEventPosterUrl, getApiUrl } from "@/lib/api";
 
 // Helper to format date for display
 function formatDisplayDate(dateString: string): string {
@@ -208,7 +208,7 @@ export function EventDetailPage({ id }: { id: string }) {
           <div className="flex-shrink-0 mx-auto md:mx-0">
             <div className="w-40 h-56 md:w-48 md:h-64 rounded-lg overflow-hidden bg-secondary/50 border border-border">
               <img
-                src={event.poster_image_url ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${event.poster_image_url}` : getEventPosterUrl(event)}
+                src={event.poster_image_url ? `${getApiUrl()}${event.poster_image_url}` : getEventPosterUrl(event)}
                 alt={event.name}
                 className="w-full h-full object-cover"
                 onError={(e) => {

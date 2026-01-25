@@ -8,6 +8,13 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+/**
+ * Returns the API URL for use in components
+ */
+export function getApiUrl(): string {
+  return API_URL;
+}
+
 // Token JWT guardado en memoria (se pierde al refrescar)
 let authToken: string | null = null;
 
