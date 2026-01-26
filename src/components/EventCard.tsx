@@ -42,45 +42,47 @@ export function EventCard({
         className
       )}
     >
-      {/* Event Poster */}
-      {posterUrl && !imageError && (
-        <div className="w-full h-32 bg-secondary overflow-hidden">
-          <img
-            src={posterUrl}
-            alt={name}
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-          />
-        </div>
-      )}
-      
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <h3 className="font-semibold text-foreground">{name}</h3>
-            {mainEvent && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {mainEvent.fighterRed} vs {mainEvent.fighterBlue}
-              </p>
-            )}
+      <div className="flex">
+        {/* Event Poster */}
+        {posterUrl && !imageError && (
+          <div className="w-32 h-full bg-secondary overflow-hidden flex-shrink-0">
+            <img
+              src={posterUrl}
+              alt={name}
+              className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+            />
           </div>
-          <StatusBadge status={isUpcoming ? "open" : "locked"} />
-        </div>
+        )}
+        
+        <div className="p-4 flex-1">
+          <div className="flex items-start justify-between mb-3">
+            <div>
+              <h3 className="font-semibold text-foreground">{name}</h3>
+              {mainEvent && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {mainEvent.fighterRed} vs {mainEvent.fighterBlue}
+                </p>
+              )}
+            </div>
+            <StatusBadge status={isUpcoming ? "open" : "locked"} />
+          </div>
 
-        <div className="space-y-2 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            <span>{date}</span>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <span>{date}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span>{location}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            <span>{location}</span>
-          </div>
-        </div>
 
-        <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{fightsCount} fights</span>
-          <span className="text-xs font-medium text-primary">View Card →</span>
+          <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{fightsCount} fights</span>
+            <span className="text-xs font-medium text-primary">View Card →</span>
+          </div>
         </div>
       </div>
     </Card>
