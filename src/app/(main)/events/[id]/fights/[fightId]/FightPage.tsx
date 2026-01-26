@@ -110,7 +110,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
         await api.lockBoutPicks(fightIdNum);
       }
       // Invalidate queries to refetch bout data
-      queryClient.invalidateQueries({ queryKey: ['eventBouts', eventIdNum] });
+      queryClient.invalidateQueries({ queryKey: ['bouts', eventIdNum] });
     } catch (error) {
       console.error('Error toggling bout lock:', error);
     }
