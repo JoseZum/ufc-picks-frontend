@@ -100,19 +100,38 @@ export function EventDetailPage({ id }: { id: string }) {
   const isAuthenticated = api.isAuthenticated();
   const isAdmin = currentUser?.is_admin || false;
 
+  // Debug logging
+  console.log('Event Lock State:', {
+    eventId,
+    eventPicksLocked,
+    eventStatus: event?.status,
+    isAdmin,
+    rawEvent: event
+  });
+
   // Toggle event lock
   const handleToggleEventLock = async () => {
+    console.log('Toggle event lock clicked. Current state:', eventPicksLocked);
+    console.log('Event ID:', eventId);
+    console.log('Is Admin:', isAdmin);
     try {
       if (eventPicksLocked) {
-        await api.unlockEventPicks(eventId);
+        console.log('Calling unlockEventPicks...');
+        const result = await api.unlockEventPicks(eventId);
+        console.log('Unlock result:', result);
       } else {
-        await api.lockEventPicks(eventId);
+        console.log('Calling lockEventPicks...');
+        const result = await api.lockEventPicks(eventId);
+        console.log('Lock result:', result);
       }
       // Invalidate queries to refetch event data
+      console.log('Invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
       queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
+      console.log('Success! Event lock toggled.');
     } catch (error) {
       console.error('Error toggling event lock:', error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -227,6 +246,15 @@ export function EventDetailPage({ id }: { id: string }) {
           const boutFromApi = apiBouts?.find(b => b.id === bout.boutId);
           const boutLockedByAdmin = boutFromApi?.picks_locked || false;
           const isLockedFinal = !picksOpen || boutLockedByAdmin || eventPicksLocked;
+
+          // Debug logging
+          console.log(`Bout ${bout.boutId}:`, {
+            picksOpen,
+            boutLockedByAdmin,
+            eventPicksLocked,
+            isLockedFinal,
+            boutFromApi: boutFromApi?.picks_locked
+          });
 
           return (
             <BoutCard
