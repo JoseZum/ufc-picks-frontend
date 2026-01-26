@@ -16,7 +16,7 @@ export function MyPicksPage() {
   const isLoading = picksLoading || eventsLoading;
   const isAuthenticated = api.isAuthenticated();
 
-  // Group picks by event
+  // Group picks by event - separate by whether results are in (is_correct is not null)
   const picksByEvent = useMemo(() => {
     if (!picks || !eventsData?.events) return { pending: [], completed: [] };
 
@@ -34,8 +34,19 @@ export function MyPicksPage() {
     }
 
     const entries = Object.values(grouped);
-    const pending = entries.filter(e => e.event.status === 'scheduled');
-    const completed = entries.filter(e => e.event.status !== 'scheduled');
+    
+    // Separate by whether picks have results (is_correct is not null/undefined)
+    // A pick is "completed" if is_correct has been set (true or false)
+    const pending = entries.filter(e => 
+      e.picks.some(p => p.is_correct === null || p.is_correct === undefined)
+    );
+    const completed = entries.filter(e => 
+      e.picks.every(p => p.is_correct !== null && p.is_correct !== undefined)
+    );
+
+    // Sort by date: pending shows upcoming first, completed shows recent first
+    pending.sort((a, b) => new Date(a.event.date).getTime() - new Date(b.event.date).getTime());
+    completed.sort((a, b) => new Date(b.event.date).getTime() - new Date(a.event.date).getTime());
 
     return { pending, completed };
   }, [picks, eventsData]);
@@ -189,7 +200,7 @@ export function MyPicksPage() {
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock className="h-5 w-5 text-warning" />
-            Pending Results
+            Awaiting Results ({picksByEvent.pending.reduce((acc, e) => acc + e.picks.length, 0)})
           </h2>
           {picksByEvent.pending.map(({ event, picks: eventPicks }) => (
             <div key={event.id} className="mb-6">
@@ -199,7 +210,7 @@ export function MyPicksPage() {
                 <span className="text-sm text-muted-foreground">• {formatDate(event.date)}</span>
               </div>
               <div className="space-y-3">
-                {eventPicks.map((pick, index) => (
+                {eventPicks.map((pick) => (
                   <Card key={pick.id} className="card-gradient p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -229,47 +240,70 @@ export function MyPicksPage() {
       {picksByEvent.completed.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <CheckCircle className="h-5 w-5 text-success" />
-            Completed
+            <Trophy className="h-5 w-5 text-success" />
+            Past Results ({picksByEvent.completed.reduce((acc, e) => acc + e.picks.length, 0)})
           </h2>
-          {picksByEvent.completed.map(({ event, picks: eventPicks }) => (
-            <div key={event.id} className="mb-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">{event.name}</span>
-                <span className="text-sm text-muted-foreground">• {formatDate(event.date)}</span>
-              </div>
-              <div className="space-y-3">
-                {eventPicks.map((pick) => (
-                  <Card key={pick.id} className={`card-gradient p-4 ${pick.is_correct ? 'border-success/30' : 'border-destructive/30'}`}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Bout #{pick.bout_id}</p>
-                        <p className="font-medium">
-                          Picked: <span className={pick.picked_corner === 'red' ? 'text-fighter-red' : 'text-fighter-blue'}>
-                            {pick.picked_corner.toUpperCase()} corner
-                          </span>
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {pick.picked_method}{pick.picked_round ? ` in R${pick.picked_round}` : ''}
-                        </p>
+          {picksByEvent.completed.map(({ event, picks: eventPicks }) => {
+            const eventCorrect = eventPicks.filter(p => p.is_correct).length;
+            const eventTotal = eventPicks.length;
+            const eventAccuracy = eventTotal > 0 ? Math.round((eventCorrect / eventTotal) * 100) : 0;
+            const eventPoints = eventPicks.reduce((sum, p) => sum + (p.points_awarded || 0), 0);
+            
+            return (
+              <div key={event.id} className="mb-6">
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{event.name}</span>
+                  <span className="text-sm text-muted-foreground">• {formatDate(event.date)}</span>
+                  <span className="ml-auto flex items-center gap-2 text-sm">
+                    <span className="font-medium">{eventCorrect}/{eventTotal}</span>
+                    <span className="text-muted-foreground">({eventAccuracy}%)</span>
+                    <span className="text-primary font-bold">+{eventPoints} pts</span>
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {eventPicks.map((pick) => (
+                    <Card key={pick.id} className={`card-gradient p-4 ${pick.is_correct ? 'border-success/30' : 'border-destructive/30'}`}>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Bout #{pick.bout_id}</p>
+                          <p className="font-medium">
+                            Picked: <span className={pick.picked_corner === 'red' ? 'text-fighter-red' : 'text-fighter-blue'}>
+                              {pick.picked_corner.toUpperCase()} corner
+                            </span>
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {pick.picked_method}{pick.picked_round ? ` in R${pick.picked_round}` : ''}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          {pick.is_correct ? (
+                            <div className="flex flex-col items-end gap-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold text-success">+{pick.points_awarded}</span>
+                                <CheckCircle className="h-5 w-5 text-success" />
+                              </div>
+                              {pick.points_awarded === 3 && (
+                                <span className="text-xs text-ufc-gold font-semibold flex items-center gap-1">
+                                  <Trophy className="h-3 w-3" />
+                                  PERFECT
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">0 pts</span>
+                              <XCircle className="h-5 w-5 text-destructive" />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="text-right">
-                        {pick.is_correct ? (
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-success">+{pick.points_awarded}</span>
-                            <CheckCircle className="h-5 w-5 text-success" />
-                          </div>
-                        ) : (
-                          <XCircle className="h-5 w-5 text-destructive" />
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </section>
       )}
     </div>

@@ -26,7 +26,7 @@ import {
   LogOut,
   Loader2,
 } from "lucide-react";
-import { useCurrentUser, useLogout, useUpdateProfile } from "@/lib/hooks";
+import { useCurrentUser, useLogout, useUpdateProfile, useMyLeaderboardPosition } from "@/lib/hooks";
 import { toast } from "sonner";
 
 // Helper function to format numbers consistently
@@ -38,9 +38,19 @@ export function ProfilePage() {
   const router = useRouter();
   const logout = useLogout();
   const { data: user, isLoading } = useCurrentUser();
+  const { data: myPosition } = useMyLeaderboardPosition('global');
   const updateProfileMutation = useUpdateProfile();
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [username, setUsername] = useState("");
+
+  // Extract stats from leaderboard position
+  const stats = myPosition?.entry ? {
+    total_picks: myPosition.entry.picks_total,
+    correct_picks: myPosition.entry.picks_correct,
+    accuracy: Math.round(myPosition.entry.accuracy * 100),
+    rank: myPosition.rank,
+    total_points: myPosition.entry.total_points,
+  } : null;
 
   // Initialize username when user data loads
   useEffect(() => {
@@ -161,7 +171,7 @@ export function ProfilePage() {
               <Target className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-2xl font-bold">-</p>
+              <p className="text-2xl font-bold">{stats?.total_picks ?? '-'}</p>
               <p className="text-xs text-muted-foreground">Total Picks</p>
             </div>
           </div>
@@ -173,7 +183,7 @@ export function ProfilePage() {
               <CheckCircle className="h-5 w-5 text-success" />
             </div>
             <div>
-              <p className="text-2xl font-bold">-</p>
+              <p className="text-2xl font-bold">{stats?.correct_picks ?? '-'}</p>
               <p className="text-xs text-muted-foreground">Correct</p>
             </div>
           </div>
@@ -185,7 +195,7 @@ export function ProfilePage() {
               <Percent className="h-5 w-5 text-warning" />
             </div>
             <div>
-              <p className="text-2xl font-bold">-%</p>
+              <p className="text-2xl font-bold">{stats?.accuracy ?? '-'}%</p>
               <p className="text-xs text-muted-foreground">Accuracy</p>
             </div>
           </div>
@@ -197,7 +207,7 @@ export function ProfilePage() {
               <Trophy className="h-5 w-5 text-ufc-red" />
             </div>
             <div>
-              <p className="text-2xl font-bold">-</p>
+              <p className="text-2xl font-bold">#{stats?.rank ?? '-'}</p>
               <p className="text-xs text-muted-foreground">Rank</p>
             </div>
           </div>
@@ -209,7 +219,7 @@ export function ProfilePage() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground mb-1">Total Points</p>
-            <p className="text-4xl font-bold text-primary">-</p>
+            <p className="text-4xl font-bold text-primary">{stats?.total_points ? formatNumber(stats.total_points) : '-'}</p>
           </div>
           <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
             <Trophy className="h-8 w-8 text-primary" />

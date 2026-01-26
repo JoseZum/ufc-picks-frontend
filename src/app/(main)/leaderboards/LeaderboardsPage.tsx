@@ -22,6 +22,15 @@ export function LeaderboardsPage() {
     : useCategoryLeaderboard(activeTab, { year, limit: 100 });
 
   const { data: myPosition } = useMyLeaderboardPosition(activeTab);
+  
+  // Generate year options dynamically
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [
+    { value: "all", label: "All Time" },
+    { value: String(currentYear), label: String(currentYear) },
+    { value: String(currentYear - 1), label: String(currentYear - 1) },
+    { value: String(currentYear - 2), label: String(currentYear - 2) },
+  ];
 
   const getCategoryIcon = (category: LeaderboardCategory) => {
     switch (category) {
@@ -53,9 +62,11 @@ export function LeaderboardsPage() {
             <SelectValue placeholder="Time Period" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Time</SelectItem>
-            <SelectItem value="2024">2024</SelectItem>
-            <SelectItem value="2023">2023</SelectItem>
+            {yearOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
