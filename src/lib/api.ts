@@ -93,6 +93,7 @@ export interface User {
   email: string;
   name: string;
   profile_picture?: string;
+  is_admin: boolean;
   created_at: string;
 }
 
