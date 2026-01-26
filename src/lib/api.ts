@@ -170,6 +170,7 @@ export interface Event {
   total_bouts: number;
   promotion: string;
   poster_image_url?: string;
+  picks_locked?: boolean;
 }
 
 export interface EventsResponse {
@@ -324,6 +325,7 @@ export interface Bout {
     round?: number;
     time?: string;
   };
+  picks_locked?: boolean;
 }
 
 /**
