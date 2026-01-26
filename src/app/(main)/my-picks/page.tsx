@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   description: 'View and track your fight predictions',
 }
 
+// Force dynamic rendering to avoid SSG/SSR issues with browser APIs
+export const dynamic = 'force-dynamic'
+
 export default function Page() {
   return <MyPicksPage />
 }
