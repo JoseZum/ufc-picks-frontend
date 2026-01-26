@@ -396,6 +396,7 @@ export interface LeaderboardEntry {
   total_points: number;
   picks_total: number;
   picks_correct: number;
+  perfect_picks: number;
   accuracy: number;
 }
 
