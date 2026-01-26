@@ -191,7 +191,9 @@ export function useGlobalLeaderboard(params?: { year?: number; limit?: number })
       const response = await api.getGlobalLeaderboard(params);
       return response.entries;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutos
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -206,7 +208,9 @@ export function useEventLeaderboard(eventId: number, limit?: number) {
       return response.entries;
     },
     enabled: !!eventId,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -220,7 +224,9 @@ export function useCategoryLeaderboard(category: string, params?: { year?: numbe
       const response = await api.getCategoryLeaderboard(category, params);
       return response.entries;
     },
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -232,7 +238,9 @@ export function useMyLeaderboardPosition(category: string = 'global') {
     queryKey: ['leaderboard', 'me', category],
     queryFn: () => api.getMyLeaderboardPosition(category),
     enabled: api.isAuthenticated(),
-    staleTime: 2 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 

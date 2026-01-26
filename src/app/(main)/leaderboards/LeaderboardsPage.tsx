@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trophy, Crown, Star } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { useGlobalLeaderboard, useCategoryLeaderboard, useMyLeaderboardPosition } from "@/lib/hooks";
+import { useGlobalLeaderboard, useCategoryLeaderboard, useMyLeaderboardPosition, useEventLeaderboard, useEvents } from "@/lib/hooks";
 
 type LeaderboardCategory = 'global' | 'main_events' | 'main_card' | 'prelims';
 type SortBy = 'points' | 'accuracy' | 'correct_picks' | 'perfect_picks' | 'total_picks';
@@ -15,13 +15,22 @@ type SortBy = 'points' | 'accuracy' | 'correct_picks' | 'perfect_picks' | 'total
 export function LeaderboardsPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardCategory>('global');
   const [yearFilter, setYearFilter] = useState<string>("all");
+  const [eventFilter, setEventFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<SortBy>('points');
 
   const year = yearFilter === "all" ? undefined : parseInt(yearFilter);
+  const eventId = eventFilter === "all" ? undefined : parseInt(eventFilter);
 
-  const { data: leaderboard, isLoading } = activeTab === 'global' 
-    ? useGlobalLeaderboard({ year, limit: 100 })
-    : useCategoryLeaderboard(activeTab, { year, limit: 100 });
+  // Get events for filter dropdown
+  const { data: eventsData } = useEvents({ limit: 50 });
+  const events = eventsData?.events || [];
+
+  // Determine which leaderboard to fetch
+  const { data: leaderboard, isLoading } = eventId 
+    ? useEventLeaderboard(eventId, 100)
+    : activeTab === 'global' 
+      ? useGlobalLeaderboard({ year, limit: 100 })
+      : useCategoryLeaderboard(activeTab, { year, limit: 100 });
 
   const { data: myPosition } = useMyLeaderboardPosition(activeTab);
   
@@ -104,6 +113,20 @@ export function LeaderboardsPage() {
       </div>
 
       <div className="flex items-center gap-3 flex-wrap">
+        <Select value={eventFilter} onValueChange={setEventFilter}>
+          <SelectTrigger className="w-[200px] bg-secondary border-border">
+            <SelectValue placeholder="Event" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Events</SelectItem>
+            {events.map((event) => (
+              <SelectItem key={event.id} value={String(event.id)}>
+                {event.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Select value={yearFilter} onValueChange={setYearFilter}>
           <SelectTrigger className="w-[140px] bg-secondary border-border">
             <SelectValue placeholder="Time Period" />
@@ -131,27 +154,29 @@ export function LeaderboardsPage() {
         </Select>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as LeaderboardCategory)}>
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-          <TabsTrigger value="global" className="gap-2">
-            {getCategoryIcon('global')}
-            <span className="hidden sm:inline">Global</span>
-          </TabsTrigger>
-          <TabsTrigger value="main_events" className="gap-2">
-            {getCategoryIcon('main_events')}
-            <span className="hidden sm:inline">Main Events</span>
-          </TabsTrigger>
-          <TabsTrigger value="main_card" className="gap-2">
-            {getCategoryIcon('main_card')}
-            <span className="hidden sm:inline">Main Card</span>
-          </TabsTrigger>
-          <TabsTrigger value="prelims" className="gap-2">
-            {getCategoryIcon('prelims')}
-            <span className="hidden sm:inline">Prelims</span>
-          </TabsTrigger>
-        </TabsList>
+      {/* Hide category tabs when event filter is active */}
+      {!eventId ? (
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as LeaderboardCategory)}>
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+            <TabsTrigger value="global" className="gap-2">
+              {getCategoryIcon('global')}
+              <span className="hidden sm:inline">Global</span>
+            </TabsTrigger>
+            <TabsTrigger value="main_events" className="gap-2">
+              {getCategoryIcon('main_events')}
+              <span className="hidden sm:inline">Main Events</span>
+            </TabsTrigger>
+            <TabsTrigger value="main_card" className="gap-2">
+              {getCategoryIcon('main_card')}
+              <span className="hidden sm:inline">Main Card</span>
+            </TabsTrigger>
+            <TabsTrigger value="prelims" className="gap-2">
+              {getCategoryIcon('prelims')}
+              <span className="hidden sm:inline">Prelims</span>
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value={activeTab} className="space-y-4">
+          <TabsContent value={activeTab} className="space-y-4">
           <Card className="card-gradient p-4">
             <div className="flex items-center gap-2 mb-4">
               {getCategoryIcon(activeTab)}
@@ -200,6 +225,40 @@ export function LeaderboardsPage() {
           )}
         </TabsContent>
       </Tabs>
+      ) : (
+        // Show event leaderboard without category tabs
+        <Card className="card-gradient p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Trophy className="h-5 w-5" />
+            <h2 className="font-semibold">Event Leaderboard</h2>
+          </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : sortedLeaderboard && sortedLeaderboard.length > 0 ? (
+            <div className="space-y-1">
+              {sortedLeaderboard.map((user, index) => (
+                <LeaderboardRow
+                  key={user.user_id}
+                  rank={index + 1}
+                  username={user.username}
+                  avatarUrl={user.avatar_url}
+                  points={user.total_points}
+                  accuracy={Math.round(user.accuracy)}
+                  isCurrentUser={myPosition?.entry?.user_id === user.user_id}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Trophy className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p>No picks for this event yet</p>
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   );
 }
