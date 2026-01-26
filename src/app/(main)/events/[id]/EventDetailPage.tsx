@@ -127,9 +127,13 @@ export function EventDetailPage({ id }: { id: string }) {
       // Invalidate and refetch queries to update UI immediately
       console.log('Invalidating and refetching queries...');
       await queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      await queryClient.refetchQueries({ queryKey: ['event', eventId] });
+      const refetchResult = await queryClient.refetchQueries({ queryKey: ['event', eventId] });
+      console.log('Event refetch result:', refetchResult);
+      console.log('Event data after refetch:', event);
       await queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
-      await queryClient.refetchQueries({ queryKey: ['bouts', eventId] });
+      const boutsRefetchResult = await queryClient.refetchQueries({ queryKey: ['bouts', eventId] });
+      console.log('Bouts refetch result:', boutsRefetchResult);
+      console.log('Bouts data after refetch:', bouts);
       console.log('Success! Event lock toggled.');
     } catch (error) {
       console.error('Error toggling event lock:', error);
