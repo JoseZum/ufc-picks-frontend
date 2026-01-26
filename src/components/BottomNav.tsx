@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
-import { Home, Calendar, Target, Trophy, User } from "lucide-react"
+import { Home, Calendar, Target, Trophy, User, Shield } from "lucide-react"
+import { useCurrentUser } from "@/lib/hooks"
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -15,11 +16,17 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname()
+  const { data: user } = useCurrentUser()
+
+  // Add admin to nav items if user is admin
+  const displayItems = user?.is_admin
+    ? [...navItems.slice(0, 4), { href: "/admin", icon: Shield, label: "Admin" }]
+    : navItems
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border md:hidden">
       <div className="flex items-center justify-around h-16">
-        {navItems.map((item) => {
+        {displayItems.map((item) => {
           const isActive = pathname === item.href ||
             (item.href !== "/" && pathname.startsWith(item.href))
 

@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
-import { Home, Calendar, Target, Trophy, User, Flame } from "lucide-react"
+import { Home, Calendar, Target, Trophy, User, Flame, Shield } from "lucide-react"
+import { useCurrentUser } from "@/lib/hooks"
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -13,8 +14,13 @@ const navItems = [
   { href: "/profile", icon: User, label: "Profile" },
 ]
 
+const adminNavItems = [
+  { href: "/admin", icon: Shield, label: "Admin Panel" },
+]
+
 export function DesktopSidebar() {
   const pathname = usePathname()
+  const { data: user } = useCurrentUser()
 
   return (
     <aside className="hidden md:flex flex-col w-64 h-screen bg-sidebar border-r border-sidebar-border fixed left-0 top-0">
@@ -55,6 +61,38 @@ export function DesktopSidebar() {
               </li>
             )
           })}
+
+          {/* Admin Section */}
+          {user?.is_admin && (
+            <>
+              <li className="pt-4">
+                <div className="px-4 py-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">Admin</p>
+                </div>
+              </li>
+              {adminNavItems.map((item) => {
+                const isActive = pathname === item.href ||
+                  (item.href !== "/" && pathname.startsWith(item.href))
+
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
+                        isActive
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </>
+          )}
         </ul>
       </nav>
 
