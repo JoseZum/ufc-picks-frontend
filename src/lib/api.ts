@@ -298,12 +298,11 @@ export function getFighterImageUrl(
  * Helper to get event poster URL through proxy
  */
 export function getEventPosterUrl(event: Event): string {
-  // Tapology format: /poster_images/events/{event_id}.jpg
-  // Algunos eventos no tienen poster
-  if (!event.id) {
+  // Use the poster_image_url from the backend if available
+  if (!event.poster_image_url) {
     return '/placeholder-event.svg';
   }
-  return `${API_URL}/proxy/tapology/poster_images/events/${event.id}.jpg`;
+  return `${API_URL}${event.poster_image_url}`;
 }
 
 export interface Bout {
