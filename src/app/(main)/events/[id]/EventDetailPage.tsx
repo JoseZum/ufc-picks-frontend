@@ -110,7 +110,7 @@ export function EventDetailPage({ id }: { id: string }) {
       }
       // Invalidate queries to refetch event data
       queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['eventBouts', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
     } catch (error) {
       console.error('Error toggling event lock:', error);
     }
@@ -126,7 +126,7 @@ export function EventDetailPage({ id }: { id: string }) {
         await api.lockBoutPicks(boutId);
       }
       // Invalidate queries to refetch bouts data
-      queryClient.invalidateQueries({ queryKey: ['eventBouts', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
     } catch (error) {
       console.error('Error toggling bout lock:', error);
     }
