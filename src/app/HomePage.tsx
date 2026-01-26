@@ -8,14 +8,14 @@ import { StatusBadge } from "@/components/StatusBadge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowRight, Calendar, Flame, Target, Trophy, Loader2 } from "lucide-react"
-import { useEvents, useGlobalLeaderboard, useEventBouts } from "@/lib/hooks"
+import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from "@/lib/hooks"
 import { getFighterImageUrl } from "@/lib/api"
 
 export function HomePage() {
   // Obtener el próximo evento
-  const { data: events, isLoading: eventsLoading } = useEvents({ 
-    status: 'scheduled', 
-    limit: 1 
+  const { data: events, isLoading: eventsLoading } = useEvents({
+    status: 'scheduled',
+    limit: 1
   });
   const nextEvent = events?.[0];
 
@@ -24,10 +24,15 @@ export function HomePage() {
   const mainEventBout = bouts?.[0]; // La primera pelea es el main event
 
   // Obtener el top del leaderboard
-  const { data: leaderboard, isLoading: leaderboardLoading } = useGlobalLeaderboard({ 
+  const { data: leaderboard, isLoading: leaderboardLoading } = useGlobalLeaderboard({
     limit: 5
   });
   const topUsers = leaderboard || [];
+
+  // Obtener datos del usuario actual
+  const { data: currentUser } = useCurrentUser();
+  const { data: myPosition } = useMyLeaderboardPosition('global');
+
   const router = useRouter()
 
   return (
@@ -111,15 +116,21 @@ export function HomePage() {
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-3">
           <Card className="card-gradient p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">-</p>
+            <p className="text-2xl font-bold text-foreground">
+              {currentUser?.picks_total || 0}
+            </p>
             <p className="text-xs text-muted-foreground">Your Picks</p>
           </Card>
           <Card className="card-gradient p-4 text-center">
-            <p className="text-2xl font-bold text-success">-</p>
+            <p className="text-2xl font-bold text-success">
+              {currentUser?.accuracy ? `${Math.round(currentUser.accuracy * 100)}%` : '0%'}
+            </p>
             <p className="text-xs text-muted-foreground">Accuracy</p>
           </Card>
           <Card className="card-gradient p-4 text-center">
-            <p className="text-2xl font-bold text-primary">-</p>
+            <p className="text-2xl font-bold text-primary">
+              {myPosition?.rank ? `#${myPosition.rank}` : '-'}
+            </p>
             <p className="text-xs text-muted-foreground">Your Rank</p>
           </Card>
         </div>

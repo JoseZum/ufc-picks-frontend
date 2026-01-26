@@ -10,9 +10,9 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, MapPin, Clock, AlertCircle, Lock, Unlock } from "lucide-react";
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from "@/lib/hooks";
-import { usePickLocks } from "@/lib/usePickLocks";
 import type { Bout } from "@/lib/api";
 import api, { getFighterImageUrl, getEventPosterUrl, getApiUrl } from "@/lib/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Helper to format date for display
 function formatDisplayDate(dateString: string): string {
@@ -91,13 +91,46 @@ export function EventDetailPage({ id }: { id: string }) {
   const { data: currentUser } = useCurrentUser();
   const createPickMutation = useCreatePick();
 
-  // Pick locks system (frontend only, for admins)
-  const { isEventLocked, isBoutLocked, toggleEventLock, toggleBoutLock } = usePickLocks();
+  // Pick locks (backend-driven now)
+  const eventPicksLocked = event?.picks_locked || false;
+  const queryClient = useQueryClient();
 
   const isLoading = eventLoading || boutsLoading;
   const error = eventError || boutsError;
   const isAuthenticated = api.isAuthenticated();
   const isAdmin = currentUser?.is_admin || false;
+
+  // Toggle event lock
+  const handleToggleEventLock = async () => {
+    try {
+      if (eventPicksLocked) {
+        await api.unlockEventPicks(eventId);
+      } else {
+        await api.lockEventPicks(eventId);
+      }
+      // Invalidate queries to refetch event data
+      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      queryClient.invalidateQueries({ queryKey: ['eventBouts', eventId] });
+    } catch (error) {
+      console.error('Error toggling event lock:', error);
+    }
+  };
+
+  // Toggle bout lock
+  const handleToggleBoutLock = async (boutId: number) => {
+    try {
+      const bout = bouts?.find(b => b.id === boutId);
+      if (bout?.picks_locked) {
+        await api.unlockBoutPicks(boutId);
+      } else {
+        await api.lockBoutPicks(boutId);
+      }
+      // Invalidate queries to refetch bouts data
+      queryClient.invalidateQueries({ queryKey: ['eventBouts', eventId] });
+    } catch (error) {
+      console.error('Error toggling bout lock:', error);
+    }
+  };
 
   const handleMakePick = (boutId: number, order: number, fighter: "red" | "blue") => {
     setLocalPicks((prev) => ({
@@ -188,10 +221,10 @@ export function EventDetailPage({ id }: { id: string }) {
                             pick?.is_correct === false ? "incorrect" :
                             "pending";
 
-          // Check if bout is locked (event status OR admin lock OR event lock)
-          const boutLockedByAdmin = isBoutLocked(bout.boutId);
-          const eventLockedByAdmin = isEventLocked(eventId);
-          const isLockedFinal = !picksOpen || boutLockedByAdmin || eventLockedByAdmin;
+          // Check if bout is locked (event status OR backend locks)
+          const boutFromApi = bouts?.find(b => b.id === bout.boutId);
+          const boutLockedByAdmin = boutFromApi?.picks_locked || false;
+          const isLockedFinal = !picksOpen || boutLockedByAdmin || eventPicksLocked;
 
           return (
             <BoutCard
@@ -220,7 +253,7 @@ export function EventDetailPage({ id }: { id: string }) {
               onMakePick={(fighter) => handleMakePick(bout.boutId, bout.order, fighter)}
               // Admin controls
               isAdmin={isAdmin}
-              onToggleLock={() => toggleBoutLock(bout.boutId)}
+              onToggleLock={() => handleToggleBoutLock(bout.boutId)}
             />
           );
         })}
@@ -271,10 +304,10 @@ export function EventDetailPage({ id }: { id: string }) {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => toggleEventLock(eventId)}
+                    onClick={handleToggleEventLock}
                     className="flex items-center gap-2"
                   >
-                    {isEventLocked(eventId) ? (
+                    {eventPicksLocked ? (
                       <>
                         <Lock className="h-4 w-4" />
                         Unlock Event

@@ -11,8 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, Flame, Lock, CheckCircle, Loader2, Unlock } from "lucide-react"
 import type { VictoryMethod, Pick } from "@/types/picks"
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from "@/lib/hooks"
-import { usePickLocks } from "@/lib/usePickLocks"
-import { getFighterImageUrl } from "@/lib/api"
+import api, { getFighterImageUrl } from "@/lib/api"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function FightPage({ eventId, fightId }: { eventId: string; fightId: string }) {
   const router = useRouter()
@@ -27,9 +27,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
   const { data: existingPicks } = useMyPicks(eventIdNum);
   const { data: currentUser } = useCurrentUser();
   const createPickMutation = useCreatePick();
-
-  // Pick locks system (frontend only, for admins)
-  const { isEventLocked, isBoutLocked, toggleBoutLock } = usePickLocks();
+  const queryClient = useQueryClient();
   
   // Encontrar la pelea específica
   const bout = bouts?.find(b => b.id === fightIdNum);
@@ -97,11 +95,26 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
   const isCoMain = boutIndex === 1;
   const cardSection = boutIndex < 5 ? "Main Card" : "Prelims";
 
-  // Check locks (admin system)
+  // Check locks (backend-driven)
   const isAdmin = currentUser?.is_admin || false;
-  const boutLockedByAdmin = isBoutLocked(fightIdNum);
-  const eventLockedByAdmin = isEventLocked(eventIdNum);
+  const boutLockedByAdmin = bout?.picks_locked || false;
+  const eventLockedByAdmin = event?.picks_locked || false;
   const picksActuallyOpen = picksOpen && !boutLockedByAdmin && !eventLockedByAdmin;
+
+  // Toggle bout lock
+  const handleToggleBoutLock = async () => {
+    try {
+      if (boutLockedByAdmin) {
+        await api.unlockBoutPicks(fightIdNum);
+      } else {
+        await api.lockBoutPicks(fightIdNum);
+      }
+      // Invalidate queries to refetch bout data
+      queryClient.invalidateQueries({ queryKey: ['eventBouts', eventIdNum] });
+    } catch (error) {
+      console.error('Error toggling bout lock:', error);
+    }
+  };
   
   // Datos de los peleadores
   const fighterRed = bout.fighters.red;
@@ -276,7 +289,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             <Button
               size="sm"
               variant="outline"
-              onClick={() => toggleBoutLock(fightIdNum)}
+              onClick={handleToggleBoutLock}
             >
               {boutLockedByAdmin ? (
                 <>

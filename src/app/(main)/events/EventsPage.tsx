@@ -21,10 +21,19 @@ function formatDate(dateString: string): string {
 }
 
 // Helper to format location
-function formatLocation(location?: { venue?: string; city?: string; country?: string }): string {
-  if (!location) return 'TBD';
-  const parts = [location.city, location.country].filter(Boolean);
-  return parts.join(', ') || 'TBD';
+function formatLocation(location?: { venue?: string; city?: string; country?: string } | null): string {
+  if (!location) return 'Location TBD';
+
+  // Try to build location string from available fields
+  const parts: string[] = [];
+
+  if (location.venue) parts.push(location.venue);
+  if (location.city) parts.push(location.city);
+  if (location.country) parts.push(location.country);
+
+  if (parts.length === 0) return 'Location TBD';
+
+  return parts.join(', ');
 }
 
 // Helper to check if event is upcoming

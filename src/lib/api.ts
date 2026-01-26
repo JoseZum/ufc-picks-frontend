@@ -481,6 +481,34 @@ export async function checkHealth(): Promise<HealthStatus> {
   return apiRequest<HealthStatus>('/health');
 }
 
+// ============================================
+// ADMIN - PICKS LOCKS
+// ============================================
+
+export async function lockEventPicks(eventId: number): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/admin/events/${eventId}/lock-picks`, {
+    method: 'POST'
+  });
+}
+
+export async function unlockEventPicks(eventId: number): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/admin/events/${eventId}/unlock-picks`, {
+    method: 'POST'
+  });
+}
+
+export async function lockBoutPicks(boutId: number): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/admin/bouts/${boutId}/lock-picks`, {
+    method: 'POST'
+  });
+}
+
+export async function unlockBoutPicks(boutId: number): Promise<{ success: boolean; message: string }> {
+  return apiRequest(`/admin/bouts/${boutId}/unlock-picks`, {
+    method: 'POST'
+  });
+}
+
 // Export default object with all functions
 const api = {
   // Auth
@@ -509,6 +537,12 @@ const api = {
   getEventLeaderboard,
   getCategoryLeaderboard,
   getMyLeaderboardPosition,
+
+  // Admin - Picks Locks
+  lockEventPicks,
+  unlockEventPicks,
+  lockBoutPicks,
+  unlockBoutPicks,
 
   // Health
   checkHealth,
