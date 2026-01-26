@@ -47,6 +47,9 @@ interface TransformedBout {
   isMainEvent: boolean;
   isCoMain: boolean;
   isTitleFight: boolean;
+  winner?: "red" | "blue";
+  actualMethod?: string;
+  actualRound?: number;
 }
 
 // Transform API bout to display format
@@ -67,6 +70,9 @@ function transformBout(bout: Bout, index: number): TransformedBout {
     isMainEvent: index === 0,
     isCoMain: index === 1,
     isTitleFight: bout.is_title_fight,
+    winner: bout.result?.winner as "red" | "blue" | undefined,
+    actualMethod: bout.result?.method,
+    actualRound: bout.result?.round,
   };
 }
 
@@ -136,6 +142,12 @@ export function EventDetailPage({ id }: { id: string }) {
   // Transform bouts for display
   const transformedBouts = (bouts || []).map((bout, index) => transformBout(bout, index));
 
+  // Create a map of existing picks by bout_id
+  const picksMap = (existingPicks || []).reduce((acc, pick) => {
+    acc[pick.bout_id] = pick;
+    return acc;
+  }, {} as Record<number, typeof existingPicks[0]>);
+
   // Split bouts into sections (simplified: first 5 main card, rest prelims)
   const mainCardBouts = transformedBouts.slice(0, 5);
   const prelimBouts = transformedBouts.slice(5);
@@ -164,26 +176,40 @@ export function EventDetailPage({ id }: { id: string }) {
         {title}
       </h3>
       <div className="space-y-3">
-        {bouts.map((bout) => (
-          <BoutCard
-            key={bout.order}
-            order={bout.order}
-            fighterRed={bout.fighterRed}
-            fighterBlue={bout.fighterBlue}
-            imageUrlRed={bout.imageUrlRed}
-            imageUrlBlue={bout.imageUrlBlue}
-            weightClass={bout.weightClass}
-            rounds={bout.rounds}
-            isMainEvent={bout.isMainEvent}
-            isCoMain={bout.isCoMain}
-            cardSection="main"
-            selectedFighter={localPicks[bout.order]?.fighter}
-            isLocked={!picksOpen}
-            eventId={String(eventId)}
-            fightId={bout.fightId}
-            onMakePick={(fighter) => handleMakePick(bout.boutId, bout.order, fighter)}
-          />
-        ))}
+        {bouts.map((bout) => {
+          const pick = picksMap[bout.boutId];
+          const pickStatus = pick?.is_correct === true ? "correct" : 
+                            pick?.is_correct === false ? "incorrect" : 
+                            "pending";
+          
+          return (
+            <BoutCard
+              key={bout.order}
+              order={bout.order}
+              fighterRed={bout.fighterRed}
+              fighterBlue={bout.fighterBlue}
+              imageUrlRed={bout.imageUrlRed}
+              imageUrlBlue={bout.imageUrlBlue}
+              weightClass={bout.weightClass}
+              rounds={bout.rounds}
+              isMainEvent={bout.isMainEvent}
+              isCoMain={bout.isCoMain}
+              cardSection="main"
+              selectedFighter={pick?.picked_corner || localPicks[bout.order]?.fighter}
+              selectedMethod={pick?.picked_method}
+              selectedRound={pick?.picked_round}
+              winner={bout.winner}
+              actualMethod={bout.actualMethod}
+              actualRound={bout.actualRound}
+              points={pick?.points_awarded}
+              pickStatus={pick ? pickStatus : undefined}
+              isLocked={!picksOpen}
+              eventId={String(eventId)}
+              fightId={bout.fightId}
+              onMakePick={(fighter) => handleMakePick(bout.boutId, bout.order, fighter)}
+            />
+          );
+        })}
       </div>
     </section>
   );

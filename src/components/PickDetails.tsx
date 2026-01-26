@@ -9,7 +9,7 @@ interface PickDetailsProps {
   method: VictoryMethod
   round?: 1 | 2 | 3 | 4 | 5
   points?: 0 | 1 | 2 | 3
-  actualMethod?: VictoryMethod
+  actualMethod?: string // Can be any string from result
   actualRound?: 1 | 2 | 3 | 4 | 5
   status?: "pending" | "correct" | "incorrect"
   size?: "sm" | "md" | "lg"

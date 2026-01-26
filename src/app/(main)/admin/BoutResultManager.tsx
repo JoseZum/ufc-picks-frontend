@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { Trophy, Loader2, ChevronDown, ChevronUp, CheckCircle, XCircle } from "lucide-react"
 import { useEvents, useEventBouts } from "@/lib/hooks"
 import { Card } from "@/components/ui/card"
@@ -18,6 +19,7 @@ import { toast } from "sonner"
 import { getAuthToken } from "@/lib/api"
 
 export function BoutResultManager() {
+  const queryClient = useQueryClient()
   const { data: eventsData, isLoading: eventsLoading } = useEvents({ limit: 20 })
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null)
   const { data: bouts, isLoading: boutsLoading, refetch } = useEventBouts(
@@ -104,7 +106,14 @@ export function BoutResultManager() {
                     toast.success(
                       `Resultado registrado. ${result.points_assigned.picks_processed} picks procesados, ${result.points_assigned.points_distributed} puntos asignados.`
                     )
-                    refetch()
+                    
+                    // Invalidate all relevant queries to refresh data
+                    await Promise.all([
+                      refetch(), // Refresh bouts
+                      queryClient.invalidateQueries({ queryKey: ['myPicks'] }), // Refresh all picks
+                      queryClient.invalidateQueries({ queryKey: ['allMyPicks'] }), // Refresh user's picks
+                      queryClient.invalidateQueries({ queryKey: ['leaderboard'] }), // Refresh all leaderboards
+                    ])
                   } catch (error: any) {
                     console.error("Error saving result:", error)
                     toast.error(error.message || "Error al registrar resultado")
@@ -132,7 +141,14 @@ export function BoutResultManager() {
                     }
 
                     toast.success("Resultado eliminado y puntos revertidos")
-                    refetch()
+                    
+                    // Invalidate all relevant queries to refresh data
+                    await Promise.all([
+                      refetch(), // Refresh bouts
+                      queryClient.invalidateQueries({ queryKey: ['myPicks'] }), // Refresh all picks
+                      queryClient.invalidateQueries({ queryKey: ['allMyPicks'] }), // Refresh user's picks
+                      queryClient.invalidateQueries({ queryKey: ['leaderboard'] }), // Refresh all leaderboards
+                    ])
                   } catch (error: any) {
                     console.error("Error deleting result:", error)
                     toast.error(error.message || "Error al eliminar resultado")

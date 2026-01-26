@@ -27,7 +27,7 @@ interface BoutCardProps {
   selectedMethod?: VictoryMethod;
   selectedRound?: 1 | 2 | 3 | 4 | 5;
   winner?: "red" | "blue";
-  actualMethod?: VictoryMethod;
+  actualMethod?: string; // Can be any string from result
   actualRound?: 1 | 2 | 3 | 4 | 5;
   points?: 0 | 1 | 2 | 3;
   isLocked?: boolean;
@@ -111,7 +111,11 @@ export function BoutCard({
         {/* Red Corner */}
         <div className="flex-1 flex items-center gap-3">
           <div
-            className="rounded-lg overflow-hidden border-2 border-fighter-red flex-shrink-0 bg-secondary"
+            className={cn(
+              "rounded-lg overflow-hidden border-2 flex-shrink-0 bg-secondary relative",
+              winner === "red" ? "border-primary ring-2 ring-primary" : "border-fighter-red",
+              winner && winner !== "red" && "opacity-50"
+            )}
             style={{
               width: '80px',
               height: '80px',
@@ -124,13 +128,25 @@ export function BoutCard({
               className="w-full h-full object-cover"
               onError={() => setRedImageError(true)}
             />
+            {winner === "red" && (
+              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
+                  WINNER
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-fighter-red flex-shrink-0" />
               <span className="text-xs text-muted-foreground uppercase">Red Corner</span>
             </div>
-            <p className="font-semibold text-foreground truncate">{fighterRed}</p>
+            <p className={cn(
+              "font-semibold truncate",
+              winner === "red" ? "text-primary" : "text-foreground"
+            )}>
+              {fighterRed}
+            </p>
             {selectedFighter === "red" && (
               <span className="text-xs text-primary mt-1 block">Your Pick</span>
             )}
@@ -148,13 +164,22 @@ export function BoutCard({
               <div className="w-2 h-2 rounded-full bg-fighter-blue flex-shrink-0" />
               <span className="text-xs text-muted-foreground uppercase">Blue Corner</span>
             </div>
-            <p className="font-semibold text-foreground truncate">{fighterBlue}</p>
+            <p className={cn(
+              "font-semibold truncate",
+              winner === "blue" ? "text-primary" : "text-foreground"
+            )}>
+              {fighterBlue}
+            </p>
             {selectedFighter === "blue" && (
               <span className="text-xs text-primary mt-1 block">Your Pick</span>
             )}
           </div>
           <div
-            className="rounded-lg overflow-hidden border-2 border-fighter-blue flex-shrink-0 bg-secondary"
+            className={cn(
+              "rounded-lg overflow-hidden border-2 flex-shrink-0 bg-secondary relative",
+              winner === "blue" ? "border-primary ring-2 ring-primary" : "border-fighter-blue",
+              winner && winner !== "blue" && "opacity-50"
+            )}
             style={{
               width: '80px',
               height: '80px',
@@ -167,6 +192,13 @@ export function BoutCard({
               className="w-full h-full object-cover"
               onError={() => setBlueImageError(true)}
             />
+            {winner === "blue" && (
+              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                <div className="bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded">
+                  WINNER
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -183,6 +215,44 @@ export function BoutCard({
             status={pickStatus}
             showActual={!!actualMethod}
           />
+        </div>
+      )}
+
+      {/* Bout Result */}
+      {showResult && (
+        <div className="mt-3 pt-3 border-t border-border/50">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs text-muted-foreground uppercase">Result</span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm font-semibold text-foreground">
+                  {actualMethod || "Decision"}
+                </span>
+                {actualRound && actualMethod !== "DEC" && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-sm text-muted-foreground">
+                      Round {actualRound}
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+            {points !== undefined && (
+              <div className="text-right">
+                <span className="text-xs text-muted-foreground uppercase">Points Earned</span>
+                <div className={cn(
+                  "text-lg font-bold mt-1",
+                  points === 3 && "text-primary",
+                  points === 2 && "text-green-500",
+                  points === 1 && "text-yellow-500",
+                  points === 0 && "text-muted-foreground"
+                )}>
+                  {points}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
