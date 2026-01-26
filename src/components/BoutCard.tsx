@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Lock, Unlock } from "lucide-react";
 import { StatusBadge } from "./StatusBadge";
 import { PickDetails } from "./PickDetails";
 import type { VictoryMethod } from "@/types/picks";
@@ -35,6 +37,9 @@ interface BoutCardProps {
   fightId?: string;
   onMakePick?: (fighter: "red" | "blue") => void;
   className?: string;
+  // Admin controls
+  isAdmin?: boolean;
+  onToggleLock?: () => void;
 }
 
 export function BoutCard({
@@ -60,6 +65,8 @@ export function BoutCard({
   fightId,
   onMakePick,
   className,
+  isAdmin,
+  onToggleLock,
 }: BoutCardProps) {
   const router = useRouter()
   const [redImageError, setRedImageError] = useState(false);
@@ -98,12 +105,37 @@ export function BoutCard({
               Co-Main
             </Badge>
           )}
+          {isLocked && (
+            <Badge variant="outline" className="text-xs flex items-center gap-1">
+              <Lock className="h-3 w-3" />
+              Locked
+            </Badge>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {weightClass} • {rounds}R
           </span>
           {pickStatus && <StatusBadge status={pickStatus} />}
+          {/* Admin Lock Button */}
+          {isAdmin && onToggleLock && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation(); // Evita que abra el detalle de la pelea
+                onToggleLock();
+              }}
+              className="h-8 w-8 p-0"
+              title={isLocked ? "Unlock picks" : "Lock picks"}
+            >
+              {isLocked ? (
+                <Lock className="h-4 w-4 text-destructive" />
+              ) : (
+                <Unlock className="h-4 w-4 text-muted-foreground" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
 

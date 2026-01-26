@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { ArrowLeft, Flame, Lock, CheckCircle, Loader2 } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { ArrowLeft, Flame, Lock, CheckCircle, Loader2, Unlock } from "lucide-react"
 import type { VictoryMethod, Pick } from "@/types/picks"
-import { useEvent, useEventBouts, useMyPicks, useCreatePick } from "@/lib/hooks"
+import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from "@/lib/hooks"
+import { usePickLocks } from "@/lib/usePickLocks"
 import { getFighterImageUrl } from "@/lib/api"
 
 export function FightPage({ eventId, fightId }: { eventId: string; fightId: string }) {
@@ -23,7 +25,11 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
   const { data: event, isLoading: eventLoading } = useEvent(eventIdNum);
   const { data: bouts, isLoading: boutsLoading } = useEventBouts(eventIdNum);
   const { data: existingPicks } = useMyPicks(eventIdNum);
+  const { data: currentUser } = useCurrentUser();
   const createPickMutation = useCreatePick();
+
+  // Pick locks system (frontend only, for admins)
+  const { isEventLocked, isBoutLocked, toggleBoutLock } = usePickLocks();
   
   // Encontrar la pelea específica
   const bout = bouts?.find(b => b.id === fightIdNum);
@@ -90,13 +96,19 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
   const isMainEvent = boutIndex === 0;
   const isCoMain = boutIndex === 1;
   const cardSection = boutIndex < 5 ? "Main Card" : "Prelims";
+
+  // Check locks (admin system)
+  const isAdmin = currentUser?.is_admin || false;
+  const boutLockedByAdmin = isBoutLocked(fightIdNum);
+  const eventLockedByAdmin = isEventLocked(eventIdNum);
+  const picksActuallyOpen = picksOpen && !boutLockedByAdmin && !eventLockedByAdmin;
   
   // Datos de los peleadores
   const fighterRed = bout.fighters.red;
   const fighterBlue = bout.fighters.blue;
 
   const handleSelectFighter = (fighter: "red" | "blue") => {
-    if (!pickConfirmed && picksOpen) {
+    if (!pickConfirmed && picksActuallyOpen) {
       setSelectedFighter(fighter)
     }
   }
@@ -201,7 +213,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             side="red"
             isSelected={selectedFighter === "red"}
             onSelect={() => handleSelectFighter("red")}
-            disabled={pickConfirmed || !picksOpen}
+            disabled={pickConfirmed || !picksActuallyOpen}
             nickname={fighterRed.nickname}
             ufcRanking={fighterRed.ufc_ranking}
             last5Fights={fighterRed.last_5_fights}
@@ -238,7 +250,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             side="blue"
             isSelected={selectedFighter === "blue"}
             onSelect={() => handleSelectFighter("blue")}
-            disabled={pickConfirmed || !picksOpen}
+            disabled={pickConfirmed || !picksActuallyOpen}
             nickname={fighterBlue.nickname}
             ufcRanking={fighterBlue.ufc_ranking}
             last5Fights={fighterBlue.last_5_fights}
@@ -253,9 +265,38 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
       {/* Divider */}
       <div className="border-t border-border/50 my-8" />
 
+      {/* Admin Lock Control */}
+      {isAdmin && (
+        <Alert className="mb-6">
+          <Lock className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span>
+              {boutLockedByAdmin ? "This fight is locked by you" : eventLockedByAdmin ? "Event is locked" : "Picks are open"}
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => toggleBoutLock(fightIdNum)}
+            >
+              {boutLockedByAdmin ? (
+                <>
+                  <Unlock className="h-4 w-4 mr-2" />
+                  Unlock Fight
+                </>
+              ) : (
+                <>
+                  <Lock className="h-4 w-4 mr-2" />
+                  Lock Fight
+                </>
+              )}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Pick Action */}
       <Card className="card-gradient p-6">
-        {!picksOpen ? (
+        {!picksActuallyOpen ? (
           // Estado 3: Picks cerrados
           <div className="text-center space-y-3">
             <div className="flex justify-center">
@@ -264,7 +305,9 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
               </div>
             </div>
             <p className="text-lg font-semibold">Picks are locked</p>
-            <p className="text-sm text-muted-foreground">Event has started</p>
+            <p className="text-sm text-muted-foreground">
+              {!picksOpen ? "Event has started" : boutLockedByAdmin ? "Fight locked by admin" : "Event locked by admin"}
+            </p>
           </div>
         ) : pickConfirmed ? (
           // Estado 2: Pick confirmado

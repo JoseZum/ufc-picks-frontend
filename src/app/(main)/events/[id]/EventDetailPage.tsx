@@ -8,8 +8,9 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Calendar, MapPin, Clock, AlertCircle } from "lucide-react";
-import { useEvent, useEventBouts, useMyPicks, useCreatePick } from "@/lib/hooks";
+import { ArrowLeft, Calendar, MapPin, Clock, AlertCircle, Lock, Unlock } from "lucide-react";
+import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from "@/lib/hooks";
+import { usePickLocks } from "@/lib/usePickLocks";
 import type { Bout } from "@/lib/api";
 import api, { getFighterImageUrl, getEventPosterUrl, getApiUrl } from "@/lib/api";
 
@@ -87,11 +88,16 @@ export function EventDetailPage({ id }: { id: string }) {
   const { data: event, isLoading: eventLoading, error: eventError } = useEvent(eventId);
   const { data: bouts, isLoading: boutsLoading, error: boutsError } = useEventBouts(eventId);
   const { data: existingPicks } = useMyPicks(eventId);
+  const { data: currentUser } = useCurrentUser();
   const createPickMutation = useCreatePick();
+
+  // Pick locks system (frontend only, for admins)
+  const { isEventLocked, isBoutLocked, toggleEventLock, toggleBoutLock } = usePickLocks();
 
   const isLoading = eventLoading || boutsLoading;
   const error = eventError || boutsError;
   const isAuthenticated = api.isAuthenticated();
+  const isAdmin = currentUser?.is_admin || false;
 
   const handleMakePick = (boutId: number, order: number, fighter: "red" | "blue") => {
     setLocalPicks((prev) => ({
@@ -178,10 +184,15 @@ export function EventDetailPage({ id }: { id: string }) {
       <div className="space-y-3">
         {bouts.map((bout) => {
           const pick = picksMap[bout.boutId];
-          const pickStatus = pick?.is_correct === true ? "correct" : 
-                            pick?.is_correct === false ? "incorrect" : 
+          const pickStatus = pick?.is_correct === true ? "correct" :
+                            pick?.is_correct === false ? "incorrect" :
                             "pending";
-          
+
+          // Check if bout is locked (event status OR admin lock OR event lock)
+          const boutLockedByAdmin = isBoutLocked(bout.boutId);
+          const eventLockedByAdmin = isEventLocked(eventId);
+          const isLockedFinal = !picksOpen || boutLockedByAdmin || eventLockedByAdmin;
+
           return (
             <BoutCard
               key={bout.order}
@@ -203,10 +214,13 @@ export function EventDetailPage({ id }: { id: string }) {
               actualRound={bout.actualRound as 1 | 2 | 3 | 4 | 5 | undefined}
               points={pick?.points_awarded as 0 | 1 | 2 | 3 | undefined}
               pickStatus={pick ? pickStatus : undefined}
-              isLocked={!picksOpen}
+              isLocked={isLockedFinal}
               eventId={String(eventId)}
               fightId={bout.fightId}
               onMakePick={(fighter) => handleMakePick(bout.boutId, bout.order, fighter)}
+              // Admin controls
+              isAdmin={isAdmin}
+              onToggleLock={() => toggleBoutLock(bout.boutId)}
             />
           );
         })}
@@ -251,7 +265,29 @@ export function EventDetailPage({ id }: { id: string }) {
                 <h1 className="text-2xl font-bold">{event.name}</h1>
                 <p className="text-primary font-semibold">{subtitle}</p>
               </div>
-              <StatusBadge status={picksOpen ? "open" : "locked"} />
+              <div className="flex items-center gap-2">
+                <StatusBadge status={picksOpen ? "open" : "locked"} />
+                {isAdmin && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleEventLock(eventId)}
+                    className="flex items-center gap-2"
+                  >
+                    {isEventLocked(eventId) ? (
+                      <>
+                        <Lock className="h-4 w-4" />
+                        Unlock Event
+                      </>
+                    ) : (
+                      <>
+                        <Unlock className="h-4 w-4" />
+                        Lock Event
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground mb-4">
