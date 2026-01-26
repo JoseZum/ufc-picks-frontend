@@ -124,10 +124,12 @@ export function EventDetailPage({ id }: { id: string }) {
         const result = await api.lockEventPicks(eventId);
         console.log('Lock result:', result);
       }
-      // Invalidate queries to refetch event data
-      console.log('Invalidating queries...');
-      queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
+      // Invalidate and refetch queries to update UI immediately
+      console.log('Invalidating and refetching queries...');
+      await queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+      await queryClient.refetchQueries({ queryKey: ['event', eventId] });
+      await queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
+      await queryClient.refetchQueries({ queryKey: ['bouts', eventId] });
       console.log('Success! Event lock toggled.');
     } catch (error) {
       console.error('Error toggling event lock:', error);
@@ -144,8 +146,9 @@ export function EventDetailPage({ id }: { id: string }) {
       } else {
         await api.lockBoutPicks(boutId);
       }
-      // Invalidate queries to refetch bouts data
-      queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
+      // Invalidate and refetch queries to update UI immediately
+      await queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
+      await queryClient.refetchQueries({ queryKey: ['bouts', eventId] });
     } catch (error) {
       console.error('Error toggling bout lock:', error);
     }
