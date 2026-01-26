@@ -203,11 +203,13 @@ export function EventDetailPage({ id }: { id: string }) {
   const CardSection = ({
     title,
     emoji,
-    bouts,
+    bouts: boutsToRender,
+    apiBouts,
   }: {
     title: string;
     emoji: string;
     bouts: TransformedBout[];
+    apiBouts: Bout[] | undefined;
   }) => (
     <section>
       <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -215,14 +217,14 @@ export function EventDetailPage({ id }: { id: string }) {
         {title}
       </h3>
       <div className="space-y-3">
-        {bouts.map((bout) => {
+        {boutsToRender.map((bout) => {
           const pick = picksMap[bout.boutId];
           const pickStatus = pick?.is_correct === true ? "correct" :
                             pick?.is_correct === false ? "incorrect" :
                             "pending";
 
           // Check if bout is locked (event status OR backend locks)
-          const boutFromApi = bouts?.find(b => b.id === bout.boutId);
+          const boutFromApi = apiBouts?.find(b => b.id === bout.boutId);
           const boutLockedByAdmin = boutFromApi?.picks_locked || false;
           const isLockedFinal = !picksOpen || boutLockedByAdmin || eventPicksLocked;
 
@@ -361,10 +363,10 @@ export function EventDetailPage({ id }: { id: string }) {
 
       {/* Fight Cards */}
       {mainCardBouts.length > 0 && (
-        <CardSection title="Main Card" emoji="🔥" bouts={mainCardBouts} />
+        <CardSection title="Main Card" emoji="🔥" bouts={mainCardBouts} apiBouts={bouts} />
       )}
       {prelimBouts.length > 0 && (
-        <CardSection title="Prelims" emoji="🟡" bouts={prelimBouts} />
+        <CardSection title="Prelims" emoji="🟡" bouts={prelimBouts} apiBouts={bouts} />
       )}
 
       {/* Empty state */}
