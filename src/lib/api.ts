@@ -95,6 +95,12 @@ export interface User {
   profile_picture?: string;
   is_admin: boolean;
   created_at: string;
+  // User statistics
+  total_points?: number;
+  picks_total?: number;
+  picks_correct?: number;
+  perfect_picks?: number;
+  accuracy?: number;
 }
 
 export interface AuthResponse {
