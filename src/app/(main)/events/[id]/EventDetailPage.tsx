@@ -197,11 +197,11 @@ export function EventDetailPage({ id }: { id: string }) {
               cardSection="main"
               selectedFighter={pick?.picked_corner || localPicks[bout.order]?.fighter}
               selectedMethod={pick?.picked_method}
-              selectedRound={pick?.picked_round}
+              selectedRound={pick?.picked_round as 1 | 2 | 3 | 4 | 5 | undefined}
               winner={bout.winner}
               actualMethod={bout.actualMethod}
-              actualRound={bout.actualRound}
-              points={pick?.points_awarded}
+              actualRound={bout.actualRound as 1 | 2 | 3 | 4 | 5 | undefined}
+              points={pick?.points_awarded as 0 | 1 | 2 | 3 | undefined}
               pickStatus={pick ? pickStatus : undefined}
               isLocked={!picksOpen}
               eventId={String(eventId)}
