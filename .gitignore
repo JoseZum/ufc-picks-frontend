@@ -46,3 +46,8 @@ next-env.d.ts
 # OS
 Thumbs.db
 .DS_Store
+
+gitignore.txt
+check-connection.js
+DEPLOYMENT.md
+.env.example

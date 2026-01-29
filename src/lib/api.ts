@@ -303,13 +303,21 @@ export function getFighterImageUrl(
   return `${API_URL}${fighter.profile_image_url}`;
 }
 /**
- * Helper to get event poster URL through proxy
+ * Helper to get event poster URL
+ * Handles both CloudFront URLs (absolute) and proxy URLs (relative)
  */
 export function getEventPosterUrl(event: Event): string {
   // Use the poster_image_url from the backend if available
   if (!event.poster_image_url) {
     return '/placeholder-event.svg';
   }
+
+  // If it's an absolute URL (CloudFront), use it directly
+  if (event.poster_image_url.startsWith('https://') || event.poster_image_url.startsWith('http://')) {
+    return event.poster_image_url;
+  }
+
+  // Otherwise, it's a proxy URL - prepend API_URL
   return `${API_URL}${event.poster_image_url}`;
 }
 
