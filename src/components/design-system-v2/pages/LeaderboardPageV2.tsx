@@ -202,7 +202,7 @@ export const LeaderboardPageV2 = () => {
                                         </div>
                                         <span className="leaderboard-full__points">{entry.total_points?.toLocaleString()}</span>
                                         <span className="leaderboard-full__accuracy">{Math.round((entry.accuracy || 0) * 100)}%</span>
-                                        <span className="leaderboard-full__picks">{entry.picks_count || '-'}</span>
+                                        <span className="leaderboard-full__picks">{entry.picks_total || '-'}</span>
                                     </a>
                                 ))}
                             </div>
