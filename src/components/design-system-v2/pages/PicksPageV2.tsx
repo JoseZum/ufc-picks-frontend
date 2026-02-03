@@ -51,7 +51,7 @@ export const PicksPageV2 = () => {
     const picksByEvent = useMemo(() => {
         if (!allPicks || !events.length) return new Map();
         
-        const grouped = new Map<number, PickWithBout[]>();
+        const grouped = new Map<number, Array<{ pick: any, event: any }>>();
         
         allPicks.forEach(pick => {
             const event = events.find(e => e.id === pick.event_id);
@@ -99,7 +99,7 @@ export const PicksPageV2 = () => {
     };
 
     // Component to render picks for an event (fetches bouts for that event)
-    const EventPicksSection = ({ event, picks }: { event: any, picks: PickWithBout[] }) => {
+    const EventPicksSection = ({ event, picks }: { event: any, picks: Array<{ pick: any, event: any }> }) => {
         const { data: bouts } = useEventBouts(event.id);
         
         const picksWithBouts = picks.map(p => ({
