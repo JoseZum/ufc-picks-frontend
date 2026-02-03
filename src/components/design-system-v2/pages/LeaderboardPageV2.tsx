@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { V2Layout } from '../V2Layout';
+import { NavBarV2 } from '../NavBarV2';
 import { useGlobalLeaderboard, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
 
@@ -24,23 +25,7 @@ export const LeaderboardPageV2 = () => {
 
     return (
         <V2Layout>
-            <nav className="nav">
-                <a href="/" className="nav__logo">UFC PICKS</a>
-                <div className="nav__items">
-                    <a href="/" className="nav__item">HOME</a>
-                    <a href="/events" className="nav__item">EVENTS</a>
-                    <a href="/my-picks" className="nav__item">MY PICKS</a>
-                    <a href="/leaderboards" className="nav__item nav__item--active">LEADERBOARDS</a>
-                    <a href="/profile" className="nav__item">PROFILE</a>
-                </div>
-                <div className="nav__user">
-                    <div className="nav__avatar" style={{ 
-                        backgroundImage: currentUser?.profile_picture ? `url(${currentUser.profile_picture})` : 'none',
-                        backgroundSize: 'cover'
-                    }}></div>
-                    <span>{currentUser?.name?.toUpperCase() || 'GUEST'}</span>
-                </div>
-            </nav>
+            <NavBarV2 activePage="leaderboards" />
 
             <div className="main">
                 <header className="page-header">

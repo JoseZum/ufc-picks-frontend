@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
+import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -172,19 +173,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
     return (
         <V2Layout>
-            <nav className="nav">
-                <a href="/" className="nav__logo">UFC PICKS</a>
-                <div className="nav__items">
-                    <a href="/" className="nav__item">HOME</a>
-                    <a href="/events" className="nav__item nav__item--active">EVENTS</a>
-                    <a href="/leaderboards" className="nav__item">LEADERBOARD</a>
-                    <a href="/picks" className="nav__item">MY PICKS</a>
-                </div>
-                <div className="nav__user">
-                    <div className="nav__avatar" style={{ backgroundImage: `url(${currentUser?.profile_picture || ''})`, backgroundSize: 'cover' }}></div>
-                    <span>{currentUser?.name || 'GUEST'}</span>
-                </div>
-            </nav>
+            <NavBarV2 activePage="events" />
 
             <div className="main" style={{ paddingTop: '70px', paddingBottom: '100px' }}>
                 <section className="event-hero" style={{

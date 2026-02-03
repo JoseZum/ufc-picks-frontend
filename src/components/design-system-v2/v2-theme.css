@@ -1320,16 +1320,42 @@
     align-items: center;
     gap: 1.5rem;
     cursor: pointer;
-    transition: all 0.1s;
+    transition: all 0.15s ease;
     position: relative;
+    border: 2px solid transparent;
 }
 
 .fight-card__fighter:hover {
     background: var(--bg-elevated);
+    border-color: var(--border-strong);
+}
+
+.fight-card__fighter:hover::after {
+    content: 'CLICK TO PICK';
+    position: absolute;
+    bottom: 0.5rem;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    opacity: 0.8;
+}
+
+.fight-card__fighter--red:hover::after {
+    left: 2rem;
+}
+
+.fight-card__fighter--blue:hover::after {
+    right: 2rem;
 }
 
 .fight-card__fighter--selected {
     background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.fight-card__fighter--selected:hover::after {
+    content: 'YOUR PICK ✓';
+    color: var(--success);
 }
 
 .fight-card__fighter--selected::before {
@@ -3598,5 +3624,144 @@
     .login-footer__grid {
         flex-direction: column;
         gap: 1rem;
+    }
+}
+
+/* ============================================
+   NEXT EVENT HERO - HOMEPAGE
+   ============================================ */
+
+.next-event-hero {
+    position: relative;
+    background: var(--bg-panel);
+    border-bottom: var(--border-thick) solid var(--accent);
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.next-event-hero__badge {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg-base);
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 2rem;
+}
+
+.next-event-hero__bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20vw;
+    color: rgba(255, 255, 255, 0.03);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.next-event-hero__divider {
+    width: 100%;
+    height: var(--border-thick);
+    background: var(--accent);
+    margin: 1.5rem 0;
+}
+
+.next-event-hero__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.next-event-hero__meta {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.next-event-hero__countdown {
+    background: var(--bg-elevated);
+    border-left: var(--border-thick) solid var(--accent);
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.next-event-hero__countdown-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+}
+
+.next-event-hero__countdown-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    letter-spacing: 4px;
+    color: var(--text-primary);
+}
+
+.next-event-hero__cta {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--bg-base);
+    padding: 1rem 2rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.next-event-hero__cta:hover {
+    background: var(--text-primary);
+    color: var(--bg-base);
+}
+
+/* RESPONSIVE for Next Event Hero */
+@media (max-width: 768px) {
+    .next-event-hero {
+        padding: 2rem 1rem;
+    }
+
+    .next-event-hero__title {
+        font-size: 2.5rem;
+    }
+
+    .next-event-hero__countdown-time {
+        font-size: 2rem;
+        letter-spacing: 2px;
+    }
+
+    .next-event-hero__bg-text {
+        font-size: 30vw;
+    }
+}
+
+@media (max-width: 480px) {
+    .next-event-hero__title {
+        font-size: 1.75rem;
+    }
+
+    .next-event-hero__countdown-time {
+        font-size: 1.5rem;
+    }
+
+    .next-event-hero__countdown {
+        padding: 1rem;
     }
 }

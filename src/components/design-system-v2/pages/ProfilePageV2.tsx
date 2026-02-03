@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import { V2Layout } from '../V2Layout';
+import { NavBarV2 } from '../NavBarV2';
 import { useCurrentUser, useMyLeaderboardPosition, useAllMyPicks, useGlobalLeaderboard, useLogout } from '@/lib/hooks';
 import { Loader2, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -47,19 +48,7 @@ export const ProfilePageV2 = () => {
     if (!currentUser && !isLoading) {
         return (
             <V2Layout>
-                <nav className="nav">
-                    <a href="/" className="nav__logo">UFC PICKS</a>
-                    <div className="nav__items">
-                        <a href="/" className="nav__item">HOME</a>
-                        <a href="/events" className="nav__item">EVENTS</a>
-                        <a href="/my-picks" className="nav__item">MY PICKS</a>
-                        <a href="/leaderboards" className="nav__item">LEADERBOARDS</a>
-                        <a href="/profile" className="nav__item nav__item--active">PROFILE</a>
-                    </div>
-                    <div className="nav__user">
-                        <span>GUEST</span>
-                    </div>
-                </nav>
+                <NavBarV2 activePage="profile" />
                 <div className="main" style={{ paddingTop: '100px', textAlign: 'center' }}>
                     <h1 style={{ marginBottom: '2rem' }}>LOGIN REQUIRED</h1>
                     <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Please log in to view your profile</p>
@@ -80,23 +69,7 @@ export const ProfilePageV2 = () => {
 
     return (
         <V2Layout>
-            <nav className="nav">
-                <a href="/" className="nav__logo">UFC PICKS</a>
-                <div className="nav__items">
-                    <a href="/" className="nav__item">HOME</a>
-                    <a href="/events" className="nav__item">EVENTS</a>
-                    <a href="/my-picks" className="nav__item">MY PICKS</a>
-                    <a href="/leaderboards" className="nav__item">LEADERBOARDS</a>
-                    <a href="/profile" className="nav__item nav__item--active">PROFILE</a>
-                </div>
-                <div className="nav__user">
-                    <div className="nav__avatar" style={{
-                        backgroundImage: currentUser?.profile_picture ? `url(${currentUser.profile_picture})` : 'none',
-                        backgroundSize: 'cover'
-                    }}></div>
-                    <span>{currentUser?.name?.toUpperCase() || 'GUEST'}</span>
-                </div>
-            </nav>
+            <NavBarV2 activePage="profile" />
 
             <div className="main" style={{ paddingTop: '70px' }}>
                 {isLoading ? (

@@ -3,6 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
+import { NavBarV2 } from '../NavBarV2';
+import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -30,31 +32,59 @@ export const LandingPageV2 = () => {
     const { data: currentUser } = useCurrentUser();
     const { data: myPosition } = useMyLeaderboardPosition('global');
 
-    // Helper for countdown (simplified for now, ideally use the proper CountdownTimer logic or port it)
-    // For V2, we might want a custom hook or just display date if countdown is complex to port inline.
-    // Using simple date display for now as placeholder for the countdown clock.
+    // Countdown timer
     const eventDate = nextEvent ? new Date(nextEvent.date) : null;
+    const { formatted, isExpired } = useCountdown(eventDate);
+
+    // Format date and venue
+    const formatEventDate = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { 
+            weekday: 'short', 
+            month: 'short', 
+            day: 'numeric', 
+            year: 'numeric' 
+        }).toUpperCase();
+    };
 
     return (
         <V2Layout>
-            {/* NAVIGATION - RAW TOP BAR */}
-            <nav className="nav">
-                <a href="/" className="nav__logo">
-                    UFC PICKS
-                </a>
-                <div className="nav__items">
-                    <a href="/" className="nav__item nav__item--active">Home</a>
-                    <a href="/events" className="nav__item">Events</a>
-                    <a href="/leaderboards" className="nav__item">Leaderboard</a>
-                    <a href="/picks" className="nav__item">My Picks</a>
-                </div>
-                <div className="nav__user">
-                    <span>{currentUser?.name || 'GUEST'}</span>
-                    <div className="nav__avatar" style={{ backgroundImage: `url(${currentUser?.profile_picture || ''})`, backgroundSize: 'cover' }}></div>
-                </div>
-            </nav>
+            <NavBarV2 activePage="home" />
 
             <div className="main">
+                {/* NEXT EVENT HERO */}
+                {eventsLoading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                        <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
+                    </div>
+                ) : nextEvent ? (
+                    <section className="next-event-hero">
+                        <div className="next-event-hero__badge">
+                            {isExpired ? 'EVENT STARTED' : 'OPEN FOR PICKS'}
+                        </div>
+                        <div className="next-event-hero__bg-text">{nextEvent.name.replace('UFC ', 'UFC ')}</div>
+                        <div className="next-event-hero__divider"></div>
+                        <h1 className="next-event-hero__title">{nextEvent.name}</h1>
+                        <p className="next-event-hero__meta">
+                            {formatEventDate(nextEvent.date)} // {nextEvent.venue || nextEvent.location || 'VENUE TBA'}
+                        </p>
+                        <div className="next-event-hero__countdown">
+                            <div className="next-event-hero__countdown-label">TIME UNTIL EVENT</div>
+                            <div className="next-event-hero__countdown-time">
+                                {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
+                            </div>
+                        </div>
+                        <a href={`/events/${nextEvent.id}`} className="next-event-hero__cta">
+                            MAKE YOUR PICKS →
+                        </a>
+                    </section>
+                ) : (
+                    <section className="next-event-hero" style={{ padding: '4rem', textAlign: 'center' }}>
+                        <h1 className="next-event-hero__title">NO UPCOMING EVENTS</h1>
+                        <p className="next-event-hero__meta">Check back soon for the next UFC event</p>
+                    </section>
+                )}
+
                 {/* HERO SECTION - ASYMMETRIC MASONRY */}
                 <div className="hero">
                     <div className="hero__event">
