@@ -96,7 +96,7 @@ function EventTimingTab() {
         try {
             const token = getAuthToken();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${eventId}/lock-picks`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/lock-picks`,
                 {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
@@ -119,7 +119,7 @@ function EventTimingTab() {
         try {
             const token = getAuthToken();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${eventId}/unlock-picks`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/unlock-picks`,
                 {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
@@ -162,7 +162,7 @@ function EventTimingTab() {
                         try {
                             const token = getAuthToken();
                             const response = await fetch(
-                                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${event.id}/timing`,
+                                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${event.id}/timing`,
                                 {
                                     method: 'PUT',
                                     headers: {
@@ -394,7 +394,7 @@ function BoutResultCard({
         try {
             const token = getAuthToken();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/bouts/${bout.id}/result`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/bouts/${bout.id}/result`,
                 {
                     method: 'PUT',
                     headers: {
@@ -429,7 +429,7 @@ function BoutResultCard({
         try {
             const token = getAuthToken();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/bouts/${bout.id}/result`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/bouts/${bout.id}/result`,
                 {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${token}` },
@@ -584,7 +584,7 @@ function EventArtTab() {
             formData.append('file', file);
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${eventId}/event-art`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/event-art`,
                 {
                     method: 'POST',
                     headers: { Authorization: `Bearer ${token}` },
@@ -614,7 +614,7 @@ function EventArtTab() {
         try {
             const token = getAuthToken();
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/admin/events/${eventId}/event-art`,
+                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/event-art`,
                 {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${token}` },

@@ -13,11 +13,11 @@ export const LandingPageV2 = () => {
     const router = useRouter();
 
     // 1. Get Next Event
-    const { data: events, isLoading: eventsLoading } = useEvents({
+    const { data: eventsData, isLoading: eventsLoading } = useEvents({
         status: 'scheduled',
         limit: 1
     });
-    const nextEvent = events?.[0];
+    const nextEvent = eventsData?.events?.[0];
 
     // 2. Get Main Event Bout
     const { data: bouts } = useEventBouts(nextEvent?.id || 0);
@@ -74,7 +74,7 @@ export const LandingPageV2 = () => {
                                 <>
                                     <h1 className="hero__event-title">{nextEvent.name}</h1>
                                     <p className="hero__event-subtitle">
-                                        {formatEventDate(nextEvent.date)} // {nextEvent.venue || nextEvent.location || 'VENUE TBA'}
+                                        {formatEventDate(nextEvent.date)} // {nextEvent.location?.city || 'VENUE TBA'}
                                     </p>
                                     <div className="hero__countdown">
                                         <div className="hero__countdown-label">TIME UNTIL EVENT</div>
