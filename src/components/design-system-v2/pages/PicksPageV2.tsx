@@ -1,9 +1,213 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { V2Layout } from '../V2Layout';
+import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
+import { getFighterImageUrl } from '@/lib/api';
+import { Loader2 } from 'lucide-react';
+
+interface PickWithBout {
+    pick: {
+        id: number;
+        bout_id: number;
+        event_id: number;
+        predicted_winner: string;
+        is_correct: boolean | null;
+        points_earned: number;
+        created_at: string;
+    };
+    bout?: {
+        id: number;
+        event_id: number;
+        fighter1_name: string;
+        fighter2_name: string;
+        fighter1_id?: string;
+        fighter2_id?: string;
+        fighter1_record?: string;
+        fighter2_record?: string;
+        weight_class?: string;
+        winner?: string;
+        status: string;
+    };
+    event?: {
+        id: number;
+        name: string;
+        date: string;
+        status: string;
+    };
+}
 
 export const PicksPageV2 = () => {
+    const [selectedEventId, setSelectedEventId] = useState<number | 'all'>('all');
+    
+    const { data: currentUser } = useCurrentUser();
+    const { data: allPicks, isLoading: picksLoading } = useAllMyPicks();
+    const { data: eventsData, isLoading: eventsLoading } = useEvents({ limit: 50 });
+    
+    const events = eventsData?.events || [];
+    const isLoading = picksLoading || eventsLoading;
+
+    // Group picks by event
+    const picksByEvent = useMemo(() => {
+        if (!allPicks || !events.length) return new Map();
+        
+        const grouped = new Map<number, PickWithBout[]>();
+        
+        allPicks.forEach(pick => {
+            const event = events.find(e => e.id === pick.event_id);
+            const existing = grouped.get(pick.event_id) || [];
+            existing.push({ pick, event });
+            grouped.set(pick.event_id, existing);
+        });
+        
+        return grouped;
+    }, [allPicks, events]);
+
+    // Calculate stats
+    const stats = useMemo(() => {
+        if (!allPicks) return { total: 0, correct: 0, incorrect: 0, accuracy: 0 };
+        
+        const decided = allPicks.filter(p => p.is_correct !== null);
+        const correct = decided.filter(p => p.is_correct === true).length;
+        const incorrect = decided.filter(p => p.is_correct === false).length;
+        
+        return {
+            total: allPicks.length,
+            correct,
+            incorrect,
+            accuracy: decided.length > 0 ? Math.round((correct / decided.length) * 100) : 0
+        };
+    }, [allPicks]);
+
+    // Events with picks, sorted by date
+    const eventsWithPicks = useMemo(() => {
+        return events
+            .filter(e => picksByEvent.has(e.id))
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [events, picksByEvent]);
+
+    const pendingEvents = eventsWithPicks.filter(e => e.status === 'scheduled');
+    const completedEvents = eventsWithPicks.filter(e => e.status !== 'scheduled');
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        }).toUpperCase();
+    };
+
+    // Component to render picks for an event (fetches bouts for that event)
+    const EventPicksSection = ({ event, picks }: { event: any, picks: PickWithBout[] }) => {
+        const { data: bouts } = useEventBouts(event.id);
+        
+        const picksWithBouts = picks.map(p => ({
+            ...p,
+            bout: bouts?.find(b => b.id === p.pick.bout_id)
+        }));
+
+        const eventPicks = picksWithBouts.filter(p => p.bout);
+        const decidedPicks = eventPicks.filter(p => p.pick.is_correct !== null);
+        const correctPicks = decidedPicks.filter(p => p.pick.is_correct === true).length;
+        const eventAccuracy = decidedPicks.length > 0 
+            ? Math.round((correctPicks / decidedPicks.length) * 100) 
+            : null;
+        const isPending = event.status === 'scheduled';
+
+        return (
+            <div className="picks-event">
+                <div className="picks-event__header">
+                    <div>
+                        <h2 className="picks-event__title">{event.name}</h2>
+                        <p className="picks-event__date">{formatDate(event.date)} {isPending && '// PENDING'}</p>
+                    </div>
+                    <div className="picks-event__score">
+                        <div className="picks-event__score-value">
+                            {isPending ? `${eventPicks.length}` : `${correctPicks}/${decidedPicks.length}`}
+                        </div>
+                        <div className="picks-event__score-label">
+                            {isPending ? 'PICKS MADE' : eventAccuracy !== null ? `${eventAccuracy}% ACCURACY` : 'NO RESULTS'}
+                        </div>
+                    </div>
+                </div>
+
+                {eventPicks.map(({ pick, bout }) => {
+                    if (!bout) return null;
+                    
+                    const isPicked1 = pick.predicted_winner === bout.fighter1_name;
+                    const isPicked2 = pick.predicted_winner === bout.fighter2_name;
+                    const isCorrect = pick.is_correct === true;
+                    const isIncorrect = pick.is_correct === false;
+                    const isPendingPick = pick.is_correct === null;
+                    
+                    const rowClass = isPendingPick 
+                        ? 'pick-row pick-row--pending' 
+                        : isCorrect 
+                            ? 'pick-row pick-row--correct' 
+                            : 'pick-row pick-row--incorrect';
+
+                    return (
+                        <div key={pick.id} className={rowClass}>
+                            <div className={`pick-row__fighter pick-row__fighter--red ${isPicked1 ? 'pick-row__fighter--selected' : ''}`}>
+                                <div 
+                                    className="pick-row__photo" 
+                                    style={{
+                                        backgroundImage: bout.fighter1_id ? `url(${getFighterImageUrl(bout.fighter1_id)})` : 'none',
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center'
+                                    }}
+                                >
+                                    {!bout.fighter1_id && bout.fighter1_name?.charAt(0)}
+                                </div>
+                                <div className="pick-row__info">
+                                    <div className="pick-row__name">{bout.fighter1_name?.toUpperCase()}</div>
+                                    <div className="pick-row__record">{bout.fighter1_record || '-'}</div>
+                                    {isPicked1 && <div className="pick-row__your-pick">YOUR PICK</div>}
+                                </div>
+                            </div>
+                            <div className="pick-row__vs">VS</div>
+                            <div className={`pick-row__fighter pick-row__fighter--blue ${isPicked2 ? 'pick-row__fighter--selected' : ''}`}>
+                                <div 
+                                    className="pick-row__photo"
+                                    style={{
+                                        backgroundImage: bout.fighter2_id ? `url(${getFighterImageUrl(bout.fighter2_id)})` : 'none',
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center'
+                                    }}
+                                >
+                                    {!bout.fighter2_id && bout.fighter2_name?.charAt(0)}
+                                </div>
+                                <div className="pick-row__info">
+                                    <div className="pick-row__name">{bout.fighter2_name?.toUpperCase()}</div>
+                                    <div className="pick-row__record">{bout.fighter2_record || '-'}</div>
+                                    {isPicked2 && <div className="pick-row__your-pick">YOUR PICK</div>}
+                                </div>
+                            </div>
+                            <div className="pick-row__result">
+                                {isPendingPick && (
+                                    <span className="pick-row__result-badge pick-row__result-badge--pending">PENDING</span>
+                                )}
+                                {isCorrect && (
+                                    <>
+                                        <span className="pick-row__result-badge pick-row__result-badge--correct">CORRECT</span>
+                                        <span className="pick-row__points pick-row__points--positive">+{pick.points_earned}</span>
+                                    </>
+                                )}
+                                {isIncorrect && (
+                                    <>
+                                        <span className="pick-row__result-badge pick-row__result-badge--incorrect">WRONG</span>
+                                        <span className="pick-row__points pick-row__points--negative">0</span>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    };
+
     return (
         <V2Layout>
             <nav className="nav">
@@ -11,14 +215,16 @@ export const PicksPageV2 = () => {
                 <div className="nav__items">
                     <a href="/" className="nav__item">HOME</a>
                     <a href="/events" className="nav__item">EVENTS</a>
-                    <a href="/picks" className="nav__item nav__item--active">MY PICKS</a>
-                    <a href="/leaderboard" className="nav__item">LEADERBOARDS</a>
+                    <a href="/my-picks" className="nav__item nav__item--active">MY PICKS</a>
+                    <a href="/leaderboards" className="nav__item">LEADERBOARDS</a>
                     <a href="/profile" className="nav__item">PROFILE</a>
-                    <a href="/admin" className="nav__item">ADMIN</a>
                 </div>
                 <div className="nav__user">
-                    <div className="nav__avatar"></div>
-                    <span>FIGHTER_FAN_99</span>
+                    <div className="nav__avatar" style={{
+                        backgroundImage: currentUser?.profile_picture ? `url(${currentUser.profile_picture})` : 'none',
+                        backgroundSize: 'cover'
+                    }}></div>
+                    <span>{currentUser?.name?.toUpperCase() || 'GUEST'}</span>
                 </div>
             </nav>
 
@@ -30,203 +236,113 @@ export const PicksPageV2 = () => {
                     </div>
                 </header>
 
-                <div className="stats-overview">
-                    <div className="stat-box">
-                        <div className="stat-box__value">127</div>
-                        <div className="stat-box__label">TOTAL PICKS</div>
+                {isLoading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+                        <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
                     </div>
-                    <div className="stat-box">
-                        <div className="stat-box__value stat-box__value--success">86</div>
-                        <div className="stat-box__label">CORRECT</div>
+                ) : !currentUser ? (
+                    <div style={{ textAlign: 'center', padding: '4rem' }}>
+                        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Please log in to see your picks</p>
+                        <a href="/auth" className="btn btn--primary">LOGIN</a>
                     </div>
-                    <div className="stat-box">
-                        <div className="stat-box__value stat-box__value--error">41</div>
-                        <div className="stat-box__label">INCORRECT</div>
-                    </div>
-                    <div className="stat-box">
-                        <div className="stat-box__value stat-box__value--accent">68%</div>
-                        <div className="stat-box__label">ACCURACY</div>
-                    </div>
-                </div>
+                ) : (
+                    <>
+                        <div className="stats-overview">
+                            <div className="stat-box">
+                                <div className="stat-box__value">{stats.total}</div>
+                                <div className="stat-box__label">TOTAL PICKS</div>
+                            </div>
+                            <div className="stat-box">
+                                <div className="stat-box__value stat-box__value--success">{stats.correct}</div>
+                                <div className="stat-box__label">CORRECT</div>
+                            </div>
+                            <div className="stat-box">
+                                <div className="stat-box__value stat-box__value--error">{stats.incorrect}</div>
+                                <div className="stat-box__label">INCORRECT</div>
+                            </div>
+                            <div className="stat-box">
+                                <div className="stat-box__value stat-box__value--accent">{stats.accuracy}%</div>
+                                <div className="stat-box__label">ACCURACY</div>
+                            </div>
+                        </div>
 
-                <div className="event-tabs">
-                    <a href="#" className="event-tab event-tab--active">ALL EVENTS</a>
-                    <a href="#" className="event-tab">UFC 315 (PENDING)</a>
-                    <a href="#" className="event-tab">UFC 314</a>
-                    <a href="#" className="event-tab">UFC FN: PEREIRA</a>
-                    <a href="#" className="event-tab">UFC 313</a>
-                </div>
+                        {/* Event Tabs */}
+                        {eventsWithPicks.length > 0 && (
+                            <div className="event-tabs">
+                                <button 
+                                    className={`event-tab ${selectedEventId === 'all' ? 'event-tab--active' : ''}`}
+                                    onClick={() => setSelectedEventId('all')}
+                                >
+                                    ALL EVENTS
+                                </button>
+                                {eventsWithPicks.slice(0, 4).map(event => (
+                                    <button
+                                        key={event.id}
+                                        className={`event-tab ${selectedEventId === event.id ? 'event-tab--active' : ''}`}
+                                        onClick={() => setSelectedEventId(event.id)}
+                                    >
+                                        {event.name.replace('UFC ', '').toUpperCase()}
+                                        {event.status === 'scheduled' && ' (PENDING)'}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
 
-                {/* PENDING PICKS */}
-                <div className="picks-event">
-                    <div className="picks-event__header">
-                        <div>
-                            <h2 className="picks-event__title">UFC 315: ADESANYA VS. STRICKLAND 2</h2>
-                            <p className="picks-event__date">SAT, FEB 15, 2026 // PENDING</p>
-                        </div>
-                        <div className="picks-event__score">
-                            <div className="picks-event__score-value">8/13</div>
-                            <div className="picks-event__score-label">PICKS MADE</div>
-                        </div>
-                    </div>
+                        {/* Show selected event or all */}
+                        {selectedEventId !== 'all' ? (
+                            (() => {
+                                const event = events.find(e => e.id === selectedEventId);
+                                const picks = picksByEvent.get(selectedEventId) || [];
+                                return event && picks.length > 0 ? (
+                                    <EventPicksSection event={event} picks={picks} />
+                                ) : null;
+                            })()
+                        ) : (
+                            <>
+                                {/* PENDING PICKS */}
+                                {pendingEvents.map(event => {
+                                    const picks = picksByEvent.get(event.id) || [];
+                                    return <EventPicksSection key={event.id} event={event} picks={picks} />;
+                                })}
 
-                    <div className="pick-row pick-row--pending">
-                        <div className="pick-row__fighter pick-row__fighter--red pick-row__fighter--selected">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">ISRAEL ADESANYA</div>
-                                <div className="pick-row__record">24-3-0</div>
-                                <div className="pick-row__your-pick">YOUR PICK</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__vs">VS</div>
-                        <div className="pick-row__fighter pick-row__fighter--blue">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">SEAN STRICKLAND</div>
-                                <div className="pick-row__record">29-6-0</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__result">
-                            <span className="pick-row__result-badge pick-row__result-badge--pending">PENDING</span>
-                        </div>
-                    </div>
+                                {/* Divider between pending and completed */}
+                                {pendingEvents.length > 0 && completedEvents.length > 0 && (
+                                    <div className="section-divider">
+                                        <div className="section-divider__line"></div>
+                                        <span className="section-divider__text">COMPLETED EVENTS</span>
+                                        <div className="section-divider__line"></div>
+                                    </div>
+                                )}
 
-                    <div className="pick-row pick-row--pending">
-                        <div className="pick-row__fighter pick-row__fighter--red">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">DUSTIN POIRIER</div>
-                                <div className="pick-row__record">30-8-0</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__vs">VS</div>
-                        <div className="pick-row__fighter pick-row__fighter--blue pick-row__fighter--selected">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">MICHAEL CHANDLER</div>
-                                <div className="pick-row__record">23-8-0</div>
-                                <div className="pick-row__your-pick">YOUR PICK</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__result">
-                            <span className="pick-row__result-badge pick-row__result-badge--pending">PENDING</span>
-                        </div>
-                    </div>
-                </div>
+                                {/* COMPLETED PICKS */}
+                                {completedEvents.map(event => {
+                                    const picks = picksByEvent.get(event.id) || [];
+                                    return <EventPicksSection key={event.id} event={event} picks={picks} />;
+                                })}
 
-                <div className="section-divider">
-                    <div className="section-divider__line"></div>
-                    <span className="section-divider__text">COMPLETED EVENTS</span>
-                    <div className="section-divider__line"></div>
-                </div>
-
-                {/* COMPLETED PICKS */}
-                <div className="picks-event">
-                    <div className="picks-event__header">
-                        <div>
-                            <h2 className="picks-event__title">UFC 314: MAKHACHEV VS. OLIVEIRA 2</h2>
-                            <p className="picks-event__date">SAT, JAN 25, 2026</p>
-                        </div>
-                        <div className="picks-event__score">
-                            <div className="picks-event__score-value">10/13</div>
-                            <div className="picks-event__score-label">77% ACCURACY</div>
-                        </div>
-                    </div>
-
-                    <div className="pick-row pick-row--correct">
-                        <div className="pick-row__fighter pick-row__fighter--red pick-row__fighter--selected">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">ISLAM MAKHACHEV</div>
-                                <div className="pick-row__record">26-1-0</div>
-                                <div className="pick-row__your-pick">YOUR PICK</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__vs">VS</div>
-                        <div className="pick-row__fighter pick-row__fighter--blue">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">CHARLES OLIVEIRA</div>
-                                <div className="pick-row__record">34-10-0</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__result">
-                            <span className="pick-row__result-badge pick-row__result-badge--correct">CORRECT</span>
-                            <span className="pick-row__points pick-row__points--positive">+10</span>
-                        </div>
-                    </div>
-
-                    <div className="pick-row pick-row--incorrect">
-                        <div className="pick-row__fighter pick-row__fighter--red">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">KHAMZAT CHIMAEV</div>
-                                <div className="pick-row__record">14-0-0</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__vs">VS</div>
-                        <div className="pick-row__fighter pick-row__fighter--blue pick-row__fighter--selected">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">ROBERT WHITTAKER</div>
-                                <div className="pick-row__record">25-8-0</div>
-                                <div className="pick-row__your-pick">YOUR PICK</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__result">
-                            <span className="pick-row__result-badge pick-row__result-badge--incorrect">WRONG</span>
-                            <span className="pick-row__points pick-row__points--negative">0</span>
-                        </div>
-                    </div>
-
-                    <div className="pick-row pick-row--correct">
-                        <div className="pick-row__fighter pick-row__fighter--red pick-row__fighter--selected">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">MERAB DVALISHVILI</div>
-                                <div className="pick-row__record">18-4-0</div>
-                                <div className="pick-row__your-pick">YOUR PICK</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__vs">VS</div>
-                        <div className="pick-row__fighter pick-row__fighter--blue">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">PETR YAN</div>
-                                <div className="pick-row__record">17-5-0</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__result">
-                            <span className="pick-row__result-badge pick-row__result-badge--correct">CORRECT</span>
-                            <span className="pick-row__points pick-row__points--positive">+10</span>
-                        </div>
-                    </div>
-
-                    <div className="pick-row pick-row--correct">
-                        <div className="pick-row__fighter pick-row__fighter--red">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">ALJAMAIN STERLING</div>
-                                <div className="pick-row__record">24-4-0</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__vs">VS</div>
-                        <div className="pick-row__fighter pick-row__fighter--blue pick-row__fighter--selected">
-                            <div className="pick-row__photo">&#9733;</div>
-                            <div className="pick-row__info">
-                                <div className="pick-row__name">MOVSAR EVLOEV</div>
-                                <div className="pick-row__record">19-0-0</div>
-                                <div className="pick-row__your-pick">YOUR PICK</div>
-                            </div>
-                        </div>
-                        <div className="pick-row__result">
-                            <span className="pick-row__result-badge pick-row__result-badge--correct">CORRECT</span>
-                            <span className="pick-row__points pick-row__points--positive">+10</span>
-                        </div>
-                    </div>
-                </div>
+                                {/* Empty state */}
+                                {eventsWithPicks.length === 0 && (
+                                    <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
+                                        <p>No picks made yet.</p>
+                                        <a href="/events" style={{ color: 'var(--accent)', marginTop: '1rem', display: 'inline-block' }}>
+                                            Browse Events &rarr;
+                                        </a>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
             </div>
+
+            <footer className="footer">
+                <div className="footer__grid">
+                    <div className="footer__block">
+                        <div className="footer__label">SYSTEM</div>
+                        <div className="footer__text">UFC PICKS v2.0</div>
+                    </div>
+                </div>
+            </footer>
         </V2Layout>
     );
 };

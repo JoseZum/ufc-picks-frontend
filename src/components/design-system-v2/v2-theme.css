@@ -3267,3 +3267,336 @@
         gap: 1rem;
     }
 }
+
+/* ============================================
+   LOGIN PAGE STYLES
+   ============================================ */
+
+.login-page {
+    min-height: 100vh;
+    background: var(--bg-base);
+    display: flex;
+    flex-direction: column;
+}
+
+.login-header {
+    background: var(--bg-panel);
+    border-bottom: var(--border-thick) solid var(--border-strong);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.login-header__logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--text-primary);
+    background: var(--accent);
+    padding: 0.5rem 1.5rem;
+    letter-spacing: 3px;
+    text-decoration: none;
+}
+
+.login-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.login-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1000px;
+    width: 100%;
+    min-height: 500px;
+}
+
+.login-hero {
+    background: linear-gradient(135deg, var(--bg-base) 0%, var(--bg-elevated) 100%);
+    border: var(--border-thick) solid var(--border-strong);
+    border-right: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-hero::before {
+    content: 'UFC PICKS';
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10rem;
+    color: rgba(255, 255, 255, 0.02);
+    position: absolute;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    right: -2rem;
+}
+
+.login-hero__icon {
+    width: 100px;
+    height: 100px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.login-hero__icon::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 2px solid var(--accent);
+    opacity: 0.5;
+}
+
+.login-hero__icon svg {
+    width: 50px;
+    height: 50px;
+    color: var(--text-primary);
+}
+
+.login-hero__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 4px;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.login-hero__subtitle {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-hero__features {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 280px;
+}
+
+.login-hero__feature {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg-elevated);
+    border-left: var(--border-thick) solid var(--accent);
+}
+
+.login-hero__feature-icon {
+    color: var(--accent);
+    font-size: 1.2rem;
+}
+
+.login-hero__feature-text {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+}
+
+.login-card {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    border-left: var(--border-thick) solid var(--accent);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(225, 6, 0, 0.3);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-card__header {
+    margin-bottom: 2rem;
+}
+
+.login-card__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 3px;
+    margin-bottom: 0.5rem;
+}
+
+.login-card__subtitle {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.login-card__divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.login-card__divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.login-card__divider-text {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+.login-btn {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 2px solid var(--border-strong);
+    color: var(--text-primary);
+    padding: 1rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.login-btn:hover {
+    background: var(--bg-panel);
+    border-color: var(--accent);
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--accent);
+}
+
+.login-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.login-btn--google {
+    background: var(--text-primary);
+    color: var(--bg-base);
+    border-color: var(--text-primary);
+}
+
+.login-btn--google:hover {
+    background: var(--text-secondary);
+    border-color: var(--text-secondary);
+}
+
+.login-btn__icon {
+    width: 20px;
+    height: 20px;
+}
+
+.login-btn__spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.login-card__footer {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.login-card__terms {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1.6;
+}
+
+.login-card__terms a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.login-card__terms a:hover {
+    text-decoration: underline;
+}
+
+.login-footer {
+    background: var(--bg-panel);
+    border-top: var(--border-thick) solid var(--border-strong);
+    padding: 1.5rem 2rem;
+}
+
+.login-footer__grid {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+
+.login-footer__item {
+    text-align: center;
+}
+
+.login-footer__label {
+    font-size: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+}
+
+.login-footer__text {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* RESPONSIVE FOR LOGIN */
+@media (max-width: 900px) {
+    .login-content {
+        grid-template-columns: 1fr;
+        max-width: 450px;
+    }
+
+    .login-hero {
+        display: none;
+    }
+
+    .login-card {
+        border-left: var(--border-thick) solid var(--border-strong);
+        border-top: var(--border-thick) solid var(--accent);
+    }
+}
+
+@media (max-width: 600px) {
+    .login-container {
+        padding: 1rem;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-card__title {
+        font-size: 2rem;
+    }
+
+    .login-footer__grid {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

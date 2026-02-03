@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { AuthPage } from './AuthPage'
+import { LoginPageV2 } from '@/components/design-system-v2/pages/LoginPageV2'
 
 export const metadata: Metadata = {
   title: 'Sign In - UFC Picks',
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Page() {
-  return <AuthPage />
+  return <LoginPageV2 />
 }
