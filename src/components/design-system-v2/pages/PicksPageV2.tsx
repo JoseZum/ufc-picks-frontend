@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import { V2Layout } from '../V2Layout';
 
 export const PicksPageV2 = () => {
