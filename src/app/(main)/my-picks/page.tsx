@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { MyPicksPage } from './MyPicksPage'
+import { UI_VERSION } from '@/config/uiVersion'
+import { PicksPageV2 } from '@/components/design-system-v2/pages/PicksPageV2'
 
 export const metadata: Metadata = {
   title: 'My Picks - UFC Picks',
@@ -10,5 +12,8 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default function Page() {
+  if (UI_VERSION === 'v2') {
+    return <PicksPageV2 />
+  }
   return <MyPicksPage />
 }
