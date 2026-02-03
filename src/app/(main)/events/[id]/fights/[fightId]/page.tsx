@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { FightPage } from './FightPage'
+import { UI_VERSION } from '@/config/uiVersion'
+import { FightPickPageV2 } from '@/components/design-system-v2/pages/FightPickPageV2'
 
 export async function generateMetadata({
   params
@@ -15,5 +17,8 @@ export async function generateMetadata({
 
 export default async function Page({ params }: { params: Promise<{ id: string; fightId: string }> }) {
   const { id, fightId } = await params
+  if (UI_VERSION === 'v2') {
+    return <FightPickPageV2 params={{ id, fightId }} />
+  }
   return <FightPage eventId={id} fightId={fightId} />
 }

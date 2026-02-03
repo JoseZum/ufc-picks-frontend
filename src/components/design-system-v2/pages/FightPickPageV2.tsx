@@ -1,0 +1,421 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { V2Layout } from '../V2Layout';
+import { NavBarV2 } from '../NavBarV2';
+import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
+import { getFighterImageUrl } from '@/lib/api';
+import { Loader2 } from 'lucide-react';
+
+interface FightPickPageV2Props {
+    params: {
+        id: string;
+        fightId: string;
+    }
+}
+
+export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
+    const router = useRouter();
+    const eventId = parseInt(params.id, 10);
+    const boutId = parseInt(params.fightId, 10);
+
+    const { data: event, isLoading: eventLoading } = useEvent(eventId);
+    const { data: bouts, isLoading: boutsLoading } = useEventBouts(eventId);
+    const { data: userPicks, refetch: refetchPicks } = useMyPicks(eventId);
+    const { data: currentUser } = useCurrentUser();
+    const createPickMutation = useCreatePick();
+
+    // Find the specific bout
+    const bout = bouts?.find(b => b.id === boutId);
+    const existingPick = userPicks?.find(p => p.bout_id === boutId);
+
+    // Local state for pick flow
+    const [selectedFighter, setSelectedFighter] = useState<'red' | 'blue' | null>(null);
+    const [selectedMethod, setSelectedMethod] = useState<'DEC' | 'KO/TKO' | 'SUB' | null>(null);
+    const [selectedRound, setSelectedRound] = useState<number | null>(null);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    // Initialize from existing pick
+    useEffect(() => {
+        if (existingPick) {
+            setSelectedFighter(existingPick.picked_corner);
+            setSelectedMethod((existingPick.picked_method as 'DEC' | 'KO/TKO' | 'SUB') || 'DEC');
+            setSelectedRound(existingPick.picked_round || null);
+            setShowSuccess(true);
+        }
+    }, [existingPick]);
+
+    const handleSelectFighter = (corner: 'red' | 'blue') => {
+        if (event?.status !== 'scheduled') return;
+        setSelectedFighter(corner);
+        setCurrentStep(1);
+        setShowSuccess(false);
+    };
+
+    const handleSelectMethod = (method: 'DEC' | 'KO/TKO' | 'SUB') => {
+        setSelectedMethod(method);
+        if (method === 'DEC') {
+            setSelectedRound(null);
+            setCurrentStep(3);
+        } else {
+            setCurrentStep(2);
+        }
+    };
+
+    const handleSelectRound = (round: number) => {
+        setSelectedRound(round);
+        setCurrentStep(3);
+    };
+
+    const handleConfirmPick = async () => {
+        if (!currentUser || !selectedFighter || !selectedMethod) {
+            if (!currentUser) router.push('/auth');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            await createPickMutation.mutateAsync({
+                event_id: eventId,
+                bout_id: boutId,
+                picked_corner: selectedFighter,
+                picked_method: selectedMethod,
+                picked_round: selectedRound || undefined
+            });
+            await refetchPicks();
+            setShowSuccess(true);
+        } catch (err) {
+            console.error('Failed to save pick', err);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleReset = () => {
+        setSelectedFighter(null);
+        setSelectedMethod(null);
+        setSelectedRound(null);
+        setCurrentStep(0);
+        setShowSuccess(false);
+    };
+
+    const goToStep = (step: number) => {
+        setCurrentStep(step);
+        setShowSuccess(false);
+    };
+
+    if (eventLoading || boutsLoading) {
+        return (
+            <V2Layout>
+                <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+                    <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
+                </div>
+            </V2Layout>
+        );
+    }
+
+    if (!event || !bout) {
+        return (
+            <V2Layout>
+                <NavBarV2 activePage="events" />
+                <div className="main" style={{ paddingTop: '100px', textAlign: 'center' }}>
+                    <h1>Fight not found</h1>
+                </div>
+            </V2Layout>
+        );
+    }
+
+    const redFighter = bout.fighters.red;
+    const blueFighter = bout.fighters.blue;
+    const isLocked = event.status !== 'scheduled';
+
+    const formatRecord = (record: any) => {
+        if (!record) return 'Record N/A';
+        return `${record.wins} - ${record.losses} - ${record.draws}`;
+    };
+
+    const getMaxPoints = () => {
+        if (selectedMethod === 'DEC') return 2;
+        return 3;
+    };
+
+    return (
+        <V2Layout>
+            <NavBarV2 activePage="events" />
+
+            <main className="main" style={{ paddingTop: '70px', paddingBottom: '120px' }}>
+                {/* FIGHT HEADER */}
+                <header className="fight-header">
+                    <div className="fight-header__info">
+                        <div className="fight-header__event">
+                            {event.name} // {bout.is_title_fight ? 'TITLE FIGHT' : 'BOUT'}
+                        </div>
+                        <div className="fight-header__meta">
+                            <span className="fight-header__meta-item">{bout.weight_class}</span>
+                            <span className="fight-header__meta-item">{bout.rounds_scheduled} ROUNDS</span>
+                            <span className="fight-header__meta-item">
+                                {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                    <a href={`/events/${eventId}`} className="fight-header__back">← BACK TO CARD</a>
+                </header>
+
+                {/* FIGHTERS CONTAINER */}
+                <div className="fighters-container">
+                    {/* RED CORNER */}
+                    <div 
+                        className={`fighter-card fighter-card--red ${selectedFighter === 'red' ? 'fighter-card--selected' : ''}`}
+                        onClick={() => !isLocked && handleSelectFighter('red')}
+                        style={{ cursor: isLocked ? 'default' : 'pointer' }}
+                    >
+                        <span className="fighter-card__corner">RED CORNER</span>
+                        <div className="fighter-card__content">
+                            <div className="fighter-card__photo" style={{
+                                backgroundImage: `url(${getFighterImageUrl(redFighter)})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'top center'
+                            }}>
+                                {redFighter.ranking?.position && (
+                                    <span className="fighter-card__rank">#{redFighter.ranking.position}</span>
+                                )}
+                            </div>
+                            <h2 className="fighter-card__name">{redFighter.fighter_name}</h2>
+                            {redFighter.nickname && (
+                                <p className="fighter-card__nickname">"{redFighter.nickname}"</p>
+                            )}
+                            <p className="fighter-card__record">{formatRecord(redFighter.record_at_fight)}</p>
+                            <p className="fighter-card__country">
+                                <span className="fighter-card__country-flag">🏳️</span>
+                                {redFighter.nationality || 'Unknown'}
+                            </p>
+
+                            <div className="fighter-card__stats">
+                                {redFighter.height && (
+                                    <div className="stat">
+                                        <div className="stat__label">HEIGHT</div>
+                                        <div className="stat__value">{`${redFighter.height.feet}'${redFighter.height.inches}"`}</div>
+                                    </div>
+                                )}
+                                {redFighter.reach && (
+                                    <div className="stat">
+                                        <div className="stat__label">REACH</div>
+                                        <div className="stat__value">{`${redFighter.reach.inches}"`}</div>
+                                    </div>
+                                )}
+                                {redFighter.age_at_fight_years && (
+                                    <div className="stat">
+                                        <div className="stat__label">AGE</div>
+                                        <div className="stat__value">{redFighter.age_at_fight_years}</div>
+                                    </div>
+                                )}
+                                {bout.weight_class && (
+                                    <div className="stat">
+                                        <div className="stat__label">WEIGHT</div>
+                                        <div className="stat__value">{bout.weight_class}</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {!isLocked && (
+                                <button 
+                                    className="fighter-card__pick-btn"
+                                    onClick={(e) => { e.stopPropagation(); handleSelectFighter('red'); }}
+                                >
+                                    PICK {redFighter.fighter_name.split(' ').pop()?.toUpperCase()}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* VS DIVIDER */}
+                    <div className="vs-divider">
+                        <span className="vs-divider__text">VS</span>
+                        <span className="vs-divider__rounds">{bout.rounds_scheduled} RDS</span>
+                    </div>
+
+                    {/* BLUE CORNER */}
+                    <div 
+                        className={`fighter-card fighter-card--blue ${selectedFighter === 'blue' ? 'fighter-card--selected' : ''}`}
+                        onClick={() => !isLocked && handleSelectFighter('blue')}
+                        style={{ cursor: isLocked ? 'default' : 'pointer' }}
+                    >
+                        <span className="fighter-card__corner">BLUE CORNER</span>
+                        <div className="fighter-card__content">
+                            <div className="fighter-card__photo" style={{
+                                backgroundImage: `url(${getFighterImageUrl(blueFighter)})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'top center'
+                            }}>
+                                {blueFighter.ranking?.position && (
+                                    <span className="fighter-card__rank">#{blueFighter.ranking.position}</span>
+                                )}
+                            </div>
+                            <h2 className="fighter-card__name">{blueFighter.fighter_name}</h2>
+                            {blueFighter.nickname && (
+                                <p className="fighter-card__nickname">"{blueFighter.nickname}"</p>
+                            )}
+                            <p className="fighter-card__record">{formatRecord(blueFighter.record_at_fight)}</p>
+                            <p className="fighter-card__country">
+                                <span className="fighter-card__country-flag">🏳️</span>
+                                {blueFighter.nationality || 'Unknown'}
+                            </p>
+
+                            <div className="fighter-card__stats">
+                                {blueFighter.height && (
+                                    <div className="stat">
+                                        <div className="stat__label">HEIGHT</div>
+                                        <div className="stat__value">{`${blueFighter.height.feet}'${blueFighter.height.inches}"`}</div>
+                                    </div>
+                                )}
+                                {blueFighter.reach && (
+                                    <div className="stat">
+                                        <div className="stat__label">REACH</div>
+                                        <div className="stat__value">{`${blueFighter.reach.inches}"`}</div>
+                                    </div>
+                                )}
+                                {blueFighter.age_at_fight_years && (
+                                    <div className="stat">
+                                        <div className="stat__label">AGE</div>
+                                        <div className="stat__value">{blueFighter.age_at_fight_years}</div>
+                                    </div>
+                                )}
+                                {bout.weight_class && (
+                                    <div className="stat">
+                                        <div className="stat__label">WEIGHT</div>
+                                        <div className="stat__value">{bout.weight_class}</div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {!isLocked && (
+                                <button 
+                                    className="fighter-card__pick-btn"
+                                    onClick={(e) => { e.stopPropagation(); handleSelectFighter('blue'); }}
+                                >
+                                    PICK {blueFighter.fighter_name.split(' ').pop()?.toUpperCase()}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* PICK FLOW PANEL */}
+                {!isLocked && (currentStep > 0 || showSuccess) && (
+                    <div className={`pick-panel pick-panel--active`}>
+                        <div className="pick-panel__content">
+                            {/* STEP INDICATOR */}
+                            <div className="step-indicator">
+                                <div className={`step-indicator__step ${currentStep >= 1 ? 'step-indicator__step--complete' : ''} ${currentStep === 1 ? 'step-indicator__step--active' : ''}`}></div>
+                                <div className={`step-indicator__step ${currentStep >= 2 ? 'step-indicator__step--complete' : ''} ${currentStep === 2 ? 'step-indicator__step--active' : ''}`}></div>
+                                <div className={`step-indicator__step ${currentStep >= 3 || showSuccess ? 'step-indicator__step--complete' : ''} ${currentStep === 3 ? 'step-indicator__step--active' : ''}`}></div>
+                            </div>
+
+                            {/* STEP 1: METHOD SELECTION */}
+                            {currentStep === 1 && !showSuccess && (
+                                <div className="pick-step pick-step--active">
+                                    <div className="pick-step__header">
+                                        <h3 className="pick-step__title">STEP 2: SELECT METHOD</h3>
+                                        <span className="pick-step__change" onClick={handleReset}>CHANGE FIGHTER</span>
+                                    </div>
+                                    <div className="method-grid">
+                                        <div className={`method-btn ${selectedMethod === 'DEC' ? 'method-btn--selected' : ''}`} onClick={() => handleSelectMethod('DEC')}>
+                                            <div className="method-btn__abbr">DEC</div>
+                                            <div className="method-btn__label">DECISION</div>
+                                        </div>
+                                        <div className={`method-btn ${selectedMethod === 'KO/TKO' ? 'method-btn--selected' : ''}`} onClick={() => handleSelectMethod('KO/TKO')}>
+                                            <div className="method-btn__abbr">KO/TKO</div>
+                                            <div className="method-btn__label">KNOCKOUT</div>
+                                        </div>
+                                        <div className={`method-btn ${selectedMethod === 'SUB' ? 'method-btn--selected' : ''}`} onClick={() => handleSelectMethod('SUB')}>
+                                            <div className="method-btn__abbr">SUB</div>
+                                            <div className="method-btn__label">SUBMISSION</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 2: ROUND SELECTION */}
+                            {currentStep === 2 && !showSuccess && (
+                                <div className="pick-step pick-step--active">
+                                    <div className="pick-step__header">
+                                        <h3 className="pick-step__title">STEP 3: SELECT ROUND</h3>
+                                        <span className="pick-step__change" onClick={() => goToStep(1)}>CHANGE METHOD</span>
+                                    </div>
+                                    <div className="round-grid">
+                                        {Array.from({ length: bout.rounds_scheduled || 3 }, (_, i) => i + 1).map(round => (
+                                            <div 
+                                                key={round}
+                                                className={`round-btn ${selectedRound === round ? 'round-btn--selected' : ''}`}
+                                                onClick={() => handleSelectRound(round)}
+                                            >
+                                                <span className="round-btn__text">R{round}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* STEP 3: CONFIRM */}
+                            {currentStep === 3 && !showSuccess && (
+                                <div className="pick-step pick-step--active">
+                                    <div className="confirm-panel">
+                                        <div className="confirm-panel__preview">
+                                            <span className="confirm-panel__fighter">
+                                                {selectedFighter === 'red' ? redFighter.fighter_name : blueFighter.fighter_name}
+                                            </span>
+                                            <div className="confirm-panel__details">
+                                                <span className="confirm-panel__badge">
+                                                    {selectedMethod === 'DEC' ? 'DECISION' : selectedMethod === 'KO/TKO' ? 'KO/TKO' : 'SUBMISSION'}
+                                                </span>
+                                                {selectedRound && (
+                                                    <span className="confirm-panel__badge">ROUND {selectedRound}</span>
+                                                )}
+                                            </div>
+                                            <div className="confirm-panel__points">
+                                                <span className="confirm-panel__points-value">{getMaxPoints()}</span>
+                                                <span className="confirm-panel__points-label">MAX PTS</span>
+                                            </div>
+                                        </div>
+                                        <div className="confirm-panel__actions">
+                                            <button className="btn btn--secondary" onClick={handleReset}>RESET</button>
+                                            <button className="btn btn--primary" onClick={handleConfirmPick} disabled={saving}>
+                                                {saving ? 'SAVING...' : 'CONFIRM PICK'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* SUCCESS STATE */}
+                            {showSuccess && (
+                                <div className="pick-success pick-success--active">
+                                    <div className="pick-success__icon">✓</div>
+                                    <div className="pick-success__title">PICK SAVED!</div>
+                                    <div className="pick-success__details">
+                                        {selectedFighter === 'red' ? redFighter.fighter_name : blueFighter.fighter_name} by {selectedMethod === 'DEC' ? 'DECISION' : selectedMethod === 'KO/TKO' ? 'KO/TKO' : 'SUBMISSION'}
+                                        {selectedRound && ` in Round ${selectedRound}`}
+                                    </div>
+                                    <span className="pick-success__edit" onClick={handleReset}>EDIT PICK</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {isLocked && (
+                    <div className="pick-panel pick-panel--active" style={{ background: 'var(--bg-elevated)' }}>
+                        <div className="pick-panel__content" style={{ textAlign: 'center', padding: '1rem' }}>
+                            <div style={{ fontSize: '1.2rem', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '2px' }}>
+                                PICKS LOCKED - EVENT {event.status.toUpperCase()}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </main>
+        </V2Layout>
+    );
+};
