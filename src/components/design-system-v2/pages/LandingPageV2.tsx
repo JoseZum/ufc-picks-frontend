@@ -242,7 +242,7 @@ export const LandingPageV2 = () => {
                         </div>
                         <div className="footer__block">
                             <div className="footer__label">Contact</div>
-                            <div className="footer__text">SUPPORT@UFCPICKS.COM</div>
+                            <div className="footer__text">JOSEZUMBRU@GMAIL.COM</div>
                         </div>
                     </div>
                 </footer>
