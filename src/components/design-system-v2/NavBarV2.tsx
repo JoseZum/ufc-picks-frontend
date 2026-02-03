@@ -14,7 +14,7 @@ export const NavBarV2 = ({ activePage }: NavBarV2Props) => {
     const navItems = [
         { href: '/', label: 'HOME', page: 'home' as const },
         { href: '/events', label: 'EVENTS', page: 'events' as const },
-        { href: '/picks', label: 'MY PICKS', page: 'picks' as const },
+        { href: '/my-picks', label: 'MY PICKS', page: 'picks' as const },
         { href: '/leaderboards', label: 'LEADERBOARDS', page: 'leaderboard' as const },
         { href: '/profile', label: 'PROFILE', page: 'profile' as const },
     ];

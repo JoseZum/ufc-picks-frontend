@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl } from '@/lib/api';
+import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 
 interface EventDetailPageV2Props {
@@ -127,7 +127,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
             <div className="main" style={{ paddingTop: '70px', paddingBottom: '100px' }}>
                 <section className="event-hero" style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${getEventPosterUrl(event)})`,
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${getEventImageUrl(event)})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                 }}>

@@ -176,6 +176,7 @@ export interface Event {
   total_bouts: number;
   promotion: string;
   poster_image_url?: string;
+  event_art_url?: string;
   picks_locked?: boolean;
 }
 
@@ -319,6 +320,30 @@ export function getEventPosterUrl(event: Event): string {
 
   // Otherwise, it's a proxy URL - prepend API_URL
   return `${API_URL}${event.poster_image_url}`;
+}
+
+/**
+ * Helper to get event art URL (admin-uploaded image stored in MongoDB)
+ * Returns null if no event art, otherwise returns full API URL
+ */
+export function getEventArtUrl(event: Event): string | null {
+  if (!event.event_art_url) {
+    return null;
+  }
+  // event_art_url is always a relative path like /events/{id}/event-art
+  return `${API_URL}${event.event_art_url}`;
+}
+
+/**
+ * Helper to get the best image URL for an event
+ * Prefers event_art (admin-uploaded) over poster (scraped from Tapology)
+ */
+export function getEventImageUrl(event: Event): string {
+  const eventArt = getEventArtUrl(event);
+  if (eventArt) {
+    return eventArt;
+  }
+  return getEventPosterUrl(event);
 }
 
 export interface Bout {

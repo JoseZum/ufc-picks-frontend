@@ -6,7 +6,7 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl } from '@/lib/api';
+import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 
 export const LandingPageV2 = () => {
@@ -56,7 +56,7 @@ export const LandingPageV2 = () => {
                 <section className="hero">
                     <div className="hero__event">
                         <div className="hero__event-image" style={{
-                            backgroundImage: nextEvent ? `url(${getEventPosterUrl(nextEvent)})` : 'none',
+                            backgroundImage: nextEvent ? `url(${getEventImageUrl(nextEvent)})` : 'none',
                             backgroundSize: 'cover',
                             backgroundPosition: 'top center'
                         }}>
