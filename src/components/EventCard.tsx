@@ -10,6 +10,7 @@ interface EventCardProps {
   date: string;
   location: string;
   isUpcoming: boolean;
+  status?: "scheduled" | "completed" | "cancelled";
   fightsCount: number;
   posterUrl?: string;
   mainEvent?: {
@@ -25,6 +26,7 @@ export function EventCard({
   date,
   location,
   isUpcoming,
+  status,
   fightsCount,
   posterUrl,
   mainEvent,
@@ -39,6 +41,7 @@ export function EventCard({
       className={cn(
         "card-gradient border-border/50 overflow-hidden cursor-pointer transition-all duration-200",
         "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5",
+        status === "completed" && "opacity-75 grayscale-[30%]",
         className
       )}
     >
@@ -65,7 +68,7 @@ export function EventCard({
                 </p>
               )}
             </div>
-            <StatusBadge status={isUpcoming ? "open" : "locked"} />
+            <StatusBadge status={isUpcoming ? "open" : status === "completed" ? "completed" : "locked"} />
           </div>
 
           <div className="space-y-2 text-sm text-muted-foreground">

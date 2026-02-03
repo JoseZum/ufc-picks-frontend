@@ -12,6 +12,9 @@ import api, {
   type User,
   type CreatePickRequest,
   type LeaderboardEntry,
+  type PublicUserProfile,
+  type UserPick,
+  type UserPicksStats,
 } from './api';
 
 // ============================================
@@ -257,5 +260,51 @@ export function useHealthCheck() {
     queryFn: api.checkHealth,
     refetchInterval: 30 * 1000, // Cada 30 segundos
     retry: 1,
+  });
+}
+
+// ============================================
+// PUBLIC USER PROFILE HOOKS
+// ============================================
+
+/**
+ * Hook para obtener el perfil público de un usuario
+ */
+export function useUserProfile(userId: string) {
+  return useQuery({
+    queryKey: ['userProfile', userId],
+    queryFn: () => api.getUserProfile(userId),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutos
+  });
+}
+
+/**
+ * Hook para obtener los picks de un usuario
+ */
+export function useUserPicks(userId: string, params?: {
+  event_id?: number;
+  year?: number;
+  status?: 'correct' | 'incorrect' | 'pending';
+  limit?: number;
+  skip?: number;
+}) {
+  return useQuery({
+    queryKey: ['userPicks', userId, params],
+    queryFn: () => api.getUserPicks(userId, params),
+    enabled: !!userId,
+    staleTime: 30 * 1000,
+  });
+}
+
+/**
+ * Hook para obtener las estadísticas de picks de un usuario
+ */
+export function useUserPicksStats(userId: string, year?: number) {
+  return useQuery({
+    queryKey: ['userPicksStats', userId, year],
+    queryFn: () => api.getUserPicksStats(userId, year),
+    enabled: !!userId,
+    staleTime: 60 * 1000,
   });
 }

@@ -525,6 +525,100 @@ export async function unlockBoutPicks(boutId: number): Promise<{ success: boolea
   });
 }
 
+// ============================================
+// PUBLIC USER PROFILES
+// ============================================
+
+export interface PublicUserProfile {
+  id: string;
+  name: string;
+  avatar_url?: string;
+  created_at: string;
+  total_points: number;
+  picks_total: number;
+  picks_correct: number;
+  perfect_picks: number;
+  accuracy: number;
+}
+
+export interface UserPick {
+  id: string;
+  bout_id: number;
+  event_id: number;
+  event_name?: string;
+  event_date?: string;
+  picked_corner: 'red' | 'blue';
+  picked_method: 'DEC' | 'KO/TKO' | 'SUB';
+  picked_round?: number;
+  is_correct?: boolean;
+  points_awarded: number;
+  locked: boolean;
+  created_at: string;
+  fighter_red?: string;
+  fighter_blue?: string;
+  weight_class?: string;
+  result?: {
+    winner: 'red' | 'blue';
+    method: string;
+    round?: number;
+    time?: string;
+  };
+}
+
+export interface UserPicksStats {
+  total_picks: number;
+  correct_picks: number;
+  incorrect_picks: number;
+  pending_picks: number;
+  total_points: number;
+  perfect_picks: number;
+  accuracy: number;
+  by_method: {
+    DEC: number;
+    'KO/TKO': number;
+    SUB: number;
+  };
+}
+
+/**
+ * Obtiene el perfil público de un usuario
+ */
+export async function getUserProfile(userId: string): Promise<PublicUserProfile> {
+  return apiRequest<PublicUserProfile>(`/users/${userId}`);
+}
+
+/**
+ * Obtiene los picks de un usuario (solo picks locked/públicos)
+ */
+export async function getUserPicks(userId: string, params?: {
+  event_id?: number;
+  year?: number;
+  status?: 'correct' | 'incorrect' | 'pending';
+  limit?: number;
+  skip?: number;
+}): Promise<UserPick[]> {
+  const searchParams = new URLSearchParams();
+  if (params?.event_id) searchParams.set('event_id', String(params.event_id));
+  if (params?.year) searchParams.set('year', String(params.year));
+  if (params?.status) searchParams.set('status', params.status);
+  if (params?.limit) searchParams.set('limit', String(params.limit));
+  if (params?.skip) searchParams.set('skip', String(params.skip));
+
+  const query = searchParams.toString();
+  return apiRequest<UserPick[]>(`/users/${userId}/picks${query ? `?${query}` : ''}`);
+}
+
+/**
+ * Obtiene las estadísticas de picks de un usuario
+ */
+export async function getUserPicksStats(userId: string, year?: number): Promise<UserPicksStats> {
+  const searchParams = new URLSearchParams();
+  if (year) searchParams.set('year', String(year));
+
+  const query = searchParams.toString();
+  return apiRequest<UserPicksStats>(`/users/${userId}/picks/stats${query ? `?${query}` : ''}`);
+}
+
 // Export default object with all functions
 const api = {
   // Auth
@@ -562,6 +656,11 @@ const api = {
 
   // Health
   checkHealth,
+
+  // Public User Profiles
+  getUserProfile,
+  getUserPicks,
+  getUserPicksStats,
 };
 
 export default api;

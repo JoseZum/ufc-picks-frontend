@@ -193,6 +193,7 @@ export function LeaderboardsPage() {
                   <LeaderboardRow
                     key={user.user_id}
                     rank={index + 1}
+                    userId={user.user_id}
                     username={user.username}
                     avatarUrl={user.avatar_url}
                     points={user.total_points}
@@ -215,6 +216,7 @@ export function LeaderboardsPage() {
               <h3 className="text-sm font-medium mb-3 text-muted-foreground">Your Position</h3>
               <LeaderboardRow
                 rank={myPosition.rank!}
+                userId={myPosition.entry.user_id}
                 username={myPosition.entry.username}
                 avatarUrl={myPosition.entry.avatar_url}
                 points={myPosition.entry.total_points}
@@ -243,6 +245,7 @@ export function LeaderboardsPage() {
                 <LeaderboardRow
                   key={user.user_id}
                   rank={index + 1}
+                  userId={user.user_id}
                   username={user.username}
                   avatarUrl={user.avatar_url}
                   points={user.total_points}

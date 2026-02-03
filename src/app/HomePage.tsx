@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { ArrowRight, Calendar, Flame, Target, Trophy, Loader2 } from "lucide-react"
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from "@/lib/hooks"
-import { getFighterImageUrl } from "@/lib/api"
+import { getFighterImageUrl, getEventPosterUrl } from "@/lib/api"
 
 export function HomePage() {
   // Obtener el próximo evento
@@ -57,36 +57,111 @@ export function HomePage() {
             </div>
           </Card>
         ) : nextEvent ? (
-          <Card className="card-gradient border-primary/30 p-6 relative overflow-hidden">
+          <Card className="card-gradient border-primary/30 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
 
-            <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-muted-foreground">Next Event</span>
-                </div>
+            {/* Event Poster Banner */}
+            <div className="relative h-48 md:h-64 overflow-hidden">
+              <img
+                src={getEventPosterUrl(nextEvent)}
+                alt={nextEvent.name}
+                className="w-full h-full object-cover object-top"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-card via-card/60 to-transparent" />
+
+              {/* Badge overlay */}
+              <div className="absolute top-4 right-4">
                 <StatusBadge status={nextEvent.status === 'scheduled' ? "open" : "locked"} />
               </div>
 
-              <h2 className="text-2xl font-bold text-foreground mb-1">{nextEvent.name}</h2>
+              {/* Date badge */}
+              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-white">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">
+                    {new Date(nextEvent.date).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative p-6 -mt-12">
+              <div className="flex items-center gap-2 mb-2">
+                <Flame className="h-4 w-4 text-primary" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">Next Event</span>
+              </div>
+
+              <h2 className="text-2xl font-bold text-foreground mb-2">{nextEvent.name}</h2>
+
+              {/* Main Event Fighters */}
               {mainEventBout && (
-                <p className="text-primary font-semibold mb-2">
-                  {mainEventBout.fighters.red?.fighter_name || 'TBD'} vs {mainEventBout.fighters.blue?.fighter_name || 'TBD'}
-                </p>
+                <div className="bg-secondary/50 rounded-lg p-4 mb-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Main Event</p>
+                  <div className="flex items-center justify-center gap-4">
+                    <div className="text-right flex-1">
+                      <p className="font-bold text-foreground">{mainEventBout.fighters.red?.fighter_name || 'TBD'}</p>
+                      {mainEventBout.fighters.red?.record_at_fight && (
+                        <p className="text-xs text-muted-foreground">
+                          {mainEventBout.fighters.red.record_at_fight.wins}-{mainEventBout.fighters.red.record_at_fight.losses}-{mainEventBout.fighters.red.record_at_fight.draws}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="text-primary font-bold text-lg">VS</span>
+                    </div>
+                    <div className="text-left flex-1">
+                      <p className="font-bold text-foreground">{mainEventBout.fighters.blue?.fighter_name || 'TBD'}</p>
+                      {mainEventBout.fighters.blue?.record_at_fight && (
+                        <p className="text-xs text-muted-foreground">
+                          {mainEventBout.fighters.blue.record_at_fight.wins}-{mainEventBout.fighters.blue.record_at_fight.losses}-{mainEventBout.fighters.blue.record_at_fight.draws}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {mainEventBout.weight_class && (
+                    <p className="text-xs text-center text-muted-foreground mt-2">
+                      {mainEventBout.weight_class} {mainEventBout.is_title_fight && '- Title Fight'}
+                    </p>
+                  )}
+                </div>
               )}
+
               {nextEvent.location && (
-                <p className="text-sm text-muted-foreground mb-4">
-                  {nextEvent.location.city}, {nextEvent.location.country}
+                <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary"></span>
+                  {[nextEvent.location.venue, nextEvent.location.city, nextEvent.location.country].filter(Boolean).join(', ')}
                 </p>
               )}
 
-              <p className="text-xs text-muted-foreground text-center mb-4">
-                Countdown to Event Start
-              </p>
-              <CountdownTimer targetDate={new Date(nextEvent.date)} />
+              <div className="bg-secondary/30 rounded-lg p-4 mb-4">
+                <p className="text-xs text-muted-foreground text-center mb-3 uppercase tracking-wider">
+                  Countdown to Event
+                </p>
+                <CountdownTimer targetDate={new Date(nextEvent.date)} />
+              </div>
 
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              {/* Event Stats */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="bg-secondary/30 rounded-lg p-3 text-center">
+                  <p className="text-lg font-bold text-foreground">{nextEvent.total_bouts}</p>
+                  <p className="text-xs text-muted-foreground">Total Fights</p>
+                </div>
+                <div className="bg-secondary/30 rounded-lg p-3 text-center">
+                  <p className="text-lg font-bold text-primary">
+                    {bouts?.filter(b => b.is_title_fight).length || 0}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Title Fights</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={() => router.push(`/events/${nextEvent.id}`)}
                   className="flex-1 gap-2"
@@ -163,6 +238,7 @@ export function HomePage() {
                 <LeaderboardRow
                   key={user.user_id}
                   rank={user.rank}
+                  userId={user.user_id}
                   username={user.username}
                   avatarUrl={user.avatar_url}
                   points={user.total_points}

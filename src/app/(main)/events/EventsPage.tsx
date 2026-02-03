@@ -143,6 +143,7 @@ export function EventsPage() {
                 date={formatDate(event.date)}
                 location={formatLocation(event.location)}
                 isUpcoming={true}
+                status={event.status as "scheduled" | "completed" | "cancelled"}
                 fightsCount={event.total_bouts}
                 posterUrl={getEventPosterUrl(event)}
                 onClick={() => router.push(`/events/${event.id}`)}
@@ -167,6 +168,7 @@ export function EventsPage() {
                 date={formatDate(event.date)}
                 location={formatLocation(event.location)}
                 isUpcoming={false}
+                status={event.status as "scheduled" | "completed" | "cancelled"}
                 fightsCount={event.total_bouts}
                 posterUrl={getEventPosterUrl(event)}
                 onClick={() => router.push(`/events/${event.id}`)}

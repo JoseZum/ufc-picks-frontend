@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 interface StatusBadgeProps {
-  status: "pending" | "correct" | "incorrect" | "open" | "locked";
+  status: "pending" | "correct" | "incorrect" | "open" | "locked" | "completed";
   className?: string;
 }
 
@@ -25,6 +25,10 @@ const statusConfig = {
   locked: {
     label: "Locked",
     className: "bg-muted text-muted-foreground border-border",
+  },
+  completed: {
+    label: "Completed",
+    className: "bg-zinc-800 text-zinc-400 border-zinc-600",
   },
 };
 
