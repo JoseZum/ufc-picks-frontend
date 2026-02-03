@@ -159,11 +159,11 @@ export const LeaderboardPageV2 = () => {
                                     </div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{myPosition.total_points?.toLocaleString()}</div>
+                                    <div className="your-position__stat-value">{myPosition.entry?.total_points?.toLocaleString() || 0}</div>
                                     <div className="your-position__stat-label">POINTS</div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{Math.round((myPosition.accuracy || 0) * 100)}%</div>
+                                    <div className="your-position__stat-value">{Math.round((myPosition.entry?.accuracy || 0) * 100)}%</div>
                                     <div className="your-position__stat-label">ACCURACY</div>
                                 </div>
                                 <div className="your-position__stat">

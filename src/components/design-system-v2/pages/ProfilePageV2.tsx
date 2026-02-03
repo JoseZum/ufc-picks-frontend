@@ -181,7 +181,7 @@ export const ProfilePageV2 = () => {
                                             border: '2px solid var(--border)'
                                         }}>
                                             <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent)' }}>
-                                                {myPosition?.total_points?.toLocaleString() || 0}
+                                                {myPosition?.entry?.total_points?.toLocaleString() || 0}
                                             </div>
                                             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
                                                 TOTAL POINTS
