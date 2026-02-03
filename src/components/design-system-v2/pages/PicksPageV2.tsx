@@ -135,8 +135,8 @@ export const PicksPageV2 = () => {
                 {eventPicks.map(({ pick, bout }) => {
                     if (!bout) return null;
                     
-                    const isPicked1 = pick.predicted_winner === bout.fighter1_name;
-                    const isPicked2 = pick.predicted_winner === bout.fighter2_name;
+                    const isPicked1 = pick.predicted_winner === bout.fighters.red.fighter_name;
+                    const isPicked2 = pick.predicted_winner === bout.fighters.blue.fighter_name;
                     const isCorrect = pick.is_correct === true;
                     const isIncorrect = pick.is_correct === false;
                     const isPendingPick = pick.is_correct === null;
@@ -153,16 +153,20 @@ export const PicksPageV2 = () => {
                                 <div 
                                     className="pick-row__photo" 
                                     style={{
-                                        backgroundImage: bout.fighter1_id ? `url(${getFighterImageUrl(bout.fighter1_id)})` : 'none',
+                                        backgroundImage: bout.fighters.red.fighter_name ? `url(${getFighterImageUrl(bout.fighters.red.fighter_name)})` : 'none',
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}
                                 >
-                                    {!bout.fighter1_id && bout.fighter1_name?.charAt(0)}
+                                    {bout.fighters.red.fighter_name?.charAt(0)}
                                 </div>
                                 <div className="pick-row__info">
-                                    <div className="pick-row__name">{bout.fighter1_name?.toUpperCase()}</div>
-                                    <div className="pick-row__record">{bout.fighter1_record || '-'}</div>
+                                    <div className="pick-row__name">{bout.fighters.red.fighter_name?.toUpperCase()}</div>
+                                    <div className="pick-row__record">
+                                        {bout.fighters.red.record_at_fight ? 
+                                            `${bout.fighters.red.record_at_fight.wins}-${bout.fighters.red.record_at_fight.losses}-${bout.fighters.red.record_at_fight.draws}` 
+                                            : '-'}
+                                    </div>
                                     {isPicked1 && <div className="pick-row__your-pick">YOUR PICK</div>}
                                 </div>
                             </div>
@@ -171,16 +175,20 @@ export const PicksPageV2 = () => {
                                 <div 
                                     className="pick-row__photo"
                                     style={{
-                                        backgroundImage: bout.fighter2_id ? `url(${getFighterImageUrl(bout.fighter2_id)})` : 'none',
+                                        backgroundImage: bout.fighters.blue.fighter_name ? `url(${getFighterImageUrl(bout.fighters.blue.fighter_name)})` : 'none',
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}
                                 >
-                                    {!bout.fighter2_id && bout.fighter2_name?.charAt(0)}
+                                    {bout.fighters.blue.fighter_name?.charAt(0)}
                                 </div>
                                 <div className="pick-row__info">
-                                    <div className="pick-row__name">{bout.fighter2_name?.toUpperCase()}</div>
-                                    <div className="pick-row__record">{bout.fighter2_record || '-'}</div>
+                                    <div className="pick-row__name">{bout.fighters.blue.fighter_name?.toUpperCase()}</div>
+                                    <div className="pick-row__record">
+                                        {bout.fighters.blue.record_at_fight ? 
+                                            `${bout.fighters.blue.record_at_fight.wins}-${bout.fighters.blue.record_at_fight.losses}-${bout.fighters.blue.record_at_fight.draws}` 
+                                            : '-'}
+                                    </div>
                                     {isPicked2 && <div className="pick-row__your-pick">YOUR PICK</div>}
                                 </div>
                             </div>
