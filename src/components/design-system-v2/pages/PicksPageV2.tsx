@@ -219,7 +219,7 @@ export const PicksPageV2 = () => {
 
     return (
         <V2Layout>
-            <NavBarV2 activePage="my-picks" />
+            <NavBarV2 activePage="picks" />
 
             <div className="main">
                 <header className="page-header">

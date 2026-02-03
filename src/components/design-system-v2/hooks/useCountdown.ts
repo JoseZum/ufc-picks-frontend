@@ -2,52 +2,52 @@
 
 import { useState, useEffect } from 'react';
 
-interface TimeLeft {
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
+interface CountdownResult {
+    formatted: {
+        days: string;
+        hours: string;
+        minutes: string;
+        seconds: string;
+    };
+    isExpired: boolean;
+    totalSeconds: number;
 }
 
-export function useCountdown(targetDate: Date | null) {
-    const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-    const [isExpired, setIsExpired] = useState(false);
+export const useCountdown = (targetDate: Date | null): CountdownResult => {
+    const [timeLeft, setTimeLeft] = useState<number>(0);
 
     useEffect(() => {
-        if (!targetDate) {
-            setIsExpired(true);
-            return;
-        }
+        if (!targetDate) return;
 
         const calculateTimeLeft = () => {
-            const difference = targetDate.getTime() - new Date().getTime();
-
-            if (difference > 0) {
-                setIsExpired(false);
-                setTimeLeft({
-                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-                    minutes: Math.floor((difference / 1000 / 60) % 60),
-                    seconds: Math.floor((difference / 1000) % 60),
-                });
-            } else {
-                setIsExpired(true);
-                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-            }
+            const now = new Date().getTime();
+            const target = targetDate.getTime();
+            const difference = target - now;
+            return Math.max(0, Math.floor(difference / 1000));
         };
 
-        calculateTimeLeft();
-        const timer = setInterval(calculateTimeLeft, 1000);
+        setTimeLeft(calculateTimeLeft());
+
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 1000);
 
         return () => clearInterval(timer);
     }, [targetDate]);
 
-    const formatted = {
-        days: String(timeLeft.days).padStart(2, '0'),
-        hours: String(timeLeft.hours).padStart(2, '0'),
-        minutes: String(timeLeft.minutes).padStart(2, '0'),
-        seconds: String(timeLeft.seconds).padStart(2, '0'),
-    };
+    const days = Math.floor(timeLeft / (60 * 60 * 24));
+    const hours = Math.floor((timeLeft % (60 * 60 * 24)) / (60 * 60));
+    const minutes = Math.floor((timeLeft % (60 * 60)) / 60);
+    const seconds = timeLeft % 60;
 
-    return { timeLeft, formatted, isExpired };
-}
+    return {
+        formatted: {
+            days: String(days).padStart(2, '0'),
+            hours: String(hours).padStart(2, '0'),
+            minutes: String(minutes).padStart(2, '0'),
+            seconds: String(seconds).padStart(2, '0'),
+        },
+        isExpired: timeLeft === 0,
+        totalSeconds: timeLeft,
+    };
+};

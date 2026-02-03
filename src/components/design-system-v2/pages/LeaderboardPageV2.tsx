@@ -25,7 +25,7 @@ export const LeaderboardPageV2 = () => {
 
     return (
         <V2Layout>
-            <NavBarV2 activePage="leaderboards" />
+            <NavBarV2 activePage="leaderboard" />
 
             <div className="main">
                 <header className="page-header">

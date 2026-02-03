@@ -21,11 +21,11 @@ export const LandingPageV2 = () => {
 
     // 2. Get Main Event Bout
     const { data: bouts } = useEventBouts(nextEvent?.id || 0);
-    const mainEventBout = bouts?.[0]; // First bout is usually main event in this API
+    const mainEventBout = bouts?.[0];
 
     // 3. Get Leaderboard
     const { data: leaderboard, isLoading: leaderboardLoading } = useGlobalLeaderboard({
-        limit: 3
+        limit: 5
     });
 
     // 4. Get User Stats
@@ -51,89 +51,63 @@ export const LandingPageV2 = () => {
         <V2Layout>
             <NavBarV2 activePage="home" />
 
-            <div className="main">
-                {/* NEXT EVENT HERO */}
-                {eventsLoading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-                        <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
-                    </div>
-                ) : nextEvent ? (
-                    <section className="next-event-hero">
-                        <div className="next-event-hero__badge">
-                            {isExpired ? 'EVENT STARTED' : 'OPEN FOR PICKS'}
-                        </div>
-                        <div className="next-event-hero__bg-text">{nextEvent.name.replace('UFC ', 'UFC ')}</div>
-                        <div className="next-event-hero__divider"></div>
-                        <h1 className="next-event-hero__title">{nextEvent.name}</h1>
-                        <p className="next-event-hero__meta">
-                            {formatEventDate(nextEvent.date)} // {nextEvent.venue || nextEvent.location || 'VENUE TBA'}
-                        </p>
-                        <div className="next-event-hero__countdown">
-                            <div className="next-event-hero__countdown-label">TIME UNTIL EVENT</div>
-                            <div className="next-event-hero__countdown-time">
-                                {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
-                            </div>
-                        </div>
-                        <a href={`/events/${nextEvent.id}`} className="next-event-hero__cta">
-                            MAKE YOUR PICKS →
-                        </a>
-                    </section>
-                ) : (
-                    <section className="next-event-hero" style={{ padding: '4rem', textAlign: 'center' }}>
-                        <h1 className="next-event-hero__title">NO UPCOMING EVENTS</h1>
-                        <p className="next-event-hero__meta">Check back soon for the next UFC event</p>
-                    </section>
-                )}
-
-                {/* HERO SECTION - ASYMMETRIC MASONRY */}
-                <div className="hero">
+            <main className="main">
+                {/* HERO SECTION - BROKEN GRID */}
+                <section className="hero">
                     <div className="hero__event">
                         <div className="hero__event-image" style={{
                             backgroundImage: nextEvent ? `url(${getEventPosterUrl(nextEvent)})` : 'none',
                             backgroundSize: 'cover',
                             backgroundPosition: 'top center'
                         }}>
-                            {!nextEvent && eventsLoading && <div className="flex items-center justify-center h-full"><Loader2 className="animate-spin" /></div>}
-                            <span className="hero__event-badge">Next Event</span>
+                            {eventsLoading && (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                                    <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
+                                </div>
+                            )}
+                            <span className={`hero__event-badge ${isExpired ? 'hero__event-badge--locked' : ''}`}>
+                                {isExpired ? 'LOCKED' : 'OPEN FOR PICKS'}
+                            </span>
                         </div>
                         <div className="hero__event-content">
                             {nextEvent ? (
                                 <>
-                                    <div className="hero__event-title">{nextEvent.name}</div>
-                                    <div className="hero__event-subtitle">
-                                        {mainEventBout ?
-                                            `${mainEventBout.fighters.red.fighter_name} vs ${mainEventBout.fighters.blue.fighter_name}`
-                                            : 'Fight Card Announced Soon'}
-                                    </div>
-
+                                    <h1 className="hero__event-title">{nextEvent.name}</h1>
+                                    <p className="hero__event-subtitle">
+                                        {formatEventDate(nextEvent.date)} // {nextEvent.venue || nextEvent.location || 'VENUE TBA'}
+                                    </p>
                                     <div className="hero__countdown">
-                                        <div className="hero__countdown-label">Event Date</div>
-                                        <div className="hero__countdown-time" style={{ fontSize: '2rem' }}>
-                                            {eventDate?.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                        </div>
-                                    </div>
-
-                                    <div className="hero__stats">
-                                        <div className="hero__stats-title">Total Fights</div>
-                                        <div className="hero__stats-grid">
-                                            <div className="hero__stat">
-                                                <div className="hero__stat-value" style={{ color: 'var(--text-primary)' }}>{nextEvent.total_bouts}</div>
-                                                <div className="hero__stat-label">Bouts</div>
-                                            </div>
+                                        <div className="hero__countdown-label">TIME UNTIL EVENT</div>
+                                        <div className="hero__countdown-time">
+                                            {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
                                         </div>
                                     </div>
                                 </>
                             ) : (
-                                <div className="hero__event-title">No Upcoming Events</div>
+                                <h1 className="hero__event-title">No Upcoming Events</h1>
                             )}
                         </div>
                     </div>
 
-                    <a href={nextEvent ? `/events/${nextEvent.id}` : '#'} className="hero__action">
-                        <div className="hero__action-text">Make Your Picks</div>
-                        <div className="hero__action-arrow">→</div>
+                    <div className="hero__stats">
+                        <div className="hero__stats-title">EVENT STATS</div>
+                        <div className="hero__stats-grid">
+                            <div className="hero__stat">
+                                <div className="hero__stat-value">{nextEvent?.total_bouts || 0}</div>
+                                <div className="hero__stat-label">TOTAL FIGHTS</div>
+                            </div>
+                            <div className="hero__stat">
+                                <div className="hero__stat-value">{bouts?.filter(b => b.is_title_fight).length || 0}</div>
+                                <div className="hero__stat-label">TITLE FIGHTS</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href={nextEvent ? `/events/${nextEvent.id}` : '#'} className="hero__action glitch">
+                        <span className="hero__action-text">MAKE YOUR PICKS</span>
+                        <span className="hero__action-arrow">→</span>
                     </a>
-                </div>
+                </section>
 
                 {/* MAIN EVENT - BRUTAL VS CARD */}
                 {mainEventBout && (
@@ -193,32 +167,32 @@ export const LandingPageV2 = () => {
                 )}
 
                 {/* USER STATS - BRUTALIST CARDS */}
-                <div className="stats-section">
-                    <div className="stats-section__title">Your Season Stats</div>
+                <section className="stats-section">
+                    <h2 className="stats-section__title">YOUR STATS</h2>
                     <div className="stats-grid">
                         <div className="stat-card">
-                            <div className="stat-card__label">Total Points</div>
-                            <div className="stat-card__value">{currentUser?.total_points || 0}</div>
+                            <div className="stat-card__label">PICKS MADE</div>
+                            <div className="stat-card__value">{currentUser?.picks_total || 0}</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-card__label">Global Rank</div>
-                            <div className="stat-card__value"><span className="stat-card__suffix">#</span>{myPosition?.rank || '-'}</div>
+                            <div className="stat-card__label">GLOBAL RANK</div>
+                            <div className="stat-card__value">#{myPosition?.rank || '-'}</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-card__label">Accuracy</div>
+                            <div className="stat-card__label">ACCURACY</div>
                             <div className="stat-card__value">
                                 {currentUser?.accuracy ? Math.round(currentUser.accuracy * 100) : 0}
                                 <span className="stat-card__suffix">%</span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 {/* LEADERBOARD - RAW TABLE */}
-                <div className="leaderboard">
+                <section className="leaderboard">
                     <div className="leaderboard__header">
-                        <div className="leaderboard__title">Top Players</div>
-                        <a href="/leaderboards" className="leaderboard__link">View Full Leaderboard</a>
+                        <h2 className="leaderboard__title">TOP PREDICTORS</h2>
+                        <a href="/leaderboards" className="leaderboard__link">VIEW ALL →</a>
                     </div>
                     <table className="leaderboard__table">
                         <tbody>
@@ -249,7 +223,7 @@ export const LandingPageV2 = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
+                </section>
 
                 {/* FOOTER - EXPOSED STRUCTURE */}
                 <footer className="footer">
@@ -272,7 +246,7 @@ export const LandingPageV2 = () => {
                         </div>
                     </div>
                 </footer>
-            </div>
+            </main>
         </V2Layout>
     );
 };
