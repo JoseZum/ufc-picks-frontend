@@ -16,22 +16,18 @@ const nextConfig = {
     ],
   },
 
-  // Reescrituras para redirigir API calls al backend (solo en desarrollo)
-  // En produccion, el frontend llama directamente a la URL del backend
+  // Reescrituras para redirigir API calls al backend (Proxy para evitar CORS)
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // URL del backend real (Render en prod, localhost en dev por defecto)
+    const isDev = process.env.NODE_ENV === 'development';
+    const backendUrl = process.env.BACKEND_URL || (isDev ? 'http://localhost:8000' : 'https://ufc-picks-backend.onrender.com');
 
-    // Solo aplicar rewrites en desarrollo
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          source: '/api/:path*',
-          destination: `${apiUrl}/:path*`,
-        },
-      ];
-    }
-
-    return [];
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/:path*`,
+      },
+    ];
   },
 }
 

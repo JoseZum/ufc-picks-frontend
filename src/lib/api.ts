@@ -6,7 +6,7 @@
  * - Produccion: URL configurada en NEXT_PUBLIC_API_URL
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 /**
  * Returns the API URL for use in components
@@ -474,7 +474,7 @@ export async function getMyLeaderboardPosition(category: string = 'global'): Pro
 }> {
   const searchParams = new URLSearchParams();
   searchParams.set('category', category);
-  
+
   return apiRequest<{ rank: number | null; entry: LeaderboardEntry | null }>(
     `/leaderboard/me?${searchParams.toString()}`
   );
