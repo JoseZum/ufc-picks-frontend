@@ -153,7 +153,7 @@ export const PicksPageV2 = () => {
                                 <div 
                                     className="pick-row__photo" 
                                     style={{
-                                        backgroundImage: bout.fighters.red.fighter_name ? `url(${getFighterImageUrl(bout.fighters.red.fighter_name)})` : 'none',
+                                        backgroundImage: `url(${getFighterImageUrl(bout.fighters.red)})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}
@@ -175,7 +175,7 @@ export const PicksPageV2 = () => {
                                 <div 
                                     className="pick-row__photo"
                                     style={{
-                                        backgroundImage: bout.fighters.blue.fighter_name ? `url(${getFighterImageUrl(bout.fighters.blue.fighter_name)})` : 'none',
+                                        backgroundImage: `url(${getFighterImageUrl(bout.fighters.blue)})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}
