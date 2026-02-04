@@ -76,11 +76,21 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 <div className="fight-card__content">
                     {/* RED CORNER */}
                     <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''}`}>
-                        <div className="fight-card__photo" style={{
-                            backgroundImage: `url(${getFighterImageUrl(bout.fighters.red)})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'top center'
-                        }}></div>
+                        <div className="fight-card__photo">
+                            <img 
+                                src={getFighterImageUrl(bout.fighters.red)}
+                                alt={bout.fighters.red.fighter_name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                    console.error('[Fighter Image Error]', { 
+                                        fighter: bout.fighters.red.fighter_name,
+                                        url: getFighterImageUrl(bout.fighters.red),
+                                        profile_image_url: bout.fighters.red.profile_image_url 
+                                    });
+                                    e.currentTarget.src = '/placeholder-fighter.svg';
+                                }}
+                            />
+                        </div>
                         <div className="fight-card__info">
                             <h3 className="fight-card__name">{bout.fighters.red.fighter_name}</h3>
                             <p className="fight-card__record">
@@ -98,11 +108,21 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
                     {/* BLUE CORNER */}
                     <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''}`}>
-                        <div className="fight-card__photo" style={{
-                            backgroundImage: `url(${getFighterImageUrl(bout.fighters.blue)})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'top center'
-                        }}></div>
+                        <div className="fight-card__photo">
+                            <img 
+                                src={getFighterImageUrl(bout.fighters.blue)}
+                                alt={bout.fighters.blue.fighter_name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => {
+                                    console.error('[Fighter Image Error]', { 
+                                        fighter: bout.fighters.blue.fighter_name,
+                                        url: getFighterImageUrl(bout.fighters.blue),
+                                        profile_image_url: bout.fighters.blue.profile_image_url 
+                                    });
+                                    e.currentTarget.src = '/placeholder-fighter.svg';
+                                }}
+                            />
+                        </div>
                         <div className="fight-card__info">
                             <h3 className="fight-card__name">{bout.fighters.blue.fighter_name}</h3>
                             <p className="fight-card__record">
@@ -127,7 +147,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
             <div className="main" style={{ paddingTop: '70px', paddingBottom: '100px' }}>
                 <section className="event-hero" style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${getEventImageUrl(event)})`,
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${getEventImageUrl(event)})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                 }}>
