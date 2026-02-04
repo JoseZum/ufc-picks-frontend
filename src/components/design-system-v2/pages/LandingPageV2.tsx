@@ -74,7 +74,7 @@ export const LandingPageV2 = () => {
                                 <>
                                     <h1 className="hero__event-title">{nextEvent.name}</h1>
                                     <p className="hero__event-subtitle">
-                                        {formatEventDate(nextEvent.date)} // {nextEvent.location?.city || 'VENUE TBA'}
+                                        {formatEventDate(nextEvent.date)} // {nextEvent.location?.venue ? `${nextEvent.location.venue}, ${nextEvent.location.city}` : (nextEvent.location?.city || 'VENUE TBA')}
                                     </p>
                                     <div className="hero__countdown">
                                         <div className="hero__countdown-label">TIME UNTIL EVENT</div>
@@ -139,7 +139,7 @@ export const LandingPageV2 = () => {
                             </div>
 
                             <div className="main-event__vs">
-                                <div className="main-event__vs-text">VERSUS</div>
+                                <div className="main-event__vs-text">VS</div>
                             </div>
 
                             <div className="main-event__fighter main-event__fighter--blue">

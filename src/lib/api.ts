@@ -296,11 +296,18 @@ export function getFighterImageUrl(
     return '/placeholder-fighter.svg';
   }
 
-  // El backend DEBE devolver la ruta correcta del headshot
+  // If no profile_image_url, construct the proxy path
   if (!fighter.profile_image_url) {
-    return '/placeholder-fighter.svg';
+    // Construct proxy URL using tapology_id
+    return `${API_URL}/proxy/tapology/images/fighters/${fighter.tapology_id}_small.jpg`;
   }
 
+  // If it's an absolute URL (S3/CloudFront), use it directly
+  if (fighter.profile_image_url.startsWith('https://') || fighter.profile_image_url.startsWith('http://')) {
+    return fighter.profile_image_url;
+  }
+
+  // Otherwise it's a relative path - prepend API_URL
   return `${API_URL}${fighter.profile_image_url}`;
 }
 /**
