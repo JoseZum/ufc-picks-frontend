@@ -185,11 +185,10 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     }}></div>
                     {/* Content Layer */}
                     <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div className="event-hero__image">
-                        <span className="event-hero__image-text">UFC</span>
-                        <span className="event-hero__badge">{event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status}</span>
-                    </div>
                     <div className="event-hero__content">
+                        <span className="event-hero__badge" style={{ position: 'absolute', top: '20px', right: '20px' }}>
+                            {event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status}
+                        </span>
                         <div className="event-hero__date">{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</div>
                         <h1 className="event-hero__title">{event.name}</h1>
                         <p className="event-hero__location">{event.location?.venue}, {event.location?.city}</p>
