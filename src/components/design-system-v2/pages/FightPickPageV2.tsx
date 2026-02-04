@@ -133,13 +133,30 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     const isLocked = event.status !== 'scheduled';
 
     const formatRecord = (record: any) => {
-        if (!record) return 'Record N/A';
-        return `${record.wins} - ${record.losses} - ${record.draws}`;
+        if (!record || (record.wins === undefined && record.losses === undefined)) return null;
+        const wins = record.wins ?? 0;
+        const losses = record.losses ?? 0;
+        const draws = record.draws ?? 0;
+        return `${wins} - ${losses} - ${draws}`;
     };
 
     const getMaxPoints = () => {
         if (selectedMethod === 'DEC') return 2;
         return 3;
+    };
+
+    // Filter out garbage nicknames (scraper artifacts)
+    const isValidNickname = (nickname: string | undefined) => {
+        if (!nickname) return false;
+        // Filter out scraper artifacts that contain CSS class names
+        if (nickname.includes('tapology') || nickname.includes('_') || nickname.includes('leaderboard')) return false;
+        return nickname.length > 0 && nickname.length < 50;
+    };
+
+    // Get weight class display
+    const getWeightDisplay = () => {
+        if (!bout.weight_class || bout.weight_class === 'Unknown') return null;
+        return bout.weight_class;
     };
 
     return (
@@ -154,7 +171,9 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                             {event.name} // {bout.is_title_fight ? 'TITLE FIGHT' : 'BOUT'}
                         </div>
                         <div className="fight-header__meta">
-                            <span className="fight-header__meta-item">{bout.weight_class}</span>
+                            {bout.weight_class && bout.weight_class !== 'Unknown' && (
+                                <span className="fight-header__meta-item">{bout.weight_class}</span>
+                            )}
                             <span className="fight-header__meta-item">{bout.rounds_scheduled} ROUNDS</span>
                             <span className="fight-header__meta-item">
                                 {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}
@@ -184,10 +203,12 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 )}
                             </div>
                             <h2 className="fighter-card__name">{redFighter.fighter_name}</h2>
-                            {redFighter.nickname && (
+                            {isValidNickname(redFighter.nickname) && (
                                 <p className="fighter-card__nickname">"{redFighter.nickname}"</p>
                             )}
-                            <p className="fighter-card__record">{formatRecord(redFighter.record_at_fight)}</p>
+                            {formatRecord(redFighter.record_at_fight) ? (
+                                <p className="fighter-card__record">{formatRecord(redFighter.record_at_fight)}</p>
+                            ) : null}
                             <p className="fighter-card__country">
                                 <span className="fighter-card__country-flag">🏳️</span>
                                 {redFighter.nationality || 'Unknown'}
@@ -206,16 +227,16 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         <div className="stat__value">{`${redFighter.reach.inches}"`}</div>
                                     </div>
                                 )}
-                                {redFighter.age_at_fight_years && (
+                                {redFighter.age_at_fight_years && redFighter.age_at_fight_years > 0 && (
                                     <div className="stat">
                                         <div className="stat__label">AGE</div>
                                         <div className="stat__value">{redFighter.age_at_fight_years}</div>
                                     </div>
                                 )}
-                                {bout.weight_class && (
+                                {getWeightDisplay() && (
                                     <div className="stat">
                                         <div className="stat__label">WEIGHT</div>
-                                        <div className="stat__value">{bout.weight_class}</div>
+                                        <div className="stat__value">{getWeightDisplay()}</div>
                                     </div>
                                 )}
                             </div>
@@ -255,10 +276,12 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 )}
                             </div>
                             <h2 className="fighter-card__name">{blueFighter.fighter_name}</h2>
-                            {blueFighter.nickname && (
+                            {isValidNickname(blueFighter.nickname) && (
                                 <p className="fighter-card__nickname">"{blueFighter.nickname}"</p>
                             )}
-                            <p className="fighter-card__record">{formatRecord(blueFighter.record_at_fight)}</p>
+                            {formatRecord(blueFighter.record_at_fight) ? (
+                                <p className="fighter-card__record">{formatRecord(blueFighter.record_at_fight)}</p>
+                            ) : null}
                             <p className="fighter-card__country">
                                 <span className="fighter-card__country-flag">🏳️</span>
                                 {blueFighter.nationality || 'Unknown'}
@@ -277,16 +300,16 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         <div className="stat__value">{`${blueFighter.reach.inches}"`}</div>
                                     </div>
                                 )}
-                                {blueFighter.age_at_fight_years && (
+                                {blueFighter.age_at_fight_years && blueFighter.age_at_fight_years > 0 && (
                                     <div className="stat">
                                         <div className="stat__label">AGE</div>
                                         <div className="stat__value">{blueFighter.age_at_fight_years}</div>
                                     </div>
                                 )}
-                                {bout.weight_class && (
+                                {getWeightDisplay() && (
                                     <div className="stat">
                                         <div className="stat__label">WEIGHT</div>
-                                        <div className="stat__value">{bout.weight_class}</div>
+                                        <div className="stat__value">{getWeightDisplay()}</div>
                                     </div>
                                 )}
                             </div>
