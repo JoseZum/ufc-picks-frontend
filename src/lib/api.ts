@@ -292,14 +292,9 @@ export function getFighterImageUrl(
   fighter: Fighter,
   size: 'small' | 'medium' | 'large' = 'small'
 ): string {
-  if (!fighter.tapology_id || fighter.tapology_id === 'null') {
-    return '/placeholder-fighter.svg';
-  }
-
-  // If no profile_image_url, construct the proxy path
+  // If no profile_image_url, show placeholder
   if (!fighter.profile_image_url) {
-    // Construct proxy URL using tapology_id
-    return `${API_URL}/proxy/tapology/images/fighters/${fighter.tapology_id}_small.jpg`;
+    return '/placeholder-fighter.svg';
   }
 
   // If it's an absolute URL (S3/CloudFront), use it directly
@@ -308,6 +303,7 @@ export function getFighterImageUrl(
   }
 
   // Otherwise it's a relative path - prepend API_URL
+  // profile_image_url should be like: /proxy/tapology/letterboxd_images/33428/profile/thumb.jpg
   return `${API_URL}${fighter.profile_image_url}`;
 }
 /**
@@ -347,6 +343,12 @@ export function getEventArtUrl(event: Event): string | null {
  */
 export function getEventImageUrl(event: Event): string {
   const eventArt = getEventArtUrl(event);
+  console.log('[getEventImageUrl]', { 
+    eventId: event.id, 
+    event_art_url: event.event_art_url, 
+    eventArt, 
+    willUsePoster: !eventArt 
+  });
   if (eventArt) {
     return eventArt;
   }
