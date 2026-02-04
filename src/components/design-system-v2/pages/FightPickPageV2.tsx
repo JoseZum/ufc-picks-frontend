@@ -218,13 +218,21 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 {redFighter.height && (
                                     <div className="stat">
                                         <div className="stat__label">HEIGHT</div>
-                                        <div className="stat__value">{`${redFighter.height.feet}'${redFighter.height.inches}"`}</div>
+                                        <div className="stat__value">
+                                            {redFighter.height.feet && redFighter.height.inches
+                                                ? `${redFighter.height.feet}'${redFighter.height.inches}" (${redFighter.height.cm}cm)`
+                                                : redFighter.height_cm ? `${redFighter.height_cm}cm` : '-'}
+                                        </div>
                                     </div>
                                 )}
                                 {redFighter.reach && (
                                     <div className="stat">
                                         <div className="stat__label">REACH</div>
-                                        <div className="stat__value">{`${redFighter.reach.inches}"`}</div>
+                                        <div className="stat__value">
+                                            {redFighter.reach.inches
+                                                ? `${redFighter.reach.inches}" (${redFighter.reach.cm}cm)`
+                                                : redFighter.reach_cm ? `${redFighter.reach_cm}cm` : '-'}
+                                        </div>
                                     </div>
                                 )}
                                 {redFighter.age_at_fight_years && redFighter.age_at_fight_years > 0 && (
@@ -233,13 +241,33 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         <div className="stat__value">{redFighter.age_at_fight_years}</div>
                                     </div>
                                 )}
-                                {getWeightDisplay() && (
+                                {(redFighter.latest_weight?.lbs || getWeightDisplay()) && (
                                     <div className="stat">
                                         <div className="stat__label">WEIGHT</div>
-                                        <div className="stat__value">{getWeightDisplay()}</div>
+                                        <div className="stat__value">
+                                            {redFighter.latest_weight?.lbs
+                                                ? `${Math.round(redFighter.latest_weight.lbs)} lbs`
+                                                : getWeightDisplay()}
+                                        </div>
                                     </div>
                                 )}
                             </div>
+
+                            {redFighter.last_5_fights && redFighter.last_5_fights.length > 0 && (
+                                <div className="fighter-card__last5">
+                                    <div className="fighter-card__last5-label">LAST 5 FIGHTS</div>
+                                    <div className="fighter-card__last5-results">
+                                        {redFighter.last_5_fights.slice(0, 5).map((result: string, idx: number) => (
+                                            <span
+                                                key={idx}
+                                                className={`last5-badge ${result === 'W' ? 'last5-badge--win' : 'last5-badge--loss'}`}
+                                            >
+                                                {result}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {!isLocked && (
                                 <button 
@@ -291,13 +319,21 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 {blueFighter.height && (
                                     <div className="stat">
                                         <div className="stat__label">HEIGHT</div>
-                                        <div className="stat__value">{`${blueFighter.height.feet}'${blueFighter.height.inches}"`}</div>
+                                        <div className="stat__value">
+                                            {blueFighter.height.feet && blueFighter.height.inches
+                                                ? `${blueFighter.height.feet}'${blueFighter.height.inches}" (${blueFighter.height.cm}cm)`
+                                                : blueFighter.height_cm ? `${blueFighter.height_cm}cm` : '-'}
+                                        </div>
                                     </div>
                                 )}
                                 {blueFighter.reach && (
                                     <div className="stat">
                                         <div className="stat__label">REACH</div>
-                                        <div className="stat__value">{`${blueFighter.reach.inches}"`}</div>
+                                        <div className="stat__value">
+                                            {blueFighter.reach.inches
+                                                ? `${blueFighter.reach.inches}" (${blueFighter.reach.cm}cm)`
+                                                : blueFighter.reach_cm ? `${blueFighter.reach_cm}cm` : '-'}
+                                        </div>
                                     </div>
                                 )}
                                 {blueFighter.age_at_fight_years && blueFighter.age_at_fight_years > 0 && (
@@ -306,13 +342,33 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         <div className="stat__value">{blueFighter.age_at_fight_years}</div>
                                     </div>
                                 )}
-                                {getWeightDisplay() && (
+                                {(blueFighter.latest_weight?.lbs || getWeightDisplay()) && (
                                     <div className="stat">
                                         <div className="stat__label">WEIGHT</div>
-                                        <div className="stat__value">{getWeightDisplay()}</div>
+                                        <div className="stat__value">
+                                            {blueFighter.latest_weight?.lbs
+                                                ? `${Math.round(blueFighter.latest_weight.lbs)} lbs`
+                                                : getWeightDisplay()}
+                                        </div>
                                     </div>
                                 )}
                             </div>
+
+                            {blueFighter.last_5_fights && blueFighter.last_5_fights.length > 0 && (
+                                <div className="fighter-card__last5">
+                                    <div className="fighter-card__last5-label">LAST 5 FIGHTS</div>
+                                    <div className="fighter-card__last5-results">
+                                        {blueFighter.last_5_fights.slice(0, 5).map((result: string, idx: number) => (
+                                            <span
+                                                key={idx}
+                                                className={`last5-badge ${result === 'W' ? 'last5-badge--win' : 'last5-badge--loss'}`}
+                                            >
+                                                {result}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {!isLocked && (
                                 <button 

@@ -3991,6 +3991,50 @@
     font-size: 1.3rem;
 }
 
+/* LAST 5 FIGHTS */
+.fighter-card__last5 {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.fighter-card__last5-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.fighter-card__last5-results {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.fighter-card--blue .fighter-card__last5-results {
+    justify-content: flex-end;
+}
+
+.last5-badge {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.last5-badge--win {
+    background: var(--success);
+    color: var(--bg-base);
+}
+
+.last5-badge--loss {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
 /* PICK BUTTON */
 .fighter-card__pick-btn {
     margin-top: 1.5rem;
@@ -4407,6 +4451,10 @@
     }
 
     .fighter-card--blue .fighter-card__country {
+        justify-content: flex-start;
+    }
+
+    .fighter-card--blue .fighter-card__last5-results {
         justify-content: flex-start;
     }
 
