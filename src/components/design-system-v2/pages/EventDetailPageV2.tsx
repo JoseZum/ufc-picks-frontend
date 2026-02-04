@@ -146,11 +146,45 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
             <NavBarV2 activePage="events" />
 
             <div className="main" style={{ paddingTop: '70px', paddingBottom: '100px' }}>
-                <section className="event-hero" style={{
-                    backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${getEventImageUrl(event)})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                }}>
+                <section className="event-hero" style={{ position: 'relative', overflow: 'hidden' }}>
+                    {/* Background Image Layer */}
+                    <img 
+                        src={getEventImageUrl(event)}
+                        alt={event.name}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'center',
+                            zIndex: 0
+                        }}
+                        onLoad={(e) => {
+                            console.log('[Event Hero Image] Loaded successfully:', getEventImageUrl(event));
+                        }}
+                        onError={(e) => {
+                            console.error('[Event Hero Image] Failed to load:', {
+                                url: getEventImageUrl(event),
+                                event_art_url: event.event_art_url,
+                                poster_image_url: event.poster_image_url
+                            });
+                            e.currentTarget.style.display = 'none';
+                        }}
+                    />
+                    {/* Dark Overlay */}
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3))',
+                        zIndex: 1
+                    }}></div>
+                    {/* Content Layer */}
+                    <div style={{ position: 'relative', zIndex: 2 }}>
                     <div className="event-hero__image">
                         <span className="event-hero__image-text">UFC</span>
                         <span className="event-hero__badge">{event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status}</span>
@@ -178,6 +212,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             </div>
                         </div>
                     </div>
+                    </div> {/* Close content layer wrapper */}
                 </section>
 
                 <section className="fights-section">

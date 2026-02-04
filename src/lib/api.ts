@@ -352,10 +352,25 @@ export function getEventImageUrl(event: Event): string {
   console.log('[getEventImageUrl]', { 
     eventId: event.id, 
     event_art_url: event.event_art_url, 
+    poster_image_url: event.poster_image_url,
     eventArt, 
     willUsePoster: !eventArt 
   });
+  
+  // Test if event art actually exists by fetching it
   if (eventArt) {
+    fetch(eventArt, { method: 'HEAD' })
+      .then(response => {
+        console.log('[getEventImageUrl] Event art HEAD check:', {
+          url: eventArt,
+          status: response.status,
+          contentType: response.headers.get('content-type'),
+          contentLength: response.headers.get('content-length')
+        });
+      })
+      .catch(err => {
+        console.error('[getEventImageUrl] Event art HEAD failed:', err);
+      });
     return eventArt;
   }
   return getEventPosterUrl(event);
