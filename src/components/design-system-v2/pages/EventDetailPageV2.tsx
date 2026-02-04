@@ -141,62 +141,57 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         );
     };
 
+    // Extract UFC number from event name (e.g., "UFC 315" -> "315", "UFC Fight Night" -> "FN")
+    const getEventNumber = (name: string): string => {
+        const match = name.match(/UFC\s*(\d+)/i);
+        if (match) return match[1];
+        if (name.toLowerCase().includes('fight night')) return 'FN';
+        return 'UFC';
+    };
+
     return (
         <V2Layout>
             <NavBarV2 activePage="events" />
 
             <div className="main" style={{ paddingTop: '70px', paddingBottom: '100px' }}>
-                <section className="event-hero" style={{ position: 'relative', overflow: 'hidden' }}>
-                    {/* Background Image Layer */}
-                    <img 
-                        src={getEventImageUrl(event)}
-                        alt={event.name}
+                {/* EVENT HERO - 2 COLUMN GRID MATCHING DESIGN-LAB */}
+                <section className="event-hero">
+                    {/* LEFT SIDE - Image with number watermark */}
+                    <div 
+                        className="event-hero__image"
                         style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            objectPosition: 'center',
-                            zIndex: 0
+                            backgroundImage: `url(${getEventImageUrl(event)})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
                         }}
-                        onLoad={(e) => {
-                            console.log('[Event Hero Image] Loaded successfully:', getEventImageUrl(event));
-                        }}
-                        onError={(e) => {
-                            console.error('[Event Hero Image] Failed to load:', {
-                                url: getEventImageUrl(event),
-                                event_art_url: event.event_art_url,
-                                poster_image_url: event.poster_image_url
-                            });
-                            e.currentTarget.style.display = 'none';
-                        }}
-                    />
-                    {/* Dark Overlay */}
-                    <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        background: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3))',
-                        zIndex: 1
-                    }}></div>
-                    {/* Content Layer */}
-                    <div style={{ position: 'relative', zIndex: 2 }}>
-                    <div className="event-hero__content">
-                        <span className="event-hero__badge" style={{ position: 'absolute', top: '20px', right: '20px' }}>
-                            {event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status}
+                    >
+                        <span className="event-hero__image-text">{getEventNumber(event.name)}</span>
+                        <span className="event-hero__badge">
+                            {event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status.toUpperCase()}
                         </span>
-                        <div className="event-hero__date">{new Date(event.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}</div>
+                    </div>
+                    
+                    {/* RIGHT SIDE - Content */}
+                    <div className="event-hero__content">
+                        <div className="event-hero__date">
+                            {new Date(event.date).toLocaleDateString('en-US', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            }).toUpperCase()}
+                        </div>
                         <h1 className="event-hero__title">{event.name}</h1>
-                        <p className="event-hero__location">{event.location?.venue}, {event.location?.city}</p>
+                        <p className="event-hero__location">
+                            {event.location?.venue}, {event.location?.city}{event.location?.country ? `, ${event.location.country}` : ''}
+                        </p>
 
                         {event.status === 'scheduled' && (
                             <div className="event-hero__countdown">
-                                <div className="event-hero__countdown-label">DATE</div>
-                                <div className="event-hero__countdown-time">{new Date(event.date).toLocaleDateString()}</div>
+                                <div className="event-hero__countdown-label">TIME UNTIL EVENT</div>
+                                <div className="event-hero__countdown-time">
+                                    {new Date(event.date).toLocaleDateString()}
+                                </div>
                             </div>
                         )}
 
@@ -211,7 +206,6 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             </div>
                         </div>
                     </div>
-                    </div> {/* Close content layer wrapper */}
                 </section>
 
                 <section className="fights-section">
