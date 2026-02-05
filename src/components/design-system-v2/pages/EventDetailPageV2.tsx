@@ -7,6 +7,7 @@ import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { FlagBadge } from '@/components/FlagBadge';
 
 interface EventDetailPageV2Props {
     params: {
@@ -98,7 +99,16 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                     `${bout.fighters.red.record_at_fight.wins}-${bout.fighters.red.record_at_fight.losses}-${bout.fighters.red.record_at_fight.draws}`
                                     : 'Rec N/A'}
                             </p>
-                            <p className="fight-card__country">{bout.fighters.red.nationality || ' '}</p>
+                            <div className="fight-card__country">
+                                {bout.fighters.red.nationality && (
+                                    <FlagBadge
+                                        country={bout.fighters.red.nationality}
+                                        countryCode={bout.fighters.red.nationality}
+                                        size="S"
+                                        showCountryName={false}
+                                    />
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -130,7 +140,16 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                     `${bout.fighters.blue.record_at_fight.wins}-${bout.fighters.blue.record_at_fight.losses}-${bout.fighters.blue.record_at_fight.draws}`
                                     : 'Rec N/A'}
                             </p>
-                            <p className="fight-card__country">{bout.fighters.blue.nationality || ' '}</p>
+                            <div className="fight-card__country">
+                                {bout.fighters.blue.nationality && (
+                                    <FlagBadge
+                                        country={bout.fighters.blue.nationality}
+                                        countryCode={bout.fighters.blue.nationality}
+                                        size="S"
+                                        showCountryName={false}
+                                    />
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

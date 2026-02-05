@@ -292,12 +292,6 @@ export function getFighterImageUrl(
   fighter: Fighter,
   size: 'small' | 'medium' | 'large' = 'small'
 ): string {
-  console.log('[getFighterImageUrl]', {
-    fighter_name: fighter.fighter_name,
-    profile_image_url: fighter.profile_image_url,
-    hasUrl: !!fighter.profile_image_url
-  });
-  
   // If no profile_image_url, show placeholder
   if (!fighter.profile_image_url) {
     return '/placeholder-fighter.svg';

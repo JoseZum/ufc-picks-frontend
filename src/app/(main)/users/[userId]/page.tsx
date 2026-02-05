@@ -1,6 +1,6 @@
 "use client";
 
-import { UserProfilePage } from "./UserProfilePage";
+import { UserProfilePageV2 } from "@/components/design-system-v2/pages/UserProfilePageV2";
 
 interface PageProps {
   params: Promise<{ userId: string }>;
@@ -8,5 +8,5 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { userId } = await params;
-  return <UserProfilePage userId={userId} />;
+  return <UserProfilePageV2 userId={userId} />;
 }
