@@ -80,14 +80,33 @@ export default {
         correct: "hsl(var(--correct))",
         incorrect: "hsl(var(--incorrect))",
         pending: "hsl(var(--pending))",
+        brutalist: {
+          base: '#050505',
+          panel: '#0f0f0f',
+          elevated: '#1a1a1a',
+          accent: '#e10600',
+          'accent-dim': 'rgba(225, 6, 0, 0.15)',
+          'success-dim': 'rgba(34, 197, 94, 0.15)',
+          'error-dim': 'rgba(239, 68, 68, 0.15)',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      spacing: {
+        'border-thick': '3px',
+        'shadow-offset': '6px',
+      },
+      rotate: {
+        'brutal-1': '-1deg',
+        'brutal-2': '0.5deg',
+      },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-space-mono)', 'Space Mono', 'monospace'],
+        bebas: ['var(--font-bebas-neue)', 'Bebas Neue', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {

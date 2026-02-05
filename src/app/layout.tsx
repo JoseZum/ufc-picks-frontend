@@ -1,9 +1,19 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Space_Mono, Bebas_Neue } from 'next/font/google'
 import { Providers } from './providers'
 import '@/index.css'
 
 const inter = Inter({ subsets: ['latin'] })
+const spaceMono = Space_Mono({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+  variable: '--font-space-mono'
+})
+const bebasNeue = Bebas_Neue({
+  weight: ['400'],
+  subsets: ['latin'],
+  variable: '--font-bebas-neue'
+})
 
 export const metadata: Metadata = {
   title: 'UFC Picks - Predict. Compete. Win.',
@@ -29,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${spaceMono.variable} ${bebasNeue.variable}`}>
         <Providers>
           {children}
         </Providers>
