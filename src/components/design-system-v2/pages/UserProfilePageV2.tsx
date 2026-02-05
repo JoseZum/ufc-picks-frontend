@@ -198,21 +198,24 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                         </div>
 
                         <div className="picks-list">
-                            {picks?.slice(0, 10).map((pick) => (
-                                <div key={pick.id} className={`pick-item ${pick.is_correct ? 'pick-item--correct' : pick.is_correct === false ? 'pick-item--incorrect' : 'pick-item--pending'}`}>
-                                    <div className="pick-item__status">
-                                        {pick.is_correct === null ? '⏱️' : pick.is_correct ? '✓' : '✗'}
+                            {picks?.slice(0, 10).map((pick) => {
+                                const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
+                                return (
+                                    <div key={pick.id} className={`pick-item ${pick.is_correct ? 'pick-item--correct' : pick.is_correct === false ? 'pick-item--incorrect' : 'pick-item--pending'}`}>
+                                        <div className="pick-item__status">
+                                            {pick.is_correct === null ? '⏱️' : pick.is_correct ? '✓' : '✗'}
+                                        </div>
+                                        <div className="pick-item__info">
+                                            <div className="pick-item__fighter">{pickedFighter || 'Fighter'}</div>
+                                            <div className="pick-item__event">{pick.event_name}</div>
+                                        </div>
+                                        <div className="pick-item__method">
+                                            {pick.picked_method}
+                                            {pick.picked_round && ` R${pick.picked_round}`}
+                                        </div>
                                     </div>
-                                    <div className="pick-item__info">
-                                        <div className="pick-item__fighter">{pick.fighter_name || 'Fighter'}</div>
-                                        <div className="pick-item__event">{pick.event_name}</div>
-                                    </div>
-                                    <div className="pick-item__method">
-                                        {pick.picked_method}
-                                        {pick.picked_round && ` R${pick.picked_round}`}
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
 
                             {(!picks || picks.length === 0) && (
                                 <div className="picks-empty">
