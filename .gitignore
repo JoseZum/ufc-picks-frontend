@@ -51,3 +51,5 @@ gitignore.txt
 check-connection.js
 DEPLOYMENT.md
 .env.example
+
+public/flags

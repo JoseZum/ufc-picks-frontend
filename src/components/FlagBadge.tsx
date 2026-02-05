@@ -8,7 +8,7 @@ interface FlagBadgeProps {
   country: string;
   countryCode?: string;
   className?: string;
-  size?: 's' | 'm' | 'l';
+  size?: 'S' | 'M' | 'L';
   showCountryName?: boolean;
 }
 
@@ -16,7 +16,7 @@ export function FlagBadge({
   country,
   countryCode,
   className = "",
-  size = 'm',
+  size = 'M',
   showCountryName = true
 }: FlagBadgeProps) {
   // Use provided countryCode or derive from country name
@@ -42,11 +42,11 @@ export function FlagBadge({
 export function CountryFlag({
   country,
   countryCode,
-  size = 'm'
+  size = 'M'
 }: {
   country?: string;
   countryCode?: string;
-  size?: 's' | 'm' | 'l';
+  size?: 'S' | 'M' | 'L';
 }) {
   const code = countryCode || country;
   const flagCode = getFlagCode(code);

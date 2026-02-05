@@ -10,7 +10,8 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "check-backend": "node check-connection.js",
-    "check-backend:prod": "node check-connection.js $NEXT_PUBLIC_API_URL"
+    "check-backend:prod": "node check-connection.js $NEXT_PUBLIC_API_URL",
+    "postinstall": "react-flagpack"
   },
   "dependencies": {
     "@fontsource/geist-sans": "^5.2.5",
