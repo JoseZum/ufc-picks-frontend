@@ -396,6 +396,30 @@ export interface Pick {
   created_at: string;
 }
 
+export interface DetailedPick {
+  id: string;
+  bout_id: number;
+  event_id: number;
+  event_name?: string;
+  event_date?: string;
+  picked_corner: 'red' | 'blue';
+  picked_method: 'DEC' | 'KO/TKO' | 'SUB';
+  picked_round?: number;
+  is_correct?: boolean;
+  points_awarded: number;
+  locked: boolean;
+  created_at: string;
+  fighter_red?: string;
+  fighter_blue?: string;
+  weight_class?: string;
+  result?: {
+    winner: 'red' | 'blue';
+    method: string;
+    round?: number;
+    time?: string;
+  };
+}
+
 export interface CreatePickRequest {
   event_id: number;
   bout_id: number;
@@ -427,6 +451,13 @@ export async function getMyPicks(eventId: number): Promise<Pick[]> {
  */
 export async function getAllMyPicks(): Promise<Pick[]> {
   return apiRequest<Pick[]>('/picks/me/all');
+}
+
+/**
+ * Obtiene todos los picks del usuario actual con detalles completos (fighters, event info, etc.)
+ */
+export async function getAllMyPicksDetailed(): Promise<DetailedPick[]> {
+  return apiRequest<DetailedPick[]>('/picks/me/detailed');
 }
 
 // ============================================
@@ -670,6 +701,7 @@ const api = {
   createPick,
   getMyPicks,
   getAllMyPicks,
+  getAllMyPicksDetailed,
 
   // Leaderboard
   getGlobalLeaderboard,

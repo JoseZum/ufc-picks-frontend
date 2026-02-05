@@ -9,6 +9,7 @@ import api, {
   type Event,
   type Bout,
   type Pick,
+  type DetailedPick,
   type User,
   type CreatePickRequest,
   type LeaderboardEntry,
@@ -142,6 +143,18 @@ export function useAllMyPicks() {
   return useQuery({
     queryKey: ['allMyPicks'],
     queryFn: () => api.getAllMyPicks(),
+    enabled: api.isAuthenticated(),
+    staleTime: 30 * 1000,
+  });
+}
+
+/**
+ * Hook para obtener todos los picks del usuario con información completa de fighters y eventos
+ */
+export function useAllMyPicksDetailed() {
+  return useQuery({
+    queryKey: ['allMyPicksDetailed'],
+    queryFn: () => api.getAllMyPicksDetailed(),
     enabled: api.isAuthenticated(),
     staleTime: 30 * 1000,
   });
