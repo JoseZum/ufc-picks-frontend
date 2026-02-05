@@ -99,9 +99,9 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                 {/* Sidebar */}
                 <div className="profile-hero__sidebar">
                     <div className="profile-hero__avatar">
-                        {profile.name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase() || '?'}
+                        {profile.name?.charAt(0).toUpperCase() || '?'}
                     </div>
-                    <div className="profile-hero__name">{profile.name || profile.email}</div>
+                    <div className="profile-hero__name">{profile.name || 'Anonymous'}</div>
                     <div className="profile-hero__joined">JOINED {joinedDate.toUpperCase()}</div>
 
                     {/* Rank */}
