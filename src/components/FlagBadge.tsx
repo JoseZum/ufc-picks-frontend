@@ -1,6 +1,6 @@
 'use client';
 
-import { Flag } from 'react-flagpack';
+import Flag from 'react-flagpack';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import 'react-flagpack/dist/style.css';
 
