@@ -125,21 +125,21 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                     <div className="stats-grid">
                         <div className="stat-card stat-card--highlight">
                             <div className="stat-card__value stat-card__value--accent">
-                                {stats?.overall_accuracy?.toFixed(0) || 0}%
+                                {stats?.accuracy?.toFixed(0) || 0}%
                             </div>
                             <div className="stat-card__label">ACCURACY</div>
                         </div>
 
                         <div className="stat-card">
                             <div className="stat-card__value stat-card__value--success">
-                                {stats?.total_correct || 0}
+                                {stats?.correct_picks || 0}
                             </div>
                             <div className="stat-card__label">CORRECT</div>
                         </div>
 
                         <div className="stat-card">
                             <div className="stat-card__value stat-card__value--error">
-                                {stats?.total_incorrect || 0}
+                                {stats?.incorrect_picks || 0}
                             </div>
                             <div className="stat-card__label">INCORRECT</div>
                         </div>
