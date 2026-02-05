@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Shield, Calendar, Trophy, Loader2, AlertCircle } from "lucide-react"
+import { Shield, Calendar, Trophy, Lock, Loader2, AlertCircle } from "lucide-react"
 import { useCurrentUser } from "@/lib/hooks"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { EventTimingManager } from "./EventTimingManager"
 import { BoutResultManager } from "./BoutResultManager"
+import { BoutLockManager } from "./BoutLockManager"
 
 export function AdminPage() {
   const router = useRouter()
@@ -67,19 +68,27 @@ export function AdminPage() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="events" className="gap-2">
             <Calendar className="h-4 w-4" />
-            Gestionar Eventos
+            Eventos
+          </TabsTrigger>
+          <TabsTrigger value="locks" className="gap-2">
+            <Lock className="h-4 w-4" />
+            Lockear Picks
           </TabsTrigger>
           <TabsTrigger value="results" className="gap-2">
             <Trophy className="h-4 w-4" />
-            Registrar Resultados
+            Resultados
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="events" className="space-y-4">
           <EventTimingManager />
+        </TabsContent>
+
+        <TabsContent value="locks" className="space-y-4">
+          <BoutLockManager />
         </TabsContent>
 
         <TabsContent value="results" className="space-y-4">

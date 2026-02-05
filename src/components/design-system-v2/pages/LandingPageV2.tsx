@@ -199,7 +199,12 @@ export const LandingPageV2 = () => {
                             {leaderboardLoading ? (
                                 <tr><td colSpan={4} style={{ textAlign: 'center', padding: '2rem' }}>Loading Leaderboard...</td></tr>
                             ) : (leaderboard || []).map((user, index) => (
-                                <tr key={user.user_id} className={`leaderboard__row ${index === 0 ? 'leaderboard__row--highlight' : ''}`}>
+                                <tr
+                                    key={user.user_id}
+                                    className={`leaderboard__row ${index === 0 ? 'leaderboard__row--highlight' : ''}`}
+                                    onClick={() => router.push(`/users/${user.user_id}`)}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <td className={`leaderboard__cell leaderboard__rank leaderboard__rank--${index + 1}`}>
                                         {String(user.rank).padStart(2, '0')}
                                     </td>

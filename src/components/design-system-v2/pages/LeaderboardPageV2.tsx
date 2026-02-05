@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useGlobalLeaderboard, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
 
 export const LeaderboardPageV2 = () => {
+    const router = useRouter();
     const [timeFilter, setTimeFilter] = useState<'all' | 'year' | 'month'>('all');
-    
+
     // Fetch real data
     const { data: currentUser } = useCurrentUser();
     const { data: myPosition } = useMyLeaderboardPosition('global');
@@ -58,7 +60,11 @@ export const LeaderboardPageV2 = () => {
                         {/* TOP 3 PODIUM */}
                         <div className="podium">
                             {top3[1] && (
-                                <div className="podium__place podium__place--2">
+                                <div
+                                    className="podium__place podium__place--2"
+                                    onClick={() => router.push(`/users/${top3[1].user_id}`)}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <span className="podium__rank">2</span>
                                     <div className="podium__avatar" style={{
                                         backgroundImage: top3[1].avatar_url ? `url(${top3[1].avatar_url})` : 'none',
@@ -81,7 +87,11 @@ export const LeaderboardPageV2 = () => {
                             )}
 
                             {top3[0] && (
-                                <div className="podium__place podium__place--1">
+                                <div
+                                    className="podium__place podium__place--1"
+                                    onClick={() => router.push(`/users/${top3[0].user_id}`)}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <span className="podium__rank">1</span>
                                     <div className="podium__avatar" style={{
                                         backgroundImage: top3[0].avatar_url ? `url(${top3[0].avatar_url})` : 'none',
@@ -104,7 +114,11 @@ export const LeaderboardPageV2 = () => {
                             )}
 
                             {top3[2] && (
-                                <div className="podium__place podium__place--3">
+                                <div
+                                    className="podium__place podium__place--3"
+                                    onClick={() => router.push(`/users/${top3[2].user_id}`)}
+                                    style={{ cursor: 'pointer' }}
+                                >
                                     <span className="podium__rank">3</span>
                                     <div className="podium__avatar" style={{
                                         backgroundImage: top3[2].avatar_url ? `url(${top3[2].avatar_url})` : 'none',
