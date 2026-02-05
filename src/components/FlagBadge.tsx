@@ -20,7 +20,16 @@ export function FlagBadge({
   showCountryName = true
 }: FlagBadgeProps) {
   // Use provided countryCode or derive from country name
-  const flagCode = countryCode ? getFlagCode(countryCode) : getFlagCode(country);
+  const finalCode = countryCode || country;
+  const flagCode = getFlagCode(finalCode);
+
+  // Debug logging
+  console.log('FlagBadge:', { country, countryCode, finalCode, flagCode });
+
+  if (!flagCode) {
+    console.warn('No flag code found for:', { country, countryCode });
+    return null;
+  }
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>

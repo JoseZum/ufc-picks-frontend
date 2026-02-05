@@ -141,7 +141,7 @@ export function FighterCard({
       )}
 
       {/* Nationality */}
-      {country && country !== "Unknown" && (
+      {country && (
         <div className="flex justify-center">
           <FlagBadge country={country} countryCode={countryCode} />
         </div>

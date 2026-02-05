@@ -213,8 +213,8 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             name={fighterRed.fighter_name}
             imageUrl={getFighterImageUrl(fighterRed)}
             ranking={fighterRed.ranking ? `#${fighterRed.ranking.position} ${fighterRed.ranking.division}` : undefined}
-            country={fighterRed.nationality || "Unknown"}
-            countryCode={fighterRed.nationality || "Unknown"}
+            country={fighterRed.nationality || "United States"}
+            countryCode={fighterRed.nationality || "US"}
             fightingOutOf={fighterRed.fighting_out_of}
             record={{
               wins: fighterRed.record_at_fight?.wins || 0,
@@ -250,8 +250,8 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             name={fighterBlue.fighter_name}
             imageUrl={getFighterImageUrl(fighterBlue)}
             ranking={fighterBlue.ranking ? `#${fighterBlue.ranking.position} ${fighterBlue.ranking.division}` : undefined}
-            country={fighterBlue.nationality || "Unknown"}
-            countryCode={fighterBlue.nationality || "Unknown"}
+            country={fighterBlue.nationality || "Brazil"}
+            countryCode={fighterBlue.nationality || "BR"}
             fightingOutOf={fighterBlue.fighting_out_of}
             record={{
               wins: fighterBlue.record_at_fight?.wins || 0,
