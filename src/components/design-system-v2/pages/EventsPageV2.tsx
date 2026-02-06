@@ -194,7 +194,7 @@ export const EventsPageV2 = () => {
                             </>
                         )}
 
-                        {events.length === 0 && (
+                        {((showUpcoming && upcomingEventsAll.length === 0) || (showCompleted && completedEventsAll.length === 0)) && (
                             <div className="text-center py-10">No events found.</div>
                         )}
                     </>
