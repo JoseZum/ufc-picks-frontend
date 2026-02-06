@@ -1823,10 +1823,12 @@
 
 .pick-row--correct {
     background: var(--success-dim);
+    border-left: 4px solid var(--success);
 }
 
 .pick-row--incorrect {
     background: var(--error-dim);
+    border-left: 4px solid var(--error);
 }
 
 .pick-row--pending {}
