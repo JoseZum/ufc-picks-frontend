@@ -1,8 +1,6 @@
 'use client';
 
-import Flag from 'react-flagpack';
 import { getFlagCode } from '@/lib/countryCodeMapping';
-import 'react-flagpack/dist/style.css';
 
 interface FlagBadgeProps {
   country: string;
@@ -11,6 +9,12 @@ interface FlagBadgeProps {
   size?: 'S' | 'M' | 'L';
   showCountryName?: boolean;
 }
+
+const sizeMap = {
+  'S': 's',
+  'M': 'm',
+  'L': 'l'
+};
 
 export function FlagBadge({
   country,
@@ -22,16 +26,22 @@ export function FlagBadge({
   // Use provided countryCode or derive from country name
   const finalCode = countryCode || country;
   const flagCode = getFlagCode(finalCode);
+  const sizeDir = sizeMap[size];
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <Flag
-        code={flagCode}
-        size={size}
-        hasBorder={false}
-        hasDropShadow={false}
-        gradient="real-linear"
-        basePath="/flags"
+      <img
+        src={`/flags/${sizeDir}/${flagCode}.svg`}
+        alt={country}
+        style={{
+          width: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
+          height: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
+          objectFit: 'contain'
+        }}
+        onError={(e) => {
+          console.warn(`Flag not found: /flags/${sizeDir}/${flagCode}.svg`);
+          e.currentTarget.style.display = 'none';
+        }}
       />
       {showCountryName && (
         <span className="text-sm text-muted-foreground">{country}</span>
@@ -52,15 +62,21 @@ export function CountryFlag({
 }) {
   const code = countryCode || country;
   const flagCode = getFlagCode(code);
+  const sizeDir = sizeMap[size];
 
   return (
-    <Flag
-      code={flagCode}
-      size={size}
-      hasBorder={false}
-      hasDropShadow={false}
-      gradient="real-linear"
-      basePath="/flags"
+    <img
+      src={`/flags/${sizeDir}/${flagCode}.svg`}
+      alt={country || code || 'Flag'}
+      style={{
+        width: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
+        height: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
+        objectFit: 'contain'
+      }}
+      onError={(e) => {
+        console.warn(`Flag not found: /flags/${sizeDir}/${flagCode}.svg`);
+        e.currentTarget.style.display = 'none';
+      }}
     />
   );
 }
