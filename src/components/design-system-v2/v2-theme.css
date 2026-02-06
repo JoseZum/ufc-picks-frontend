@@ -130,6 +130,26 @@
     border: 2px solid var(--accent);
 }
 
+/* MOBILE NAV - Hide desktop nav items, show only logo */
+@media (max-width: 768px) {
+    .nav {
+        height: 56px;
+    }
+
+    .nav__items {
+        display: none;
+    }
+
+    .nav__user {
+        display: none;
+    }
+
+    .nav__logo {
+        font-size: 1.8rem;
+        border-right: none;
+    }
+}
+
 /* ============================================
    MAIN CONTAINER - BROKEN GRID
    ============================================ */
@@ -141,6 +161,13 @@
     margin: 0 auto;
     padding-left: 20px;
     padding-right: 20px;
+}
+
+@media (max-width: 768px) {
+    .main {
+        padding-top: 72px;
+        padding-bottom: 5rem;
+    }
 }
 
 /* ============================================
@@ -4606,6 +4633,12 @@
 
     .pick-panel {
         padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .pick-panel {
+        bottom: 56px;
     }
 }
 
