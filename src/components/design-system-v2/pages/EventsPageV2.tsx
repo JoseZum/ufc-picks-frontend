@@ -12,18 +12,20 @@ export const EventsPageV2 = () => {
     const router = useRouter();
     const [filter, setFilter] = useState<'upcoming' | 'completed'>('upcoming');
 
-    // Fetch events
-    const { data: eventsData, isLoading } = useEvents({ limit: 50 });
-    const events = eventsData?.events || [];
+    // Fetch events - SEPARATE CALLS for upcoming and completed
+    const { data: upcomingData, isLoading: upcomingLoading } = useEvents({
+        status: 'scheduled',
+        limit: 50
+    });
+    const { data: completedData, isLoading: completedLoading } = useEvents({
+        status: 'completed',
+        limit: 50
+    });
+
     const { data: currentUser } = useCurrentUser();
 
-    // Sort and categorise events
-    // Assumes events are returned sorted by date? Usually they are. If not, sort them.
-    // Use a copy to sort
-    const sortedEvents = [...events].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-
-    const upcomingEventsAll = sortedEvents.filter(e => e.status === 'scheduled');
-    const completedEventsAll = sortedEvents.filter(e => e.status === 'completed' || e.status === 'cancelled').sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Newest completed first
+    const upcomingEventsAll = upcomingData?.events || [];
+    const completedEventsAll = completedData?.events || [];
 
     // Featured event is the FIRST upcoming event
     const featuredEvent = upcomingEventsAll[0];
@@ -32,6 +34,8 @@ export const EventsPageV2 = () => {
     // Filter logic for display
     const showUpcoming = filter === 'upcoming';
     const showCompleted = filter === 'completed';
+
+    const isLoading = filter === 'upcoming' ? upcomingLoading : completedLoading;
 
     const getDaysLeft = (dateStr: string) => {
         const diff = new Date(dateStr).getTime() - new Date().getTime();

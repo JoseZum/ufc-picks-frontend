@@ -59,16 +59,28 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         const isBlueSelected = pick?.corner === 'blue';
         const hasPick = !!pick;
 
+        // Check if bout has result
+        const hasResult = bout.result && bout.result.winner;
+        const isRedWinner = hasResult && bout.result.winner === 'red';
+        const isBlueWinner = hasResult && bout.result.winner === 'blue';
+        const resultMethod = hasResult ? bout.result.method : null;
+        const resultRound = hasResult ? bout.result.round : null;
+
         return (
-            <Link 
-                key={bout.id} 
+            <Link
+                key={bout.id}
                 href={`/events/${eventId}/fights/${bout.id}`}
-                className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''}`}
+                className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''} ${hasResult ? 'fight-card--completed' : ''}`}
             >
                 <div className="fight-card__header">
                     <span className="fight-card__weight">{bout.weight_class} BOUT</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        {hasPick && (
+                        {hasResult && (
+                            <span className="fight-card__result-badge">
+                                {resultMethod}{resultRound ? ` R${resultRound}` : ''}
+                            </span>
+                        )}
+                        {hasPick && !hasResult && (
                             <span className="fight-card__picked-badge">✓ PICKED</span>
                         )}
                         <span className="fight-card__rounds">{bout.rounds_scheduled} ROUNDS</span>
@@ -76,17 +88,23 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 </div>
                 <div className="fight-card__content">
                     {/* RED CORNER */}
-                    <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''}`}>
+                    <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''} ${isRedWinner ? 'fight-card__fighter--winner' : hasResult ? 'fight-card__fighter--loser' : ''}`}>
+                        {isRedWinner && (
+                            <div className="fight-card__winner-badge">
+                                <span className="fight-card__winner-icon">👑</span>
+                                <span className="fight-card__winner-text">WINNER</span>
+                            </div>
+                        )}
                         <div className="fight-card__photo">
-                            <img 
+                            <img
                                 src={getFighterImageUrl(bout.fighters.red)}
                                 alt={bout.fighters.red.fighter_name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
-                                    console.error('[Fighter Image Error]', { 
+                                    console.error('[Fighter Image Error]', {
                                         fighter: bout.fighters.red.fighter_name,
                                         url: getFighterImageUrl(bout.fighters.red),
-                                        profile_image_url: bout.fighters.red.profile_image_url 
+                                        profile_image_url: bout.fighters.red.profile_image_url
                                     });
                                     e.currentTarget.src = '/placeholder-fighter.svg';
                                 }}
@@ -117,17 +135,23 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     </div>
 
                     {/* BLUE CORNER */}
-                    <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''}`}>
+                    <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''} ${isBlueWinner ? 'fight-card__fighter--winner' : hasResult ? 'fight-card__fighter--loser' : ''}`}>
+                        {isBlueWinner && (
+                            <div className="fight-card__winner-badge">
+                                <span className="fight-card__winner-icon">👑</span>
+                                <span className="fight-card__winner-text">WINNER</span>
+                            </div>
+                        )}
                         <div className="fight-card__photo">
-                            <img 
+                            <img
                                 src={getFighterImageUrl(bout.fighters.blue)}
                                 alt={bout.fighters.blue.fighter_name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
-                                    console.error('[Fighter Image Error]', { 
+                                    console.error('[Fighter Image Error]', {
                                         fighter: bout.fighters.blue.fighter_name,
                                         url: getFighterImageUrl(bout.fighters.blue),
-                                        profile_image_url: bout.fighters.blue.profile_image_url 
+                                        profile_image_url: bout.fighters.blue.profile_image_url
                                     });
                                     e.currentTarget.src = '/placeholder-fighter.svg';
                                 }}
