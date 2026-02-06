@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from 'next/navigation'
 import { EventCard } from "@/components/EventCard";
+import { EventCardWithResult } from "@/components/EventCardWithResult";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Filter, AlertCircle } from "lucide-react";
@@ -161,16 +162,12 @@ export function EventsPage() {
           </h2>
           <div className="space-y-3">
             {completedEvents.map((event) => (
-              <EventCard
+              <EventCardWithResult
                 key={event.id}
-                id={String(event.id)}
-                name={event.name}
+                event={event}
                 date={formatDate(event.date)}
                 location={formatLocation(event.location)}
                 isUpcoming={false}
-                status={event.status as "scheduled" | "completed" | "cancelled"}
-                fightsCount={event.total_bouts}
-                posterUrl={getEventPosterUrl(event)}
                 onClick={() => router.push(`/events/${event.id}`)}
               />
             ))}

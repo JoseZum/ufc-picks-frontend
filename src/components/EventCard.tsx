@@ -16,6 +16,9 @@ interface EventCardProps {
   mainEvent?: {
     fighterRed: string;
     fighterBlue: string;
+    winner?: string;
+    method?: string;
+    round?: number;
   };
   onClick?: () => void;
   className?: string;
@@ -60,12 +63,20 @@ export function EventCard({
         
         <div className="p-4 flex-1">
           <div className="flex items-start justify-between mb-3">
-            <div>
+            <div className="flex-1">
               <h3 className="font-semibold text-foreground">{name}</h3>
               {mainEvent && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  {mainEvent.fighterRed} vs {mainEvent.fighterBlue}
-                </p>
+                <div className="mt-1">
+                  <p className="text-sm text-muted-foreground">
+                    {mainEvent.fighterRed} vs {mainEvent.fighterBlue}
+                  </p>
+                  {mainEvent.winner && mainEvent.method && (
+                    <p className="text-xs text-primary font-medium mt-1">
+                      {mainEvent.winner} wins by {mainEvent.method}
+                      {mainEvent.method !== 'DEC' && mainEvent.round && ` (R${mainEvent.round})`}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
             <StatusBadge status={isUpcoming ? "open" : status === "completed" ? "completed" : "locked"} />

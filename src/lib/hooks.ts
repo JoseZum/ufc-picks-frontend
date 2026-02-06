@@ -111,11 +111,11 @@ export function useEvent(eventId: number) {
 /**
  * Hook para obtener las peleas de un evento
  */
-export function useEventBouts(eventId: number) {
+export function useEventBouts(eventId: number, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['bouts', eventId],
     queryFn: () => api.getEventBouts(eventId),
-    enabled: !!eventId,
+    enabled: options?.enabled !== undefined ? options.enabled && !!eventId : !!eventId,
     staleTime: 60 * 1000,
   });
 }

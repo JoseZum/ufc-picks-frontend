@@ -218,8 +218,8 @@ export function MyPicksPage() {
 
                   return (
                     <Card key={pick.id} className="card-gradient p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
                           <p className="text-sm text-muted-foreground mb-1">{pick.weight_class || 'Fight'}</p>
                           <p className="font-medium mb-1">
                             <span className={isPickedRed ? 'text-fighter-red' : 'text-fighter-blue'}>
@@ -232,8 +232,11 @@ export function MyPicksPage() {
                             Pick: {pick.picked_method}{pick.picked_round ? ` R${pick.picked_round}` : ''}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <Clock className="h-5 w-5 text-warning" />
+                        <div className="flex flex-col items-end gap-1">
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-warning" />
+                          </div>
+                          <span className="text-xs text-warning font-medium">Pending</span>
                         </div>
                       </div>
                     </Card>
@@ -278,8 +281,8 @@ export function MyPicksPage() {
 
                     return (
                       <Card key={pick.id} className={`card-gradient p-4 ${pick.is_correct ? 'border-success/30' : 'border-destructive/30'}`}>
-                        <div className="flex items-center justify-between">
-                          <div>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex-1 min-w-0">
                             <p className="text-sm text-muted-foreground mb-1">{pick.weight_class || 'Fight'}</p>
                             <p className="font-medium mb-1">
                               <span className={isPickedRed ? 'text-fighter-red' : 'text-fighter-blue'}>
@@ -292,25 +295,34 @@ export function MyPicksPage() {
                               Pick: {pick.picked_method}{pick.picked_round ? ` R${pick.picked_round}` : ''}
                             </p>
                           </div>
-                          <div className="text-right">
+                          <div className="flex flex-col items-end gap-1 flex-shrink-0">
                             {pick.is_correct ? (
-                              <div className="flex flex-col items-end gap-1">
+                              <>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-lg font-bold text-success">+{pick.points_awarded}</span>
+                                  <span className="text-xl font-bold text-success">+{pick.points_awarded}</span>
                                   <CheckCircle className="h-5 w-5 text-success" />
                                 </div>
-                                {pick.points_awarded === 3 && (
-                                  <span className="text-xs text-ufc-gold font-semibold flex items-center gap-1">
-                                    <Trophy className="h-3 w-3" />
-                                    PERFECT
-                                  </span>
-                                )}
-                              </div>
+                                <span className="text-xs text-success font-medium">
+                                  {pick.points_awarded === 3 ? (
+                                    <span className="flex items-center gap-1 text-ufc-gold">
+                                      <Trophy className="h-3 w-3" />
+                                      PERFECT
+                                    </span>
+                                  ) : pick.points_awarded === 2 ? (
+                                    'Fighter + Method'
+                                  ) : (
+                                    'Fighter Only'
+                                  )}
+                                </span>
+                              </>
                             ) : (
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-muted-foreground">0 pts</span>
-                                <XCircle className="h-5 w-5 text-destructive" />
-                              </div>
+                              <>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl font-bold text-destructive">0</span>
+                                  <XCircle className="h-5 w-5 text-destructive" />
+                                </div>
+                                <span className="text-xs text-destructive font-medium">Wrong Pick</span>
+                              </>
                             )}
                           </div>
                         </div>
