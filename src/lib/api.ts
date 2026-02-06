@@ -387,7 +387,7 @@ export interface Pick {
   user_id: string;
   event_id: number;
   bout_id: number;
-  picked_corner: 'red' | 'blue';
+  picked_fighter_name: string;
   picked_method: 'DEC' | 'KO/TKO' | 'SUB';
   picked_round?: number;
   is_correct?: boolean;
@@ -402,7 +402,7 @@ export interface DetailedPick {
   event_id: number;
   event_name?: string;
   event_date?: string;
-  picked_corner: 'red' | 'blue';
+  picked_fighter_name: string;
   picked_method: 'DEC' | 'KO/TKO' | 'SUB';
   picked_round?: number;
   is_correct?: boolean;
@@ -423,7 +423,7 @@ export interface DetailedPick {
 export interface CreatePickRequest {
   event_id: number;
   bout_id: number;
-  picked_corner: 'red' | 'blue';
+  picked_fighter_name: string;
   picked_method: 'DEC' | 'KO/TKO' | 'SUB';
   picked_round?: number;
 }
@@ -607,7 +607,7 @@ export interface UserPick {
   event_id: number;
   event_name?: string;
   event_date?: string;
-  picked_corner: 'red' | 'blue';
+  picked_fighter_name: string;
   picked_method: 'DEC' | 'KO/TKO' | 'SUB';
   picked_round?: number;
   is_correct?: boolean;

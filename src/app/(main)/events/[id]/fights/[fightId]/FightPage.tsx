@@ -44,15 +44,20 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
   const existingPick = existingPicks?.find(p => p.bout_id === fightIdNum);
 
   useEffect(() => {
-    if (existingPick) {
-      setSelectedFighter(existingPick.picked_corner);
+    if (existingPick && bout) {
+      // Convert picked_fighter_name back to corner for UI state
+      const redName = bout.fighters.red?.fighter_name?.toLowerCase().trim();
+      const pickedName = existingPick.picked_fighter_name?.toLowerCase().trim();
+      const corner = pickedName === redName ? "red" : "blue";
+
+      setSelectedFighter(corner);
       setSelectedMethod(existingPick.picked_method);
       if (existingPick.picked_round) {
         setSelectedRound(existingPick.picked_round as 1 | 2 | 3 | 4 | 5);
       }
       setPickConfirmed(true);
     }
-  }, [existingPick]);
+  }, [existingPick, bout]);
 
   // Loading state
   if (eventLoading || boutsLoading) {
@@ -128,11 +133,11 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
   }
 
   const handleConfirmPick = async () => {
-    if (selectedFighter && selectedMethod) {
+    if (selectedFighter && selectedMethod && selectedFighterName) {
       const pickData = {
         event_id: eventIdNum,
         bout_id: fightIdNum,
-        picked_corner: selectedFighter,
+        picked_fighter_name: selectedFighterName,
         picked_method: selectedMethod,
         ...(selectedMethod !== "DEC" && selectedRound ? { picked_round: selectedRound } : {})
       };

@@ -24,9 +24,15 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
     // Create a map of picks by bout_id for quick lookup
     const picksByBout = React.useMemo(() => {
-        const map: Record<number, { corner: 'red' | 'blue'; method?: string }> = {};
+        const map: Record<number, { corner: 'red' | 'blue'; method?: string; fighterName: string }> = {};
         userPicks?.forEach(pick => {
-            map[pick.bout_id] = { corner: pick.picked_corner, method: pick.picked_method };
+            // We'll determine corner later when we have bout context
+            // For now, store the fighter name and determine corner at render time
+            map[pick.bout_id] = {
+                corner: 'red', // placeholder, will be determined at render
+                method: pick.picked_method,
+                fighterName: pick.picked_fighter_name
+            };
         });
         return map;
     }, [userPicks]);

@@ -212,16 +212,17 @@ export function MyPicksPage() {
               </div>
               <div className="space-y-3">
                 {eventPicks.map((pick) => {
-                  const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
-                  const opponentFighter = pick.picked_corner === 'red' ? pick.fighter_blue : pick.fighter_red;
-                  
+                  const pickedFighter = pick.picked_fighter_name;
+                  const isPickedRed = pick.picked_fighter_name?.toLowerCase() === pick.fighter_red?.toLowerCase();
+                  const opponentFighter = isPickedRed ? pick.fighter_blue : pick.fighter_red;
+
                   return (
                     <Card key={pick.id} className="card-gradient p-4">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm text-muted-foreground mb-1">{pick.weight_class || 'Fight'}</p>
                           <p className="font-medium mb-1">
-                            <span className={pick.picked_corner === 'red' ? 'text-fighter-red' : 'text-fighter-blue'}>
+                            <span className={isPickedRed ? 'text-fighter-red' : 'text-fighter-blue'}>
                               {pickedFighter || 'Fighter'}
                             </span>
                             {' vs '}
@@ -271,17 +272,17 @@ export function MyPicksPage() {
                 </div>
                 <div className="space-y-3">
                   {eventPicks.map((pick) => {
-                    const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
-                    const opponentFighter = pick.picked_corner === 'red' ? pick.fighter_blue : pick.fighter_red;
-                    const wasCorrectCorner = pick.is_correct;
-                    
+                    const pickedFighter = pick.picked_fighter_name;
+                    const isPickedRed = pick.picked_fighter_name?.toLowerCase() === pick.fighter_red?.toLowerCase();
+                    const opponentFighter = isPickedRed ? pick.fighter_blue : pick.fighter_red;
+
                     return (
                       <Card key={pick.id} className={`card-gradient p-4 ${pick.is_correct ? 'border-success/30' : 'border-destructive/30'}`}>
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-sm text-muted-foreground mb-1">{pick.weight_class || 'Fight'}</p>
                             <p className="font-medium mb-1">
-                              <span className={pick.picked_corner === 'red' ? 'text-fighter-red' : 'text-fighter-blue'}>
+                              <span className={isPickedRed ? 'text-fighter-red' : 'text-fighter-blue'}>
                                 {pickedFighter || 'Fighter'}
                               </span>
                               {' vs '}

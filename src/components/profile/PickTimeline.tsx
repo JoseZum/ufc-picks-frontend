@@ -31,8 +31,8 @@ export function PickTimeline({ picks }: PickTimelineProps) {
     <div className="bg-brutalist-panel border-[3px] border-white/15">
       {picks.map((pick, index) => {
         const status = getStatusColor(pick.is_correct);
-        const isRed = pick.picked_corner === 'red';
-        const isBlue = pick.picked_corner === 'blue';
+        const isPickedRed = pick.picked_fighter_name?.toLowerCase() === pick.fighter_red?.toLowerCase();
+        const isPickedBlue = !isPickedRed;
 
         return (
           <div
@@ -54,14 +54,14 @@ export function PickTimeline({ picks }: PickTimelineProps) {
             <div className="flex items-center gap-4 flex-wrap md:flex-nowrap">
               <span className={cn(
                 "text-sm font-mono",
-                isRed ? "text-red-500 font-bold" : "text-gray-500"
+                isPickedRed ? "text-red-500 font-bold" : "text-gray-500"
               )}>
                 {pick.fighter_red || 'TBD'}
               </span>
               <span className="text-sm text-gray-500">VS</span>
               <span className={cn(
                 "text-sm font-mono",
-                isBlue ? "text-blue-500 font-bold" : "text-gray-500"
+                isPickedBlue ? "text-blue-500 font-bold" : "text-gray-500"
               )}>
                 {pick.fighter_blue || 'TBD'}
               </span>

@@ -40,13 +40,18 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
 
     // Initialize from existing pick
     useEffect(() => {
-        if (existingPick) {
-            setSelectedFighter(existingPick.picked_corner);
+        if (existingPick && bout) {
+            // Convert picked_fighter_name back to corner for UI state
+            const redName = bout.fighters.red?.fighter_name?.toLowerCase().trim();
+            const pickedName = existingPick.picked_fighter_name?.toLowerCase().trim();
+            const corner = pickedName === redName ? 'red' : 'blue';
+
+            setSelectedFighter(corner);
             setSelectedMethod((existingPick.picked_method as 'DEC' | 'KO/TKO' | 'SUB') || 'DEC');
             setSelectedRound(existingPick.picked_round || null);
             setShowSuccess(true);
         }
-    }, [existingPick]);
+    }, [existingPick, bout]);
 
     const handleSelectFighter = (corner: 'red' | 'blue') => {
         if (event?.status !== 'scheduled') return;
@@ -78,10 +83,15 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
 
         setSaving(true);
         try {
+            // Get fighter name from selected corner
+            const selectedFighterName = selectedFighter === 'red'
+                ? bout?.fighters.red?.fighter_name
+                : bout?.fighters.blue?.fighter_name;
+
             await createPickMutation.mutateAsync({
                 event_id: eventId,
                 bout_id: boutId,
-                picked_corner: selectedFighter,
+                picked_fighter_name: selectedFighterName || '',
                 picked_method: selectedMethod,
                 picked_round: selectedRound || undefined
             });

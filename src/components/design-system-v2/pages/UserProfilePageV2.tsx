@@ -234,8 +234,10 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                         ) : (
                             <div className="picks-grid">
                                 {picks.slice(0, 12).map((pick) => {
-                                    const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
-                                    const otherFighter = pick.picked_corner === 'red' ? pick.fighter_blue : pick.fighter_red;
+                                    const pickedFighter = pick.picked_fighter_name;
+                                    const isPickedRed = pick.picked_fighter_name?.toLowerCase() === pick.fighter_red?.toLowerCase();
+                                    const otherFighter = isPickedRed ? pick.fighter_blue : pick.fighter_red;
+                                    const pickedCornerClass = isPickedRed ? 'red' : 'blue';
                                     const statusClass = pick.is_correct === null ? 'pending' : pick.is_correct ? 'correct' : 'incorrect';
                                     const isPerfect = pick.points_awarded === 3;
 
@@ -253,7 +255,7 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
 
                                             {/* Fight */}
                                             <div className="pick-card__fight">
-                                                <div className={`pick-card__fighter pick-card__fighter--picked pick-card__fighter--${pick.picked_corner}`}>
+                                                <div className={`pick-card__fighter pick-card__fighter--picked pick-card__fighter--${pickedCornerClass}`}>
                                                     {pickedFighter || 'Unknown'}
                                                 </div>
                                                 <div className="pick-card__vs">VS</div>

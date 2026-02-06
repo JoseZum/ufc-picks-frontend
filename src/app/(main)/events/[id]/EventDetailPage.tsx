@@ -254,6 +254,11 @@ export function EventDetailPage({ id }: { id: string }) {
           const boutLockedByAdmin = boutFromApi?.picks_locked || false;
           const isLockedFinal = !picksOpen || boutLockedByAdmin || eventPicksLocked;
 
+          // Convert picked_fighter_name to corner for BoutCard
+          const pickedCorner = pick?.picked_fighter_name
+            ? (pick.picked_fighter_name.toLowerCase().trim() === bout.fighterRed?.toLowerCase().trim() ? 'red' : 'blue')
+            : undefined;
+
           // Debug logging
           console.log(`Bout ${bout.boutId}:`, {
             picksOpen,
@@ -276,7 +281,7 @@ export function EventDetailPage({ id }: { id: string }) {
               isMainEvent={bout.isMainEvent}
               isCoMain={bout.isCoMain}
               cardSection="main"
-              selectedFighter={pick?.picked_corner || localPicks[bout.order]?.fighter}
+              selectedFighter={pickedCorner || localPicks[bout.order]?.fighter}
               selectedMethod={pick?.picked_method}
               selectedRound={pick?.picked_round as 1 | 2 | 3 | 4 | 5 | undefined}
               winner={bout.winner}
