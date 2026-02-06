@@ -8,6 +8,8 @@ import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { FlagBadge } from '@/components/FlagBadge';
+import { getFlagCode } from '@/lib/countryCodeMapping';
 
 export const LandingPageV2 = () => {
     const router = useRouter();
@@ -133,8 +135,12 @@ export const LandingPageV2 = () => {
                                         : 'Record N/A'}
                                 </div>
                                 <div className="main-event__country">
-                                    <span className="main-event__flag">{/* Flag logic to be added */}</span>
-                                    {mainEventBout.fighters.red.nationality || 'Unknown'}
+                                    <FlagBadge
+                                        country={mainEventBout.fighters.red.nationality || 'Unknown'}
+                                        countryCode={getFlagCode(mainEventBout.fighters.red.nationality)}
+                                        size="S"
+                                        showCountryName={true}
+                                    />
                                 </div>
                             </div>
 
@@ -158,8 +164,12 @@ export const LandingPageV2 = () => {
                                         : 'Record N/A'}
                                 </div>
                                 <div className="main-event__country">
-                                    <span className="main-event__flag">{/* Flag logic to be added */}</span>
-                                    {mainEventBout.fighters.blue.nationality || 'Unknown'}
+                                    <FlagBadge
+                                        country={mainEventBout.fighters.blue.nationality || 'Unknown'}
+                                        countryCode={getFlagCode(mainEventBout.fighters.blue.nationality)}
+                                        size="S"
+                                        showCountryName={true}
+                                    />
                                 </div>
                             </div>
                         </div>

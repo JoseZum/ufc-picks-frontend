@@ -7,6 +7,8 @@ import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
 import { getFighterImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { FlagBadge } from '@/components/FlagBadge';
+import { getFlagCode } from '@/lib/countryCodeMapping';
 
 interface FightPickPageV2Props {
     params: {
@@ -219,10 +221,14 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                             {formatRecord(redFighter.record_at_fight) ? (
                                 <p className="fighter-card__record">{formatRecord(redFighter.record_at_fight)}</p>
                             ) : null}
-                            <p className="fighter-card__country">
-                                <span className="fighter-card__country-flag">🏳️</span>
-                                {redFighter.nationality || 'Unknown'}
-                            </p>
+                            <div className="fighter-card__country">
+                                <FlagBadge
+                                    country={redFighter.nationality || 'Unknown'}
+                                    countryCode={getFlagCode(redFighter.nationality)}
+                                    size="S"
+                                    showCountryName={true}
+                                />
+                            </div>
 
                             <div className="fighter-card__stats">
                                 {redFighter.height && (
@@ -320,10 +326,14 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                             {formatRecord(blueFighter.record_at_fight) ? (
                                 <p className="fighter-card__record">{formatRecord(blueFighter.record_at_fight)}</p>
                             ) : null}
-                            <p className="fighter-card__country">
-                                <span className="fighter-card__country-flag">🏳️</span>
-                                {blueFighter.nationality || 'Unknown'}
-                            </p>
+                            <div className="fighter-card__country">
+                                <FlagBadge
+                                    country={blueFighter.nationality || 'Unknown'}
+                                    countryCode={getFlagCode(blueFighter.nationality)}
+                                    size="S"
+                                    showCountryName={true}
+                                />
+                            </div>
 
                             <div className="fighter-card__stats">
                                 {blueFighter.height && (
