@@ -40,11 +40,14 @@ export const EventsPageV2 = () => {
     };
 
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('en-US', {
+        // Parse date as UTC to avoid timezone conversion issues
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',
             day: 'numeric',
-            year: 'numeric'
+            year: 'numeric',
+            timeZone: 'UTC'
         }).toUpperCase();
     };
 

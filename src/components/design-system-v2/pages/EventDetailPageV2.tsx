@@ -105,7 +105,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                         country={bout.fighters.red.nationality}
                                         countryCode={bout.fighters.red.nationality}
                                         size="S"
-                                        showCountryName={false}
+                                        showCountryName={true}
                                     />
                                 )}
                             </div>
@@ -146,7 +146,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                         country={bout.fighters.blue.nationality}
                                         countryCode={bout.fighters.blue.nationality}
                                         size="S"
-                                        showCountryName={false}
+                                        showCountryName={true}
                                     />
                                 )}
                             </div>
