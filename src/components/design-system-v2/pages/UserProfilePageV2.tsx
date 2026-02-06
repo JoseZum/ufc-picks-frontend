@@ -132,7 +132,7 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                     <div className="profile-hero__rank">
                         <div className="profile-hero__rank-label">GLOBAL RANK</div>
                         <div className="profile-hero__rank-value">#{userRank || '—'}</div>
-                        <div className="profile-hero__rank-total">OF {totalUsers} FIGHTERS</div>
+                        <div className="profile-hero__rank-total">OF {totalUsers} USERS</div>
                     </div>
 
                     {/* Streak */}
