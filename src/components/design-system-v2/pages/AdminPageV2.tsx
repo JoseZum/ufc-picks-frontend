@@ -86,10 +86,11 @@ export const AdminPageV2 = () => {
 
 // ===== EVENT TIMING TAB =====
 function EventTimingTab() {
-    const { data: eventsData, isLoading, refetch } = useEvents({ limit: 20 });
+    const { data: eventsData, isLoading, refetch } = useEvents({ limit: 50 });
     const [expandedEvent, setExpandedEvent] = useState<number | null>(null);
     const [saving, setSaving] = useState<number | null>(null);
     const [locking, setLocking] = useState<number | null>(null);
+    const [eventFilter, setEventFilter] = useState<'upcoming' | 'completed'>('upcoming');
 
     const handleLockPicks = async (eventId: number) => {
         setLocking(eventId);
@@ -141,11 +142,30 @@ function EventTimingTab() {
         return <div className="admin-section-title">Loading events...</div>;
     }
 
-    const events = eventsData?.events || [];
+    const allEvents = eventsData?.events || [];
+    const upcomingEvents = allEvents.filter(e => e.status === 'scheduled');
+    const completedEvents = allEvents.filter(e => e.status === 'completed' || e.status === 'cancelled');
+    const events = eventFilter === 'upcoming' ? upcomingEvents : completedEvents;
 
     return (
         <div className="admin-tab-content admin-tab-content--active">
-            <h2 className="admin-section-title">UPCOMING EVENTS</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h2 className="admin-section-title">{eventFilter === 'upcoming' ? 'UPCOMING EVENTS' : 'COMPLETED EVENTS'}</h2>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        className={`filter-btn ${eventFilter === 'upcoming' ? 'filter-btn--active' : ''}`}
+                        onClick={() => setEventFilter('upcoming')}
+                    >
+                        UPCOMING
+                    </button>
+                    <button
+                        className={`filter-btn ${eventFilter === 'completed' ? 'filter-btn--active' : ''}`}
+                        onClick={() => setEventFilter('completed')}
+                    >
+                        COMPLETED
+                    </button>
+                </div>
+            </div>
 
             {events.map((event) => (
                 <EventTimingCard
@@ -299,7 +319,7 @@ function EventTimingCard({
 // ===== RESULT REGISTRATION TAB =====
 function ResultRegistrationTab() {
     const queryClient = useQueryClient();
-    const { data: eventsData, isLoading: eventsLoading } = useEvents({ limit: 20 });
+    const { data: eventsData, isLoading: eventsLoading } = useEvents({ limit: 50 });
     const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
     const { data: bouts, isLoading: boutsLoading, refetch } = useEventBouts(selectedEventId || 0);
     const [expandedBout, setExpandedBout] = useState<number | null>(null);
@@ -308,7 +328,13 @@ function ResultRegistrationTab() {
         return <div className="admin-section-title">Loading events...</div>;
     }
 
-    const events = eventsData?.events || [];
+    const allEvents = eventsData?.events || [];
+    // Sort: show completed first, then upcoming
+    const events = [...allEvents].sort((a, b) => {
+        if (a.status === 'completed' && b.status !== 'completed') return -1;
+        if (a.status !== 'completed' && b.status === 'completed') return 1;
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
 
     return (
         <div className="admin-tab-content admin-tab-content--active">
@@ -572,9 +598,10 @@ function BoutResultCard({
 
 // ===== EVENT ART UPLOAD TAB =====
 function EventArtTab() {
-    const { data: eventsData, isLoading, refetch } = useEvents({ limit: 20 });
+    const { data: eventsData, isLoading, refetch } = useEvents({ limit: 50 });
     const [uploading, setUploading] = useState<number | null>(null);
     const [deleting, setDeleting] = useState<number | null>(null);
+    const [eventFilter, setEventFilter] = useState<'upcoming' | 'completed'>('upcoming');
 
     const handleUpload = async (eventId: number, file: File) => {
         setUploading(eventId);
@@ -636,14 +663,35 @@ function EventArtTab() {
         return <div className="admin-section-title">Loading events...</div>;
     }
 
-    const events = eventsData?.events || [];
+    const allEvents = eventsData?.events || [];
+    const upcomingEvents = allEvents.filter(e => e.status === 'scheduled');
+    const completedEvents = allEvents.filter(e => e.status === 'completed' || e.status === 'cancelled');
+    const events = eventFilter === 'upcoming' ? upcomingEvents : completedEvents;
 
     return (
         <div className="admin-tab-content admin-tab-content--active">
-            <h2 className="admin-section-title">EVENT ART UPLOADS</h2>
-            <p style={{ color: '#999', marginBottom: '2rem', fontSize: '0.95rem' }}>
-                Upload custom event art images. These will be displayed as hero backgrounds on event pages. Supported formats: AVIF, PNG, JPG, WEBP.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div>
+                    <h2 className="admin-section-title">EVENT ART UPLOADS</h2>
+                    <p style={{ color: '#999', fontSize: '0.95rem' }}>
+                        Upload custom event art images. These will be displayed as hero backgrounds on event pages. Supported formats: AVIF, PNG, JPG, WEBP.
+                    </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                        className={`filter-btn ${eventFilter === 'upcoming' ? 'filter-btn--active' : ''}`}
+                        onClick={() => setEventFilter('upcoming')}
+                    >
+                        UPCOMING
+                    </button>
+                    <button
+                        className={`filter-btn ${eventFilter === 'completed' ? 'filter-btn--active' : ''}`}
+                        onClick={() => setEventFilter('completed')}
+                    >
+                        COMPLETED
+                    </button>
+                </div>
+            </div>
 
             {events.map((event) => (
                 <div key={event.id} className="event-art-card">

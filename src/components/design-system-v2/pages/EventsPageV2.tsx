@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 
 export const EventsPageV2 = () => {
     const router = useRouter();
-    const [filter, setFilter] = useState<'all' | 'upcoming' | 'completed'>('all');
+    const [filter, setFilter] = useState<'upcoming' | 'completed'>('upcoming');
 
     // Fetch events
     const { data: eventsData, isLoading } = useEvents({ limit: 50 });
@@ -30,8 +30,8 @@ export const EventsPageV2 = () => {
     const otherUpcomingEvents = upcomingEventsAll.slice(1);
 
     // Filter logic for display
-    const showUpcoming = filter === 'all' || filter === 'upcoming';
-    const showCompleted = filter === 'all' || filter === 'completed';
+    const showUpcoming = filter === 'upcoming';
+    const showCompleted = filter === 'completed';
 
     const getDaysLeft = (dateStr: string) => {
         const diff = new Date(dateStr).getTime() - new Date().getTime();
@@ -62,12 +62,6 @@ export const EventsPageV2 = () => {
                         <p className="page-header__subtitle">UFC Fight Calendar // Make Your Predictions</p>
                     </div>
                     <div className="page-header__filters">
-                        <button
-                            className={`filter-btn ${filter === 'all' ? 'filter-btn--active' : ''}`}
-                            onClick={() => setFilter('all')}
-                        >
-                            ALL
-                        </button>
                         <button
                             className={`filter-btn ${filter === 'upcoming' ? 'filter-btn--active' : ''}`}
                             onClick={() => setFilter('upcoming')}
