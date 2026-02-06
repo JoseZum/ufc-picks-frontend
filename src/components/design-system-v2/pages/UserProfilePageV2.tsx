@@ -62,13 +62,14 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
         return stats;
     }, [picks]);
 
-    // Calculate perfect picks (method + round correct)
+    // Calculate perfect picks (finish method KO/TKO or SUB + correct round)
     const perfectPicks = React.useMemo(() => {
         if (!picks) return 0;
         return picks.filter(pick =>
             pick.is_correct &&
-            pick.picked_method &&
-            pick.picked_round
+            pick.picked_round && // Must have picked a round
+            (pick.picked_method === 'KO/TKO' || pick.picked_method === 'SUB') && // Must be a finish
+            pick.points_awarded === 3 // Perfect picks get 3 points
         ).length;
     }, [picks]);
 
@@ -217,72 +218,65 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                     </div>
 
                     {/* Recent Picks */}
-                    <div className="recent-picks">
-                        <div className="section-header">
-                            <div className="section-header__label">RECENT PICKS</div>
-                            <div className="section-header__count">{picks?.length || 0} TOTAL</div>
+                    <div className="recent-picks-section">
+                        <div className="recent-picks-header">
+                            <div className="recent-picks-header__title">RECENT PICKS</div>
+                            <div className="recent-picks-header__count">{picks?.length || 0} TOTAL</div>
                         </div>
 
-                        <div className="picks-timeline">
-                            {picks?.slice(0, 10).map((pick) => {
-                                const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
-                                const otherFighter = pick.picked_corner === 'red' ? pick.fighter_blue : pick.fighter_red;
-                                const statusClass = pick.is_correct === null ? 'pending' : pick.is_correct ? 'correct' : 'incorrect';
+                        {(!picks || picks.length === 0) ? (
+                            <div className="picks-empty">
+                                <p className="picks-empty__text">NO PICKS YET</p>
+                                <Link href="/events" className="picks-empty__cta">
+                                    VIEW UPCOMING EVENTS →
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="picks-grid">
+                                {picks.slice(0, 12).map((pick) => {
+                                    const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
+                                    const otherFighter = pick.picked_corner === 'red' ? pick.fighter_blue : pick.fighter_red;
+                                    const statusClass = pick.is_correct === null ? 'pending' : pick.is_correct ? 'correct' : 'incorrect';
+                                    const isPerfect = pick.points_awarded === 3;
 
-                                return (
-                                    <div key={pick.id} className={`pick-row pick-row--${statusClass}`}>
-                                        {/* Event Info */}
-                                        <div className="pick-row__event">
-                                            <div className="pick-row__event-name">{pick.event_name || 'Unknown Event'}</div>
-                                            <div className="pick-row__event-date">
-                                                {pick.event_date ? new Date(pick.event_date).toLocaleDateString('en-US', {
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    year: 'numeric',
-                                                    timeZone: 'UTC'
-                                                }).toUpperCase() : 'N/A'}
+                                    return (
+                                        <div key={pick.id} className={`pick-card pick-card--${statusClass} ${isPerfect ? 'pick-card--perfect' : ''}`}>
+                                            {/* Status Badge */}
+                                            <div className="pick-card__status">
+                                                {pick.is_correct === null ? '⏱️' : pick.is_correct ? (isPerfect ? '🎯' : '✓') : '✗'}
+                                            </div>
+
+                                            {/* Event Name */}
+                                            <div className="pick-card__event">
+                                                {pick.event_name || 'Unknown Event'}
+                                            </div>
+
+                                            {/* Fight */}
+                                            <div className="pick-card__fight">
+                                                <div className={`pick-card__fighter pick-card__fighter--picked pick-card__fighter--${pick.picked_corner}`}>
+                                                    {pickedFighter || 'Unknown'}
+                                                </div>
+                                                <div className="pick-card__vs">VS</div>
+                                                <div className="pick-card__fighter pick-card__fighter--faded">
+                                                    {otherFighter || 'Unknown'}
+                                                </div>
+                                            </div>
+
+                                            {/* Pick Info */}
+                                            <div className="pick-card__info">
+                                                <div className="pick-card__method">
+                                                    <span className="pick-card__badge">{pick.picked_method}</span>
+                                                    {pick.picked_round && <span className="pick-card__badge">R{pick.picked_round}</span>}
+                                                </div>
+                                                <div className={`pick-card__points pick-card__points--${statusClass}`}>
+                                                    {pick.is_correct ? `+${pick.points_awarded || 1}` : '0'} PT{(pick.points_awarded !== 1 || !pick.is_correct) ? 'S' : ''}
+                                                </div>
                                             </div>
                                         </div>
-
-                                        {/* Fight Info */}
-                                        <div className="pick-row__fight">
-                                            <span className={`pick-row__fighter pick-row__fighter--${pick.picked_corner}`}>
-                                                {pickedFighter?.toUpperCase() || 'UNKNOWN'}
-                                            </span>
-                                            <span className="pick-row__vs">VS</span>
-                                            <span className="pick-row__fighter pick-row__fighter--faded">
-                                                {otherFighter || 'Unknown'}
-                                            </span>
-                                        </div>
-
-                                        {/* Pick Details */}
-                                        <div className="pick-row__details">
-                                            <div className="pick-row__method">
-                                                <span className="pick-row__badge">{pick.picked_method}</span>
-                                                {pick.picked_round && <span className="pick-row__badge">R{pick.picked_round}</span>}
-                                            </div>
-                                            <div className="pick-row__result">
-                                                <span className={`pick-row__status pick-row__status--${statusClass}`}>
-                                                    {pick.is_correct === null ? '⏱ PENDING' : pick.is_correct ? '✓ CORRECT' : '✗ INCORRECT'}
-                                                </span>
-                                                <span className={`pick-row__points pick-row__points--${statusClass}`}>
-                                                    {pick.is_correct ? `+${pick.points_awarded || 1} PTS` : '0 PTS'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-
-                            {(!picks || picks.length === 0) && (
-                                <div className="picks-empty">
-                                    <p>NO PICKS YET</p>
-                                    <Link href="/events" className="picks-empty__cta">
-                                        VIEW UPCOMING EVENTS →
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

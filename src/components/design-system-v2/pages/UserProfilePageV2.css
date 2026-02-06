@@ -274,152 +274,222 @@
     color: #9ca3af;
 }
 
-/* RECENT PICKS TIMELINE */
-.recent-picks {
-    background: #0f0f0f;
-    border: 3px solid rgba(255,255,255,0.15);
-    padding: 0;
-    margin-bottom: 3rem;
+/* RECENT PICKS - GRID LAYOUT */
+.recent-picks-section {
+    margin-top: 2rem;
 }
 
-.picks-timeline {
+.recent-picks-header {
     display: flex;
-    flex-direction: column;
-}
-
-.pick-row {
-    display: grid;
-    grid-template-columns: 200px 1fr 200px;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
+    justify-content: space-between;
     align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
 }
 
-.pick-row:last-child { border-bottom: none; }
-
-.pick-row--correct {
-    background: rgba(34, 197, 94, 0.15);
-    border-left: 3px solid #22c55e;
-}
-
-.pick-row--incorrect {
-    background: rgba(239, 68, 68, 0.15);
-    border-left: 3px solid #ef4444;
-}
-
-.pick-row--pending {
-    background: rgba(255, 193, 7, 0.1);
-    border-left: 3px solid #ffc107;
-}
-
-.pick-row__event {
-    display: flex;
-    flex-direction: column;
-}
-
-.pick-row__event-name {
-    font-size: 0.75rem;
-    color: #ffffff;
-    margin-bottom: 0.25rem;
-}
-
-.pick-row__event-date {
-    font-size: 0.65rem;
-    color: #6b7280;
-}
-
-.pick-row__fight {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.pick-row__fighter {
-    font-size: 0.8rem;
-}
-
-.pick-row__fighter--red {
-    color: #dc2626;
-    font-weight: 700;
-}
-
-.pick-row__fighter--blue {
-    color: #2563eb;
-    font-weight: 700;
-}
-
-.pick-row__fighter--faded {
-    color: #6b7280;
-}
-
-.pick-row__vs {
-    color: #6b7280;
-    font-size: 0.7rem;
-}
-
-.pick-row__details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.pick-row__method {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.pick-row__badge {
-    background: #1a1a1a;
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 0.25rem 0.75rem;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.pick-row__result {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.pick-row__status {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.pick-row__status--correct { color: #22c55e; }
-.pick-row__status--incorrect { color: #ef4444; }
-.pick-row__status--pending { color: #ffc107; }
-
-.pick-row__points {
+.recent-picks-header__title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.5rem;
+    letter-spacing: 3px;
+    padding-left: 1rem;
+    border-left: 3px solid #e10600;
 }
 
-.pick-row__points--correct { color: #22c55e; }
-.pick-row__points--incorrect { color: #6b7280; }
-
-.picks-empty {
-    text-align: center;
-    padding: 3rem 1rem;
+.recent-picks-header__count {
+    font-size: 0.7rem;
     color: #6b7280;
-}
-
-.picks-empty__cta {
-    display: inline-block;
-    margin-top: 1rem;
-    color: #e10600;
-    text-decoration: none;
-    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 2px;
 }
 
+.picks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.pick-card {
+    background: #0f0f0f;
+    border: 2px solid rgba(255,255,255,0.1);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    position: relative;
+    transition: all 0.2s;
+    overflow: hidden;
+}
+
+.pick-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: transparent;
+}
+
+.pick-card--correct {
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.pick-card--correct::before {
+    background: #22c55e;
+}
+
+.pick-card--incorrect {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.pick-card--incorrect::before {
+    background: #ef4444;
+}
+
+.pick-card--pending {
+    border-color: rgba(255, 193, 7, 0.3);
+}
+
+.pick-card--pending::before {
+    background: #ffc107;
+}
+
+.pick-card--perfect {
+    border-color: #e10600;
+    box-shadow: 0 0 20px rgba(225, 6, 0, 0.2);
+}
+
+.pick-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.pick-card__status {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.pick-card__event {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6b7280;
+    padding-right: 2rem;
+}
+
+.pick-card__fight {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.pick-card__fighter {
+    font-size: 0.85rem;
+    line-height: 1.3;
+}
+
+.pick-card__fighter--picked {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.pick-card__fighter--red {
+    color: #dc2626;
+}
+
+.pick-card__fighter--blue {
+    color: #2563eb;
+}
+
+.pick-card__fighter--faded {
+    color: #6b7280;
+}
+
+.pick-card__vs {
+    font-size: 0.6rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin: 0.125rem 0;
+}
+
+.pick-card__info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.pick-card__method {
+    display: flex;
+    gap: 0.375rem;
+}
+
+.pick-card__badge {
+    background: #050505;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9ca3af;
+}
+
+.pick-card__points {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.pick-card__points--correct {
+    color: #22c55e;
+}
+
+.pick-card__points--incorrect {
+    color: #6b7280;
+}
+
+.pick-card__points--pending {
+    color: #ffc107;
+}
+
+.picks-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #0f0f0f;
+    border: 2px dashed rgba(255,255,255,0.1);
+}
+
+.picks-empty__text {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.picks-empty__cta {
+    display: inline-block;
+    color: #e10600;
+    text-decoration: none;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e10600;
+    transition: all 0.2s;
+}
+
 .picks-empty__cta:hover {
-    text-decoration: underline;
+    background: #e10600;
+    color: #ffffff;
 }
 
 /* RESPONSIVE */
@@ -445,7 +515,13 @@
         transform: rotate(0) !important;
     }
 
-    .pick-row {
+    .picks-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .picks-grid {
         grid-template-columns: 1fr;
     }
 }
