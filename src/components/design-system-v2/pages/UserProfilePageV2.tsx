@@ -26,17 +26,40 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
 
     const totalUsers = leaderboard?.length || 0;
 
-    // Calculate method breakdown
+    // Calculate method breakdown with accuracy
     const methodStats = React.useMemo(() => {
-        if (!picks) return { KO: 0, SUB: 0, DEC: 0 };
-        return picks.reduce((acc, pick) => {
-            if (pick.is_correct && pick.picked_method) {
-                if (pick.picked_method === 'KO/TKO') acc.KO++;
-                else if (pick.picked_method === 'SUB') acc.SUB++;
-                else if (pick.picked_method === 'DEC') acc.DEC++;
+        if (!picks) return {
+            KO: { total: 0, correct: 0, accuracy: 0 },
+            SUB: { total: 0, correct: 0, accuracy: 0 },
+            DEC: { total: 0, correct: 0, accuracy: 0 }
+        };
+
+        const stats = picks.reduce((acc, pick) => {
+            if (pick.picked_method) {
+                let method: 'KO' | 'SUB' | 'DEC';
+                if (pick.picked_method === 'KO/TKO') method = 'KO';
+                else if (pick.picked_method === 'SUB') method = 'SUB';
+                else method = 'DEC';
+
+                acc[method].total++;
+                if (pick.is_correct) acc[method].correct++;
             }
             return acc;
-        }, { KO: 0, SUB: 0, DEC: 0 });
+        }, {
+            KO: { total: 0, correct: 0, accuracy: 0 },
+            SUB: { total: 0, correct: 0, accuracy: 0 },
+            DEC: { total: 0, correct: 0, accuracy: 0 }
+        });
+
+        // Calculate accuracy percentages
+        Object.keys(stats).forEach((key) => {
+            const method = key as 'KO' | 'SUB' | 'DEC';
+            stats[method].accuracy = stats[method].total > 0
+                ? Math.round((stats[method].correct / stats[method].total) * 100)
+                : 0;
+        });
+
+        return stats;
     }, [picks]);
 
     // Calculate perfect picks (method + round correct)
@@ -171,21 +194,24 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                         </div>
                         <div className="method-grid">
                             <div className="method-card method-card--ko">
-                                <div className="method-card__icon">👊</div>
-                                <div className="method-card__value">{methodStats.KO}</div>
-                                <div className="method-card__label">KO/TKO</div>
+                                <div className="method-card__name">KO/TKO</div>
+                                <div className="method-card__picks">{methodStats.KO.total}</div>
+                                <div className="method-card__accuracy">{methodStats.KO.accuracy}%</div>
+                                <div className="method-card__label">ACCURACY</div>
                             </div>
 
                             <div className="method-card method-card--sub">
-                                <div className="method-card__icon">🤼</div>
-                                <div className="method-card__value">{methodStats.SUB}</div>
-                                <div className="method-card__label">SUBMISSION</div>
+                                <div className="method-card__name">SUBMISSION</div>
+                                <div className="method-card__picks">{methodStats.SUB.total}</div>
+                                <div className="method-card__accuracy">{methodStats.SUB.accuracy}%</div>
+                                <div className="method-card__label">ACCURACY</div>
                             </div>
 
                             <div className="method-card method-card--dec">
-                                <div className="method-card__icon">⚖️</div>
-                                <div className="method-card__value">{methodStats.DEC}</div>
-                                <div className="method-card__label">DECISION</div>
+                                <div className="method-card__name">DECISION</div>
+                                <div className="method-card__picks">{methodStats.DEC.total}</div>
+                                <div className="method-card__accuracy">{methodStats.DEC.accuracy}%</div>
+                                <div className="method-card__label">ACCURACY</div>
                             </div>
                         </div>
                     </div>
@@ -197,21 +223,52 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                             <div className="section-header__count">{picks?.length || 0} TOTAL</div>
                         </div>
 
-                        <div className="picks-list">
+                        <div className="picks-timeline">
                             {picks?.slice(0, 10).map((pick) => {
                                 const pickedFighter = pick.picked_corner === 'red' ? pick.fighter_red : pick.fighter_blue;
+                                const otherFighter = pick.picked_corner === 'red' ? pick.fighter_blue : pick.fighter_red;
+                                const statusClass = pick.is_correct === null ? 'pending' : pick.is_correct ? 'correct' : 'incorrect';
+
                                 return (
-                                    <div key={pick.id} className={`pick-item ${pick.is_correct ? 'pick-item--correct' : pick.is_correct === false ? 'pick-item--incorrect' : 'pick-item--pending'}`}>
-                                        <div className="pick-item__status">
-                                            {pick.is_correct === null ? '⏱️' : pick.is_correct ? '✓' : '✗'}
+                                    <div key={pick.id} className={`pick-row pick-row--${statusClass}`}>
+                                        {/* Event Info */}
+                                        <div className="pick-row__event">
+                                            <div className="pick-row__event-name">{pick.event_name || 'Unknown Event'}</div>
+                                            <div className="pick-row__event-date">
+                                                {pick.event_date ? new Date(pick.event_date).toLocaleDateString('en-US', {
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    year: 'numeric',
+                                                    timeZone: 'UTC'
+                                                }).toUpperCase() : 'N/A'}
+                                            </div>
                                         </div>
-                                        <div className="pick-item__info">
-                                            <div className="pick-item__fighter">{pickedFighter || 'Fighter'}</div>
-                                            <div className="pick-item__event">{pick.event_name}</div>
+
+                                        {/* Fight Info */}
+                                        <div className="pick-row__fight">
+                                            <span className={`pick-row__fighter pick-row__fighter--${pick.picked_corner}`}>
+                                                {pickedFighter?.toUpperCase() || 'UNKNOWN'}
+                                            </span>
+                                            <span className="pick-row__vs">VS</span>
+                                            <span className="pick-row__fighter pick-row__fighter--faded">
+                                                {otherFighter || 'Unknown'}
+                                            </span>
                                         </div>
-                                        <div className="pick-item__method">
-                                            {pick.picked_method}
-                                            {pick.picked_round && ` R${pick.picked_round}`}
+
+                                        {/* Pick Details */}
+                                        <div className="pick-row__details">
+                                            <div className="pick-row__method">
+                                                <span className="pick-row__badge">{pick.picked_method}</span>
+                                                {pick.picked_round && <span className="pick-row__badge">R{pick.picked_round}</span>}
+                                            </div>
+                                            <div className="pick-row__result">
+                                                <span className={`pick-row__status pick-row__status--${statusClass}`}>
+                                                    {pick.is_correct === null ? '⏱ PENDING' : pick.is_correct ? '✓ CORRECT' : '✗ INCORRECT'}
+                                                </span>
+                                                <span className={`pick-row__points pick-row__points--${statusClass}`}>
+                                                    {pick.is_correct ? `+${pick.points_awarded || 1} PTS` : '0 PTS'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 );
