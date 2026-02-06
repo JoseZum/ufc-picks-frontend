@@ -13,6 +13,7 @@ import type { VictoryMethod, Pick } from "@/types/picks"
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from "@/lib/hooks"
 import api, { getFighterImageUrl } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
+import { getFlagCode } from "@/lib/countryCodeMapping"
 
 export function FightPage({ eventId, fightId }: { eventId: string; fightId: string }) {
   const router = useRouter()
@@ -219,7 +220,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             imageUrl={getFighterImageUrl(fighterRed)}
             ranking={fighterRed.ranking ? `#${fighterRed.ranking.position} ${fighterRed.ranking.division}` : undefined}
             country={fighterRed.nationality || "Unknown"}
-            countryCode={fighterRed.nationality?.substring(0, 2).toUpperCase() || "XX"}
+            countryCode={getFlagCode(fighterRed.nationality)}
             fightingOutOf={fighterRed.fighting_out_of}
             record={{
               wins: fighterRed.record_at_fight?.wins || 0,
@@ -256,7 +257,7 @@ export function FightPage({ eventId, fightId }: { eventId: string; fightId: stri
             imageUrl={getFighterImageUrl(fighterBlue)}
             ranking={fighterBlue.ranking ? `#${fighterBlue.ranking.position} ${fighterBlue.ranking.division}` : undefined}
             country={fighterBlue.nationality || "Unknown"}
-            countryCode={fighterBlue.nationality?.substring(0, 2).toUpperCase() || "XX"}
+            countryCode={getFlagCode(fighterBlue.nationality)}
             fightingOutOf={fighterBlue.fighting_out_of}
             record={{
               wins: fighterBlue.record_at_fight?.wins || 0,

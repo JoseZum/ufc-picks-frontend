@@ -8,6 +8,7 @@ import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
+import { getFlagCode } from '@/lib/countryCodeMapping';
 
 interface EventDetailPageV2Props {
     params: {
@@ -127,7 +128,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                 {bout.fighters.red.nationality && (
                                     <FlagBadge
                                         country={bout.fighters.red.nationality}
-                                        countryCode={bout.fighters.red.nationality}
+                                        countryCode={getFlagCode(bout.fighters.red.nationality)}
                                         size="S"
                                         showCountryName={true}
                                     />
@@ -174,7 +175,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                 {bout.fighters.blue.nationality && (
                                     <FlagBadge
                                         country={bout.fighters.blue.nationality}
-                                        countryCode={bout.fighters.blue.nationality}
+                                        countryCode={getFlagCode(bout.fighters.blue.nationality)}
                                         size="S"
                                         showCountryName={true}
                                     />
