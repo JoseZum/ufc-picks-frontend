@@ -31,6 +31,7 @@ export function FlagBadge({
         hasBorder={false}
         hasDropShadow={false}
         gradient="real-linear"
+        basePath="/flags"
       />
       {showCountryName && (
         <span className="text-sm text-muted-foreground">{country}</span>
@@ -59,6 +60,7 @@ export function CountryFlag({
       hasBorder={false}
       hasDropShadow={false}
       gradient="real-linear"
+      basePath="/flags"
     />
   );
 }
