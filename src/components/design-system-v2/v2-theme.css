@@ -1284,6 +1284,24 @@
     font-weight: 700;
 }
 
+.export-picks-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.4rem 1rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.export-picks-btn:hover {
+    background: var(--accent);
+    color: var(--bg-dark);
+}
+
 /* FIGHT CARD */
 .fight-card {
     background: var(--bg-panel);

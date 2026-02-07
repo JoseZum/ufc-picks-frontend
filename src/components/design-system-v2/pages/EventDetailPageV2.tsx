@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime } from '@/lib/api';
+import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime, getApiUrl, getAuthToken } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
@@ -64,6 +64,31 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
     const totalFights = bouts.length;
     const titleBouts = bouts.filter(b => b.is_title_fight).length;
     const picksMadeCount = userPicks?.length || 0;
+
+    const handleExportPicks = async () => {
+        const token = getAuthToken();
+        if (!token) return;
+
+        try {
+            const resp = await fetch(`${getApiUrl()}/events/${eventId}/fight-card-image`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!resp.ok) throw new Error('Failed to generate fight card');
+
+            const blob = await resp.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `fight-card-${event.name?.replace(/\s+/g, '-').toLowerCase() || eventId}.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error('[Export Fight Card Error]', err);
+        }
+    };
 
     const renderBout = (bout: any, type: 'main' | 'co-main' | 'standard') => {
         const pick = picksByBout[bout.id];
@@ -280,7 +305,17 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 <section className="fights-section">
                     <div className="fights-header">
                         <h2 className="fights-header__title">FIGHT CARD</h2>
-                        <div className="fights-header__progress"><span>{picksMadeCount}</span> / {totalFights} PICKS MADE</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            {picksMadeCount > 0 && (
+                                <button
+                                    onClick={handleExportPicks}
+                                    className="export-picks-btn"
+                                >
+                                    EXPORT PICKS
+                                </button>
+                            )}
+                            <div className="fights-header__progress"><span>{picksMadeCount}</span> / {totalFights} PICKS MADE</div>
+                        </div>
                     </div>
 
                     {renderBout(mainEvent, 'main')}
