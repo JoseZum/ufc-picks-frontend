@@ -693,6 +693,85 @@
     color: var(--text-secondary);
 }
 
+/* Mobile responsive for leaderboard table */
+@media (max-width: 768px) {
+    .leaderboard__cell {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .leaderboard__rank {
+        font-size: 1.5rem;
+        width: 40px;
+    }
+
+    .leaderboard__avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    .leaderboard__user {
+        gap: 0.5rem;
+    }
+
+    .leaderboard__name {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .leaderboard__points {
+        font-size: 1.1rem;
+    }
+
+    .leaderboard__accuracy {
+        font-size: 0.7rem;
+    }
+}
+
+/* ============================================
+   MOBILE BOTTOM NAVIGATION
+   ============================================ */
+.mobile-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--bg-panel);
+        border-top: 1px solid var(--border-strong);
+        z-index: 999;
+        justify-content: space-around;
+        padding: 0.5rem 0;
+    }
+
+    .mobile-nav__item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        color: var(--text-muted);
+        transition: color 0.15s;
+        text-decoration: none;
+    }
+
+    .mobile-nav__item--active {
+        color: var(--accent);
+    }
+
+    .mobile-nav__label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+}
+
 /* ============================================
    FOOTER - EXPOSED STRUCTURE
    ============================================ */
@@ -2360,12 +2439,36 @@
 
     .leaderboard-full__header,
     .leaderboard-full__row {
-        grid-template-columns: 60px 1fr 100px;
+        grid-template-columns: 50px 1fr 90px;
+        padding: 0.75rem 1rem;
     }
 
     .leaderboard-full__accuracy,
     .leaderboard-full__picks {
         display: none;
+    }
+
+    .leaderboard-full__rank {
+        font-size: 1.3rem;
+    }
+
+    .leaderboard-full__avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    .leaderboard-full__user {
+        gap: 0.5rem;
+    }
+
+    .leaderboard-full__name {
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .leaderboard-full__points {
+        font-size: 1.1rem;
     }
 }
 
@@ -2378,6 +2481,30 @@
     .podium__place--1 .podium__avatar {
         width: 100px;
         height: 100px;
+    }
+
+    .leaderboard-full__header,
+    .leaderboard-full__row {
+        grid-template-columns: 40px 1fr 70px;
+        padding: 0.6rem 0.5rem;
+    }
+
+    .leaderboard-full__rank {
+        font-size: 1.1rem;
+    }
+
+    .leaderboard-full__avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .leaderboard-full__name {
+        font-size: 0.7rem;
+    }
+
+    .leaderboard-full__points {
+        font-size: 1rem;
     }
 }
 

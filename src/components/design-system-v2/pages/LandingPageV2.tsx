@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime } from '@/lib/api';
@@ -191,7 +192,7 @@ export const LandingPageV2 = () => {
                         <div className="stat-card">
                             <div className="stat-card__label">ACCURACY</div>
                             <div className="stat-card__value">
-                                {currentUser?.accuracy ? Math.round(currentUser.accuracy * 100) : 0}
+                                {currentUser?.accuracy ? Math.round(currentUser.accuracy) : 0}
                                 <span className="stat-card__suffix">%</span>
                             </div>
                         </div>
@@ -232,7 +233,7 @@ export const LandingPageV2 = () => {
                                     </td>
                                     <td className="leaderboard__cell leaderboard__points">{user.total_points}</td>
                                     <td className="leaderboard__cell leaderboard__accuracy">
-                                        {Math.round(user.accuracy * 100)}%
+                                        {Math.round(user.accuracy)}%
                                     </td>
                                 </tr>
                             ))}
@@ -262,6 +263,7 @@ export const LandingPageV2 = () => {
                     </div>
                 </footer>
             </main>
+            <MobileNav activePage="home" />
         </V2Layout>
     );
 };

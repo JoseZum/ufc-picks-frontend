@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime, getApiUrl, getAuthToken } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -49,11 +50,13 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 <div className="flex h-screen items-center justify-center">
                     <Loader2 className="animate-spin h-10 w-10 text-white" />
                 </div>
-            </V2Layout>
+            <MobileNav activePage="events" />
+        </V2Layout>
         );
     }
 
-    if (!event || !bouts) return <V2Layout><div className="text-white text-center pt-40">Event not found</div></V2Layout>;
+    if (!event || !bouts) return <V2Layout><div className="text-white text-center pt-40">Event not found</div><MobileNav activePage="events" />
+        </V2Layout>;
 
     // logic for categorizing bouts
     const mainEvent = bouts[0];
@@ -354,6 +357,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     </div>
                 </div>
             </footer>
+        <MobileNav activePage="events" />
         </V2Layout>
     );
 };

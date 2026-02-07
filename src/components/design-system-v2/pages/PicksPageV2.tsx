@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
 import { getFighterImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -328,6 +329,7 @@ export const PicksPageV2 = () => {
                     </div>
                 </div>
             </footer>
+        <MobileNav activePage="picks" />
         </V2Layout>
     );
 };

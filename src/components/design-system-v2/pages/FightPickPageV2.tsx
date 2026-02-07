@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
 import { getFighterImageUrl, getEventDateTime } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -135,7 +136,8 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                 <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
                     <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
                 </div>
-            </V2Layout>
+            <MobileNav activePage="events" />
+        </V2Layout>
         );
     }
 
@@ -146,7 +148,8 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                 <div className="main" style={{ paddingTop: '100px', textAlign: 'center' }}>
                     <h1>Fight not found</h1>
                 </div>
-            </V2Layout>
+            <MobileNav activePage="events" />
+        </V2Layout>
         );
     }
 
@@ -525,6 +528,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     </div>
                 )}
             </main>
+        <MobileNav activePage="events" />
         </V2Layout>
     );
 };

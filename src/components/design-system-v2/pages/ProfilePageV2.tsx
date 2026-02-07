@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useMyLeaderboardPosition, useAllMyPicks, useGlobalLeaderboard, useLogout } from '@/lib/hooks';
 import { Loader2, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -63,7 +64,8 @@ export const ProfilePageV2 = () => {
                         LOGIN WITH GOOGLE
                     </a>
                 </div>
-            </V2Layout>
+            <MobileNav activePage="profile" />
+        </V2Layout>
         );
     }
 
@@ -287,6 +289,7 @@ export const ProfilePageV2 = () => {
                     </div>
                 </div>
             </footer>
+        <MobileNav activePage="profile" />
         </V2Layout>
     );
 };

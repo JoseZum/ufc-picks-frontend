@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useGlobalLeaderboard, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
 
@@ -79,7 +80,7 @@ export const LeaderboardPageV2 = () => {
                                             <div className="podium__stat-label">POINTS</div>
                                         </div>
                                         <div>
-                                            <div className="podium__stat-value">{Math.round((top3[1].accuracy || 0) * 100)}%</div>
+                                            <div className="podium__stat-value">{Math.round((top3[1].accuracy || 0) )}%</div>
                                             <div className="podium__stat-label">ACCURACY</div>
                                         </div>
                                     </div>
@@ -106,7 +107,7 @@ export const LeaderboardPageV2 = () => {
                                             <div className="podium__stat-label">POINTS</div>
                                         </div>
                                         <div>
-                                            <div className="podium__stat-value">{Math.round((top3[0].accuracy || 0) * 100)}%</div>
+                                            <div className="podium__stat-value">{Math.round((top3[0].accuracy || 0) )}%</div>
                                             <div className="podium__stat-label">ACCURACY</div>
                                         </div>
                                     </div>
@@ -133,7 +134,7 @@ export const LeaderboardPageV2 = () => {
                                             <div className="podium__stat-label">POINTS</div>
                                         </div>
                                         <div>
-                                            <div className="podium__stat-value">{Math.round((top3[2].accuracy || 0) * 100)}%</div>
+                                            <div className="podium__stat-value">{Math.round((top3[2].accuracy || 0) )}%</div>
                                             <div className="podium__stat-label">ACCURACY</div>
                                         </div>
                                     </div>
@@ -162,7 +163,7 @@ export const LeaderboardPageV2 = () => {
                                     <div className="your-position__stat-label">POINTS</div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{Math.round((myPosition.entry?.accuracy || 0) * 100)}%</div>
+                                    <div className="your-position__stat-value">{Math.round((myPosition.entry?.accuracy || 0) )}%</div>
                                     <div className="your-position__stat-label">ACCURACY</div>
                                 </div>
                                 <div className="your-position__stat">
@@ -200,7 +201,7 @@ export const LeaderboardPageV2 = () => {
                                             <span className="leaderboard-full__name">{entry.username?.toUpperCase()}</span>
                                         </div>
                                         <span className="leaderboard-full__points">{entry.total_points?.toLocaleString()}</span>
-                                        <span className="leaderboard-full__accuracy">{Math.round((entry.accuracy || 0) * 100)}%</span>
+                                        <span className="leaderboard-full__accuracy">{Math.round((entry.accuracy || 0) )}%</span>
                                         <span className="leaderboard-full__picks">{entry.picks_total || '-'}</span>
                                     </a>
                                 ))}
@@ -228,6 +229,7 @@ export const LeaderboardPageV2 = () => {
                     </div>
                 </div>
             </footer>
+        <MobileNav activePage="leaderboard" />
         </V2Layout>
     );
 };

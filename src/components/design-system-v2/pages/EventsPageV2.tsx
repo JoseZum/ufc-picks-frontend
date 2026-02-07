@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
+import { MobileNav } from '../MobileNav';
 import { useEvents, useCurrentUser } from '@/lib/hooks';
 import { getEventPosterUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -192,6 +193,7 @@ export const EventsPageV2 = () => {
                     </div>
                 </div>
             </footer>
+            <MobileNav activePage="events" />
         </V2Layout>
     );
 };
