@@ -1411,6 +1411,16 @@
     right: 0;
 }
 
+/* Blue corner selected uses blue colors */
+.fight-card__fighter--blue.fight-card__fighter--selected {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: var(--fighter-blue);
+}
+
+.fight-card__fighter--blue.fight-card__fighter--selected::before {
+    background: var(--fighter-blue);
+}
+
 /* WINNER/LOSER STATES */
 .fight-card__fighter--winner {
     background: rgba(34, 197, 94, 0.1);
