@@ -45,13 +45,23 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
         if (existingPick && bout) {
             // Convert picked_fighter_name back to corner for UI state
             const redName = bout.fighters.red?.fighter_name?.toLowerCase().trim();
+            const blueName = bout.fighters.blue?.fighter_name?.toLowerCase().trim();
             const pickedName = existingPick.picked_fighter_name?.toLowerCase().trim();
-            const corner = pickedName === redName ? 'red' : 'blue';
 
-            setSelectedFighter(corner);
-            setSelectedMethod((existingPick.picked_method as 'DEC' | 'KO/TKO' | 'SUB') || 'DEC');
-            setSelectedRound(existingPick.picked_round || null);
-            setShowSuccess(true);
+            // Explicitly check both corners
+            let corner: 'red' | 'blue' | null = null;
+            if (pickedName === redName) {
+                corner = 'red';
+            } else if (pickedName === blueName) {
+                corner = 'blue';
+            }
+
+            if (corner) {
+                setSelectedFighter(corner);
+                setSelectedMethod((existingPick.picked_method as 'DEC' | 'KO/TKO' | 'SUB') || 'DEC');
+                setSelectedRound(existingPick.picked_round || null);
+                setShowSuccess(true);
+            }
         }
     }, [existingPick, bout]);
 

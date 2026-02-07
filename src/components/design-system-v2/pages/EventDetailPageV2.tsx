@@ -67,8 +67,21 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
     const renderBout = (bout: any, type: 'main' | 'co-main' | 'standard') => {
         const pick = picksByBout[bout.id];
-        const isRedSelected = pick?.corner === 'red';
-        const isBlueSelected = pick?.corner === 'blue';
+
+        // Determine which corner was actually picked by comparing fighter names
+        let isRedSelected = false;
+        let isBlueSelected = false;
+        if (pick) {
+            const pickedName = pick.fighterName?.toLowerCase().trim();
+            const redName = bout.fighters.red?.fighter_name?.toLowerCase().trim();
+            const blueName = bout.fighters.blue?.fighter_name?.toLowerCase().trim();
+
+            if (pickedName === redName) {
+                isRedSelected = true;
+            } else if (pickedName === blueName) {
+                isBlueSelected = true;
+            }
+        }
         const hasPick = !!pick;
 
         // Check if bout has result
