@@ -251,7 +251,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         </div>
                                     </div>
                                 )}
-                                {redFighter.age_at_fight_years && redFighter.age_at_fight_years > 0 && (
+                                {(redFighter.age_at_fight_years ?? 0) > 0 && (
                                     <div className="stat">
                                         <div className="stat__label">AGE</div>
                                         <div className="stat__value">{redFighter.age_at_fight_years}</div>
@@ -356,7 +356,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         </div>
                                     </div>
                                 )}
-                                {blueFighter.age_at_fight_years && blueFighter.age_at_fight_years > 0 && (
+                                {(blueFighter.age_at_fight_years ?? 0) > 0 && (
                                     <div className="stat">
                                         <div className="stat__label">AGE</div>
                                         <div className="stat__value">{blueFighter.age_at_fight_years}</div>
