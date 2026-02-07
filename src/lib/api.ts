@@ -216,32 +216,24 @@ export async function getEvent(eventId: number): Promise<Event> {
 /**
  * Construye un Date object para un evento con su hora ET
  *
- * Convierte la hora ET a UTC para que JavaScript la maneje correctamente
- * sin importar la zona horaria local del navegador.
- * ET es UTC-5 (EST) o UTC-4 (EDT) dependiendo del horario de verano.
+ * Convierte ET a UTC correctamente: ET = UTC-5, entonces UTC = ET + 5 horas
+ * Esto permite que el countdown timer funcione correctamente sin problemas de timezone.
  *
  * @param event - Evento con date y start_time_et
- * @returns Date object con la hora correcta del evento en UTC
+ * @returns Date object en UTC con la hora correcta del evento
  */
 export function getEventDateTime(event: Event): Date {
+  const [year, month, day] = event.date.split('-').map(Number);
+
   if (!event.start_time_et) {
-    // Si no hay hora específica, usar medianoche del día del evento
-    // Usar Date.UTC para evitar problemas de timezone local
-    const [year, month, day] = event.date.split('-').map(Number);
-    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+    // Si no hay hora específica, usar final del día UTC
+    return new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
   }
 
-  // Parsear fecha y hora
-  const [year, month, day] = event.date.split('-').map(Number);
+  // Parsear hora ET y convertir a UTC
   const [hours, minutes] = event.start_time_et.split(':').map(Number);
-
-  // ET es UTC-5 (EST), así que convertimos a UTC sumando 5 horas
-  // Ejemplo: 17:00 ET (5pm) = 22:00 UTC (10pm)
-  // Febrero está en EST (no EDT), así que usamos +5
-  const utcHours = hours + 5;
-
-  // Crear Date en UTC
-  return new Date(Date.UTC(year, month - 1, day, utcHours, minutes, 0));
+  // ET es UTC-5, entonces para convertir a UTC: UTC_hour = ET_hour + 5
+  return new Date(Date.UTC(year, month - 1, day, hours + 5, minutes, 0));
 }
 
 // ============================================

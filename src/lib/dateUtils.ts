@@ -8,9 +8,15 @@ import { Event, getEventDateTime } from './api';
 
 /**
  * Format event date for display (e.g., "SAT FEB 07 2026")
+ *
+ * Usa la fecha tal como está guardada en event.date (YYYY-MM-DD)
+ * SIN conversión de timezone para evitar mostrar el día incorrecto.
  */
 export function formatEventDate(event: Event | { date: string; start_time_et?: string; timezone?: string }): string {
-  const dateObj = getEventDateTime(event as Event);
+  // Parsear la fecha directamente sin timezone conversion
+  const [year, month, day] = event.date.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+
   return dateObj.toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
@@ -23,7 +29,10 @@ export function formatEventDate(event: Event | { date: string; start_time_et?: s
  * Format event date short (e.g., "FEB 07")
  */
 export function formatEventDateShort(event: Event | { date: string; start_time_et?: string; timezone?: string }): string {
-  const dateObj = getEventDateTime(event as Event);
+  // Parse the date directly without timezone conversion
+  const [year, month, day] = event.date.split('-').map(Number);
+  const dateObj = new Date(year, month - 1, day);
+
   return dateObj.toLocaleDateString('en-US', {
     month: 'short',
     day: '2-digit'
@@ -32,11 +41,27 @@ export function formatEventDateShort(event: Event | { date: string; start_time_e
 
 /**
  * Get days left until event
+ *
+ * Calcula días hasta el evento usando la fecha y hora ET correctamente
  */
 export function getDaysUntilEvent(event: Event | { date: string; start_time_et?: string; timezone?: string }): number {
-  const dateObj = getEventDateTime(event as Event);
+  const [year, month, day] = event.date.split('-').map(Number);
+
+  // Si hay hora especificada, crear fecha/hora en ET (UTC-5)
+  if (event.start_time_et) {
+    const [hours, minutes] = event.start_time_et.split(':').map(Number);
+    // Crear UTC time: ET time + 5 horas offset
+    const eventDateTime = new Date(Date.UTC(year, month - 1, day, hours + 5, minutes, 0));
+    const now = new Date();
+    const diff = eventDateTime.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days;
+  }
+
+  // Si no hay hora, usar final del día
+  const eventDate = new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
   const now = new Date();
-  const diff = dateObj.getTime() - now.getTime();
+  const diff = eventDate.getTime() - now.getTime();
   const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
   return days;
 }
