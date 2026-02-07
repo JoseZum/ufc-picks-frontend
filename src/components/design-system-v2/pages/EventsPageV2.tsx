@@ -7,6 +7,7 @@ import { NavBarV2 } from '../NavBarV2';
 import { useEvents, useCurrentUser } from '@/lib/hooks';
 import { getEventPosterUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { formatEventDate, formatDaysLeft } from '@/lib/dateUtils';
 
 export const EventsPageV2 = () => {
     const router = useRouter();
@@ -36,24 +37,6 @@ export const EventsPageV2 = () => {
     const showCompleted = filter === 'completed';
 
     const isLoading = filter === 'upcoming' ? upcomingLoading : completedLoading;
-
-    const getDaysLeft = (dateStr: string) => {
-        const diff = new Date(dateStr).getTime() - new Date().getTime();
-        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        return days > 0 ? `${days}D` : 'TODAY';
-    };
-
-    const formatDate = (dateStr: string) => {
-        // Parse date as UTC to avoid timezone conversion issues
-        const date = new Date(dateStr);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            timeZone: 'UTC'
-        }).toUpperCase();
-    };
 
     return (
         <V2Layout>
@@ -98,7 +81,7 @@ export const EventsPageV2 = () => {
                                         <span className="event-card__badge event-card__badge--open">OPEN</span>
                                     </div>
                                     <div className="event-card__content">
-                                        <div className="event-card__date">{formatDate(featuredEvent.date)}</div>
+                                        <div className="event-card__date">{formatEventDate(featuredEvent)}</div>
                                         <h2 className="event-card__title">{featuredEvent.name}</h2>
                                         <p className="event-card__location">{featuredEvent.location?.venue || 'Location TBD'}, {featuredEvent.location?.city || ''}</p>
                                         <div className="event-card__meta">
@@ -108,7 +91,7 @@ export const EventsPageV2 = () => {
                                             </div>
                                             {/* We don't have title bout count easily without fetching bouts, omitting for now or calculating if we had bouts */}
                                             <div className="event-card__stat">
-                                                <span className="event-card__stat-value">{getDaysLeft(featuredEvent.date)}</span>
+                                                <span className="event-card__stat-value">{formatDaysLeft(featuredEvent)}</span>
                                                 <span className="event-card__stat-label">LEFT</span>
                                             </div>
                                         </div>
@@ -134,7 +117,7 @@ export const EventsPageV2 = () => {
                                         <span className="event-card__badge">UPCOMING</span>
                                     </div>
                                     <div className="event-card__content">
-                                        <div className="event-card__date">{formatDate(event.date)}</div>
+                                        <div className="event-card__date">{formatEventDate(event)}</div>
                                         <h2 className="event-card__title">{event.name}</h2>
                                         <p className="event-card__location">{event.location?.venue}, {event.location?.city}</p>
                                         <div className="event-card__meta">
@@ -143,7 +126,7 @@ export const EventsPageV2 = () => {
                                                 <span className="event-card__stat-label">FIGHTS</span>
                                             </div>
                                             <div className="event-card__stat">
-                                                <span className="event-card__stat-value">{getDaysLeft(event.date)}</span>
+                                                <span className="event-card__stat-value">{formatDaysLeft(event)}</span>
                                                 <span className="event-card__stat-label">LEFT</span>
                                             </div>
                                         </div>
@@ -173,7 +156,7 @@ export const EventsPageV2 = () => {
                                                 <span className="event-card__badge event-card__badge--completed">COMPLETED</span>
                                             </div>
                                             <div className="event-card__content">
-                                                <div className="event-card__date">{formatDate(event.date)}</div>
+                                                <div className="event-card__date">{formatEventDate(event)}</div>
                                                 <h2 className="event-card__title">{event.name}</h2>
                                                 <p className="event-card__location">{event.location?.venue}, {event.location?.city}</p>
                                                 <div className="event-card__meta">

@@ -216,28 +216,32 @@ export async function getEvent(eventId: number): Promise<Event> {
 /**
  * Construye un Date object para un evento con su hora ET
  *
- * Maneja la conversión de ET (Eastern Time) a la zona horaria local del usuario.
+ * Convierte la hora ET a UTC para que JavaScript la maneje correctamente
+ * sin importar la zona horaria local del navegador.
  * ET es UTC-5 (EST) o UTC-4 (EDT) dependiendo del horario de verano.
  *
  * @param event - Evento con date y start_time_et
- * @returns Date object con la hora correcta del evento
+ * @returns Date object con la hora correcta del evento en UTC
  */
 export function getEventDateTime(event: Event): Date {
   if (!event.start_time_et) {
-    // Si no hay hora específica, usar medianoche UTC de la fecha
-    return new Date(`${event.date}T00:00:00Z`);
+    // Si no hay hora específica, usar medianoche del día del evento
+    // Usar Date.UTC para evitar problemas de timezone local
+    const [year, month, day] = event.date.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
   }
 
-  // Construir fecha-hora en formato ISO con offset ET
-  // ET es típicamente UTC-5 (invierno) o UTC-4 (verano)
-  // Usamos una biblioteca simple: asumimos UTC-5 por ahora
-  // TODO: Si necesitas precisión completa de DST, usa date-fns-tz o luxon
-
+  // Parsear fecha y hora
+  const [year, month, day] = event.date.split('-').map(Number);
   const [hours, minutes] = event.start_time_et.split(':').map(Number);
 
-  // Crear date en UTC y ajustar por ET offset (UTC-5)
-  const dateStr = `${event.date}T${event.start_time_et}:00-05:00`;
-  return new Date(dateStr);
+  // ET es UTC-5 (EST), así que convertimos a UTC sumando 5 horas
+  // Ejemplo: 17:00 ET (5pm) = 22:00 UTC (10pm)
+  // Febrero está en EST (no EDT), así que usamos +5
+  const utcHours = hours + 5;
+
+  // Crear Date en UTC
+  return new Date(Date.UTC(year, month - 1, day, utcHours, minutes, 0));
 }
 
 // ============================================

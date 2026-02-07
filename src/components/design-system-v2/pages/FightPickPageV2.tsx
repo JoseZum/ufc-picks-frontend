@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
-import { getFighterImageUrl } from '@/lib/api';
+import { getFighterImageUrl, getEventDateTime } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
@@ -188,7 +188,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                             )}
                             <span className="fight-header__meta-item">{bout.rounds_scheduled} ROUNDS</span>
                             <span className="fight-header__meta-item">
-                                {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}
+                                {getEventDateTime(event).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}
                             </span>
                         </div>
                     </div>

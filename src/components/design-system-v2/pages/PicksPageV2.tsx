@@ -6,6 +6,7 @@ import { NavBarV2 } from '../NavBarV2';
 import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
 import { getFighterImageUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { formatEventDate } from '@/lib/dateUtils';
 
 interface PickWithBout {
     pick: {
@@ -90,15 +91,6 @@ export const PicksPageV2 = () => {
     const pendingEvents = eventsWithPicks.filter(e => e.status === 'scheduled');
     const completedEvents = eventsWithPicks.filter(e => e.status !== 'scheduled');
 
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-        }).toUpperCase();
-    };
-
     // Component to render picks for an event (fetches bouts for that event)
     const EventPicksSection = ({ event, picks }: { event: any, picks: Array<{ pick: any, event: any }> }) => {
         const { data: bouts } = useEventBouts(event.id);
@@ -121,7 +113,7 @@ export const PicksPageV2 = () => {
                 <div className="picks-event__header">
                     <div>
                         <h2 className="picks-event__title">{event.name}</h2>
-                        <p className="picks-event__date">{formatDate(event.date)} {isPending && '// PENDING'}</p>
+                        <p className="picks-event__date">{formatEventDate(event)} {isPending && '// PENDING'}</p>
                     </div>
                     <div className="picks-event__score">
                         <div className="picks-event__score-value">
