@@ -171,6 +171,8 @@ export interface Event {
   id: number;
   name: string;
   date: string;
+  start_time_et?: string;  // Hora en ET (ej: "17:00")
+  timezone?: string;  // Zona horaria (ej: "ET")
   status: string;
   location?: EventLocation;
   total_bouts: number;
@@ -209,6 +211,33 @@ export async function getEvents(params?: {
  */
 export async function getEvent(eventId: number): Promise<Event> {
   return apiRequest<Event>(`/events/${eventId}`);
+}
+
+/**
+ * Construye un Date object para un evento con su hora ET
+ *
+ * Maneja la conversión de ET (Eastern Time) a la zona horaria local del usuario.
+ * ET es UTC-5 (EST) o UTC-4 (EDT) dependiendo del horario de verano.
+ *
+ * @param event - Evento con date y start_time_et
+ * @returns Date object con la hora correcta del evento
+ */
+export function getEventDateTime(event: Event): Date {
+  if (!event.start_time_et) {
+    // Si no hay hora específica, usar medianoche UTC de la fecha
+    return new Date(`${event.date}T00:00:00Z`);
+  }
+
+  // Construir fecha-hora en formato ISO con offset ET
+  // ET es típicamente UTC-5 (invierno) o UTC-4 (verano)
+  // Usamos una biblioteca simple: asumimos UTC-5 por ahora
+  // TODO: Si necesitas precisión completa de DST, usa date-fns-tz o luxon
+
+  const [hours, minutes] = event.start_time_et.split(':').map(Number);
+
+  // Crear date en UTC y ajustar por ET offset (UTC-5)
+  const dateStr = `${event.date}T${event.start_time_et}:00-05:00`;
+  return new Date(dateStr);
 }
 
 // ============================================

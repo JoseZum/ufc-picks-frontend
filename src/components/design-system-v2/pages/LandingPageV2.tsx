@@ -6,7 +6,7 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
+import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
@@ -34,8 +34,8 @@ export const LandingPageV2 = () => {
     const { data: currentUser } = useCurrentUser();
     const { data: myPosition } = useMyLeaderboardPosition('global');
 
-    // Countdown timer
-    const eventDate = nextEvent ? new Date(nextEvent.date) : null;
+    // Countdown timer - use proper datetime with ET timezone
+    const eventDate = nextEvent ? getEventDateTime(nextEvent) : null;
     const { formatted, isExpired } = useCountdown(eventDate);
 
     // Format date and venue

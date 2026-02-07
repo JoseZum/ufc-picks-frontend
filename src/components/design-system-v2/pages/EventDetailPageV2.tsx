@@ -5,10 +5,11 @@ import Link from 'next/link';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl } from '@/lib/api';
+import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
+import { useCountdown } from '../hooks/useCountdown';
 
 interface EventDetailPageV2Props {
     params: {
@@ -22,6 +23,10 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
     const { data: event, isLoading: eventLoading } = useEvent(eventId);
     const { data: bouts, isLoading: boutsLoading } = useEventBouts(eventId);
     const { data: userPicks } = useMyPicks(eventId);
+
+    // Countdown timer
+    const eventDateTime = event ? getEventDateTime(event) : null;
+    const { formatted, isExpired } = useCountdown(eventDateTime);
 
     // Create a map of picks by bout_id for quick lookup
     const picksByBout = React.useMemo(() => {
@@ -224,12 +229,13 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     {/* RIGHT SIDE - Content */}
                     <div className="event-hero__content">
                         <div className="event-hero__date">
-                            {new Date(event.date).toLocaleDateString('en-US', { 
-                                weekday: 'long', 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                            }).toUpperCase()}
+                            {eventDateTime ? eventDateTime.toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            }).toUpperCase() : ''}
+                            {event.start_time_et && ` // ${event.start_time_et} ET`}
                         </div>
                         <h1 className="event-hero__title">{event.name}</h1>
                         <p className="event-hero__location">
@@ -240,7 +246,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             <div className="event-hero__countdown">
                                 <div className="event-hero__countdown-label">TIME UNTIL EVENT</div>
                                 <div className="event-hero__countdown-time">
-                                    {new Date(event.date).toLocaleDateString()}
+                                    {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
                                 </div>
                             </div>
                         )}
