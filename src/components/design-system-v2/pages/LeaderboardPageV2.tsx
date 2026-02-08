@@ -5,20 +5,34 @@ import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
-import { useGlobalLeaderboard, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
+import { useGlobalLeaderboard, useEventLeaderboard, useEvents, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
 
 export const LeaderboardPageV2 = () => {
     const router = useRouter();
     const [timeFilter, setTimeFilter] = useState<'all' | 'year' | 'month'>('all');
+    const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
+
+    // Fetch events for the dropdown
+    const { data: completedData } = useEvents({ status: 'completed', limit: 50 });
+    const { data: scheduledData } = useEvents({ status: 'scheduled', limit: 50 });
+    const allEvents = [
+        ...(scheduledData?.events || []),
+        ...(completedData?.events || []),
+    ];
 
     // Fetch real data
     const { data: currentUser } = useCurrentUser();
     const { data: myPosition } = useMyLeaderboardPosition('global');
-    const { data: leaderboard, isLoading } = useGlobalLeaderboard({ 
+    const { data: globalLeaderboard, isLoading: globalLoading } = useGlobalLeaderboard({
         limit: 50,
-        year: timeFilter === 'year' ? new Date().getFullYear() : undefined
+        year: !selectedEventId && timeFilter === 'year' ? new Date().getFullYear() : undefined
     });
+    const { data: eventLeaderboard, isLoading: eventLoading } = useEventLeaderboard(selectedEventId || 0, 50);
+
+    // Use event leaderboard when an event is selected, otherwise global
+    const leaderboard = selectedEventId ? eventLeaderboard : globalLeaderboard;
+    const isLoading = selectedEventId ? eventLoading : globalLoading;
 
     // Get top 3 for podium
     const top3 = leaderboard?.slice(0, 3) || [];
@@ -34,21 +48,42 @@ export const LeaderboardPageV2 = () => {
                 <header className="page-header">
                     <div>
                         <h1 className="page-header__title">LEADERBOARDS</h1>
-                        <p className="page-header__subtitle">Global Rankings // Top Predictors</p>
+                        <p className="page-header__subtitle">
+                            {selectedEventId
+                                ? `${allEvents.find(e => e.id === selectedEventId)?.name || 'Event'} // Points By Card`
+                                : 'Global Rankings // Top Predictors'}
+                        </p>
                     </div>
                     <div className="page-header__filters">
-                        <button 
-                            className={`filter-btn ${timeFilter === 'all' ? 'filter-btn--active' : ''}`}
-                            onClick={() => setTimeFilter('all')}
+                        {!selectedEventId && (
+                            <>
+                                <button
+                                    className={`filter-btn ${timeFilter === 'all' ? 'filter-btn--active' : ''}`}
+                                    onClick={() => setTimeFilter('all')}
+                                >
+                                    ALL TIME
+                                </button>
+                                <button
+                                    className={`filter-btn ${timeFilter === 'year' ? 'filter-btn--active' : ''}`}
+                                    onClick={() => setTimeFilter('year')}
+                                >
+                                    THIS YEAR
+                                </button>
+                            </>
+                        )}
+                        <select
+                            className="event-filter-select"
+                            value={selectedEventId || ''}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setSelectedEventId(val ? Number(val) : null);
+                            }}
                         >
-                            ALL TIME
-                        </button>
-                        <button 
-                            className={`filter-btn ${timeFilter === 'year' ? 'filter-btn--active' : ''}`}
-                            onClick={() => setTimeFilter('year')}
-                        >
-                            THIS YEAR
-                        </button>
+                            <option value="">ALL EVENTS</option>
+                            {allEvents.map(ev => (
+                                <option key={ev.id} value={ev.id}>{ev.name}</option>
+                            ))}
+                        </select>
                     </div>
                 </header>
 

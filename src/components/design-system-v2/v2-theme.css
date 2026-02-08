@@ -974,6 +974,55 @@
     border-color: var(--accent);
 }
 
+/* EVENT FILTER SELECT */
+.event-filter-select {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    padding: 0.75rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+    min-width: 160px;
+    max-width: 240px;
+    transition: all 0.1s;
+}
+
+.event-filter-select:hover {
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+.event-filter-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.event-filter-select option {
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .event-filter-select {
+        min-width: 120px;
+        max-width: 180px;
+        font-size: 0.6rem;
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
+    }
+}
+
 /* EVENTS GRID - MASONRY STYLE */
 .events-grid {
     display: grid;
