@@ -76,6 +76,7 @@ export function BoutCard({
   const redImageSrc = redImageError ? PLACEHOLDER_IMAGE : (imageUrlRed || PLACEHOLDER_IMAGE);
   const blueImageSrc = blueImageError ? PLACEHOLDER_IMAGE : (imageUrlBlue || PLACEHOLDER_IMAGE);
 
+  // Navega a los detalles de la pelea
   const handleCardClick = () => {
     if (eventId && fightId) {
       router.push(`/events/${eventId}/fights/${fightId}`)
@@ -108,7 +109,7 @@ export function BoutCard({
           {isLocked && (
             <Badge variant="outline" className="text-xs flex items-center gap-1">
               <Lock className="h-3 w-3" />
-              Locked
+              Bloqueado
             </Badge>
           )}
         </div>
@@ -123,11 +124,11 @@ export function BoutCard({
               variant="ghost"
               size="sm"
               onClick={(e) => {
-                e.stopPropagation(); // Evita que abra el detalle de la pelea
+                e.stopPropagation(); // Evita navegar
                 onToggleLock();
               }}
               className="h-8 w-8 p-0"
-              title={isLocked ? "Unlock picks" : "Lock picks"}
+              title={isLocked ? "Desbloquear picks" : "Bloquear picks"}
             >
               {isLocked ? (
                 <Lock className="h-4 w-4 text-destructive" />
@@ -171,7 +172,7 @@ export function BoutCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-fighter-red flex-shrink-0" />
-              <span className="text-xs text-muted-foreground uppercase">Red Corner</span>
+              <span className="text-xs text-muted-foreground uppercase">Esquina Roja</span>
             </div>
             <p className={cn(
               "font-semibold truncate",
@@ -180,7 +181,7 @@ export function BoutCard({
               {fighterRed}
             </p>
             {selectedFighter === "red" && (
-              <span className="text-xs text-primary mt-1 block">Your Pick</span>
+              <span className="text-xs text-primary mt-1 block">Tu Pick</span>
             )}
           </div>
         </div>
@@ -194,7 +195,7 @@ export function BoutCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-fighter-blue flex-shrink-0" />
-              <span className="text-xs text-muted-foreground uppercase">Blue Corner</span>
+              <span className="text-xs text-muted-foreground uppercase">Esquina Azul</span>
             </div>
             <p className={cn(
               "font-semibold truncate",
@@ -203,7 +204,7 @@ export function BoutCard({
               {fighterBlue}
             </p>
             {selectedFighter === "blue" && (
-              <span className="text-xs text-primary mt-1 block">Your Pick</span>
+              <span className="text-xs text-primary mt-1 block">Tu Pick</span>
             )}
           </div>
           <div
@@ -250,15 +251,15 @@ export function BoutCard({
         </div>
       )}
 
-      {/* Bout Result */}
+      {/* Resultado de la pelea */}
       {showResult && (
         <div className="mt-3 pt-3 border-t border-border/50">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs text-muted-foreground uppercase">Result</span>
+              <span className="text-xs text-muted-foreground uppercase">Resultado</span>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-sm font-semibold text-foreground">
-                  {actualMethod || "Decision"}
+                  {actualMethod || "Decisión"}
                 </span>
                 {actualRound && actualMethod !== "DEC" && (
                   <>
@@ -272,7 +273,7 @@ export function BoutCard({
             </div>
             {points !== undefined && (
               <div className="text-right">
-                <span className="text-xs text-muted-foreground uppercase">Points Earned</span>
+                <span className="text-xs text-muted-foreground uppercase">Puntos Ganados</span>
                 <div className={cn(
                   "text-lg font-bold mt-1",
                   points === 3 && "text-primary",
@@ -291,7 +292,7 @@ export function BoutCard({
       {eventId && fightId && !selectedFighter && (
         <div className="mt-3 text-center">
           <span className="text-xs text-muted-foreground">
-            {isLocked ? "Picks locked - Click to view details" : "Click to view details and make your pick"}
+            {isLocked ? "Picks bloqueados - Haz clic para ver detalles" : "Haz clic para ver detalles y hacer tu pick"}
           </span>
         </div>
       )}

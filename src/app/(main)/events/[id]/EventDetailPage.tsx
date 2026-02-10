@@ -14,25 +14,25 @@ import type { Bout } from "@/lib/api";
 import api, { getFighterImageUrl, getEventPosterUrl, getApiUrl } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 
-// Helper to format date for display
+// Formatea fecha con hora y zona horaria
 function formatDisplayDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString('es-ES', {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
-  }) + ' • ' + date.toLocaleTimeString('en-US', {
+  }) + ' • ' + date.toLocaleTimeString('es-ES', {
     hour: 'numeric',
     minute: '2-digit',
     timeZoneName: 'short'
   });
 }
 
-// Helper to format location
+// Formatea la ubicación del evento
 function formatLocation(location?: { venue?: string; city?: string; country?: string }): string {
-  if (!location) return 'TBD';
+  if (!location) return 'Por confirmar';
   const parts = [location.venue, location.city, location.country].filter(Boolean);
-  return parts.join(', ') || 'TBD';
+  return parts.join(', ') || 'Por confirmar';
 }
 
 interface TransformedBout {
@@ -53,7 +53,7 @@ interface TransformedBout {
   actualRound?: number;
 }
 
-// Transform API bout to display format
+// Transforma datos del bout para mostrarlos
 function transformBout(bout: Bout, index: number): TransformedBout {
   const redFighter = bout.fighters.red;
   const blueFighter = bout.fighters.blue;
@@ -62,8 +62,8 @@ function transformBout(bout: Bout, index: number): TransformedBout {
     order: index + 1,
     boutId: bout.id,
     fightId: String(bout.id),
-    fighterRed: redFighter?.fighter_name || 'TBD',
-    fighterBlue: blueFighter?.fighter_name || 'TBD',
+    fighterRed: redFighter?.fighter_name || 'Por confirmar',
+    fighterBlue: blueFighter?.fighter_name || 'Por confirmar',
     imageUrlRed: redFighter ? getFighterImageUrl(redFighter) : undefined,
     imageUrlBlue: blueFighter ? getFighterImageUrl(blueFighter) : undefined,
     weightClass: bout.weight_class,
@@ -100,48 +100,25 @@ export function EventDetailPage({ id }: { id: string }) {
   const isAuthenticated = api.isAuthenticated();
   const isAdmin = currentUser?.is_admin || false;
 
-  // Debug logging
-  console.log('Event Lock State:', {
-    eventId,
-    eventPicksLocked,
-    eventStatus: event?.status,
-    isAdmin,
-    rawEvent: event
-  });
-
-  // Toggle event lock
+  // Maneja el bloqueo del evento
   const handleToggleEventLock = async () => {
-    console.log('Toggle event lock clicked. Current state:', eventPicksLocked);
-    console.log('Event ID:', eventId);
-    console.log('Is Admin:', isAdmin);
     try {
       if (eventPicksLocked) {
-        console.log('Calling unlockEventPicks...');
-        const result = await api.unlockEventPicks(eventId);
-        console.log('Unlock result:', result);
+        await api.unlockEventPicks(eventId);
       } else {
-        console.log('Calling lockEventPicks...');
-        const result = await api.lockEventPicks(eventId);
-        console.log('Lock result:', result);
+        await api.lockEventPicks(eventId);
       }
-      // Invalidate and refetch queries to update UI immediately
-      console.log('Invalidating and refetching queries...');
+      // Refrescar datos
       await queryClient.invalidateQueries({ queryKey: ['event', eventId] });
-      const refetchResult = await queryClient.refetchQueries({ queryKey: ['event', eventId] });
-      console.log('Event refetch result:', refetchResult);
-      console.log('Event data after refetch:', event);
+      await queryClient.refetchQueries({ queryKey: ['event', eventId] });
       await queryClient.invalidateQueries({ queryKey: ['bouts', eventId] });
-      const boutsRefetchResult = await queryClient.refetchQueries({ queryKey: ['bouts', eventId] });
-      console.log('Bouts refetch result:', boutsRefetchResult);
-      console.log('Bouts data after refetch:', bouts);
-      console.log('Success! Event lock toggled.');
+      await queryClient.refetchQueries({ queryKey: ['bouts', eventId] });
     } catch (error) {
-      console.error('Error toggling event lock:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      alert(`Error: ${error instanceof Error ? error.message : 'Error desconocido'}`);
     }
   };
 
-  // Toggle bout lock
+  // Maneja el bloqueo individual de una pelea
   const handleToggleBoutLock = async (boutId: number) => {
     try {
       const bout = bouts?.find(b => b.id === boutId);
@@ -165,13 +142,13 @@ export function EventDetailPage({ id }: { id: string }) {
     }));
   };
 
-  // Loading state
+  // Cargando
   if (isLoading) {
     return (
       <div className="container max-w-4xl py-6 px-4 space-y-6">
         <Button variant="ghost" size="sm" disabled className="text-muted-foreground">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Events
+          Volver a Eventos
         </Button>
         <Skeleton className="h-64 w-full rounded-lg" />
         <div className="space-y-3">
@@ -183,7 +160,7 @@ export function EventDetailPage({ id }: { id: string }) {
     );
   }
 
-  // Error state
+  // Error al cargar
   if (error || !event) {
     return (
       <div className="container max-w-4xl py-6 px-4 space-y-6">
@@ -194,26 +171,26 @@ export function EventDetailPage({ id }: { id: string }) {
           className="text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Events
+          Volver a Eventos
         </Button>
         <div className="flex items-center gap-2 text-destructive p-4 bg-destructive/10 rounded-lg">
           <AlertCircle className="h-5 w-5" />
-          <span>Failed to load event details. Please try again later.</span>
+          <span>Error al cargar el evento. Intenta más tarde.</span>
         </div>
       </div>
     );
   }
 
-  // Transform bouts for display
+  // Transforma los bouts para mostrarlos
   const transformedBouts = (bouts || []).map((bout, index) => transformBout(bout, index));
 
-  // Create a map of existing picks by bout_id
+  // Mapa de picks por bout_id para acceso rápido
   const picksMap = (existingPicks || []).reduce((acc, pick) => {
     acc[pick.bout_id] = pick;
     return acc;
   }, {} as Record<number, typeof existingPicks[0]>);
 
-  // Split bouts into sections (simplified: first 5 main card, rest prelims)
+  // Divide en main card (primeras 5) y preliminares (resto)
   const mainCardBouts = transformedBouts.slice(0, 5);
   const prelimBouts = transformedBouts.slice(5);
 
@@ -222,7 +199,7 @@ export function EventDetailPage({ id }: { id: string }) {
   const picksOpen = event.status === 'scheduled';
   const eventDate = new Date(event.date);
 
-  // Get main event fighter names for subtitle
+  // Datos de la pelea principal para el subtítulo
   const mainEvent = transformedBouts[0];
   const subtitle = mainEvent ? `${mainEvent.fighterRed} vs ${mainEvent.fighterBlue}` : '';
 
@@ -249,24 +226,15 @@ export function EventDetailPage({ id }: { id: string }) {
                             pick?.is_correct === false ? "incorrect" :
                             "pending";
 
-          // Check if bout is locked (event status OR backend locks)
+          // Verifica si la pelea está bloqueada
           const boutFromApi = apiBouts?.find(b => b.id === bout.boutId);
           const boutLockedByAdmin = boutFromApi?.picks_locked || false;
           const isLockedFinal = !picksOpen || boutLockedByAdmin || eventPicksLocked;
 
-          // Convert picked_fighter_name to corner for BoutCard
+          // Convierte nombre del peleador a corner para BoutCard
           const pickedCorner = pick?.picked_fighter_name
             ? (pick.picked_fighter_name.toLowerCase().trim() === bout.fighterRed?.toLowerCase().trim() ? 'red' : 'blue')
             : undefined;
-
-          // Debug logging
-          console.log(`Bout ${bout.boutId}:`, {
-            picksOpen,
-            boutLockedByAdmin,
-            eventPicksLocked,
-            isLockedFinal,
-            boutFromApi: boutFromApi?.picks_locked
-          });
 
           return (
             <BoutCard
@@ -287,7 +255,7 @@ export function EventDetailPage({ id }: { id: string }) {
               winner={bout.winner}
               actualMethod={bout.actualMethod}
               actualRound={bout.actualRound as 1 | 2 | 3 | 4 | 5 | undefined}
-              points={pick?.points_awarded as 0 | 1 | 2 | 3 | undefined}
+              points={pick?.is_correct !== null && pick?.is_correct !== undefined ? pick?.points_awarded as 0 | 1 | 2 | 3 : undefined}
               pickStatus={pick ? pickStatus : undefined}
               isLocked={isLockedFinal}
               eventId={String(eventId)}
@@ -305,7 +273,7 @@ export function EventDetailPage({ id }: { id: string }) {
 
   return (
     <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
-      {/* Back Button */}
+      {/* Botón atrás */}
       <Button
         variant="ghost"
         size="sm"
@@ -313,10 +281,10 @@ export function EventDetailPage({ id }: { id: string }) {
         className="text-muted-foreground"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Events
+        Volver a Eventos
       </Button>
 
-      {/* Event Header */}
+      {/* Encabezado del evento */}
       <Card className="card-gradient p-6 border-primary/30">
         <div className="flex flex-col md:flex-row gap-6">
           {/* Event Poster */}
@@ -352,12 +320,12 @@ export function EventDetailPage({ id }: { id: string }) {
                     {eventPicksLocked ? (
                       <>
                         <Lock className="h-4 w-4" />
-                        Unlock Event
+                        Desbloquear Evento
                       </>
                     ) : (
                       <>
                         <Unlock className="h-4 w-4" />
-                        Lock Event
+                        Bloquear Evento
                       </>
                     )}
                   </Button>
@@ -380,7 +348,7 @@ export function EventDetailPage({ id }: { id: string }) {
               <div className="bg-secondary/50 rounded-lg p-4 mb-4">
                 <p className="text-xs text-muted-foreground text-center mb-2">
                   <Clock className="h-3 w-3 inline mr-1" />
-                  Picks lock when event starts
+                  Los picks se bloquean cuando comienza el evento
                 </p>
                 <CountdownTimer targetDate={eventDate} />
               </div>
@@ -388,7 +356,7 @@ export function EventDetailPage({ id }: { id: string }) {
 
             <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between">
               <span className="text-sm text-muted-foreground">
-                {picksCount} of {totalBouts} picks made
+                {picksCount} de {totalBouts} picks hechos
               </span>
               <div className="w-32 h-2 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -401,37 +369,37 @@ export function EventDetailPage({ id }: { id: string }) {
         </div>
       </Card>
 
-      {/* Fight Cards */}
+      {/* Tarjetas de pele as */}
       {mainCardBouts.length > 0 && (
-        <CardSection title="Main Card" emoji="🔥" bouts={mainCardBouts} apiBouts={bouts} />
+        <CardSection title="Cartelera Principal" emoji="🔥" bouts={mainCardBouts} apiBouts={bouts} />
       )}
       {prelimBouts.length > 0 && (
-        <CardSection title="Prelims" emoji="🟡" bouts={prelimBouts} apiBouts={bouts} />
+        <CardSection title="Preliminares" emoji="🟡" bouts={prelimBouts} apiBouts={bouts} />
       )}
 
-      {/* Empty state */}
+      {/* Sin pele as aún */}
       {transformedBouts.length === 0 && (
         <Card className="card-gradient p-8 text-center">
-          <p className="text-muted-foreground">No fights announced yet for this event.</p>
+          <p className="text-muted-foreground">Sin pele as anunciadas aún para este evento.</p>
         </Card>
       )}
 
-      {/* Sticky Save Button */}
+      {/* Botón flotante para guardar */}
       {picksOpen && picksCount > 0 && isAuthenticated && (
         <div className="fixed bottom-20 md:bottom-6 left-0 right-0 px-4 md:left-64">
           <div className="container max-w-4xl">
             <Button size="lg" className="w-full shadow-lg">
-              Save {picksCount} Pick{picksCount > 1 ? "s" : ""}
+              Guardar {picksCount} Pick{picksCount > 1 ? "s" : ""}
             </Button>
           </div>
         </div>
       )}
 
-      {/* Sign in prompt */}
+      {/* Aviso para iniciar sesión */}
       {picksOpen && !isAuthenticated && (
         <Card className="card-gradient p-4 text-center">
-          <p className="text-muted-foreground mb-3">Sign in to make your picks</p>
-          <Button onClick={() => router.push("/auth")}>Sign In</Button>
+          <p className="text-muted-foreground mb-3">Inicia sesión para hacer tus picks</p>
+          <Button onClick={() => router.push("/auth")}>Iniciar Sesión</Button>
         </Card>
       )}
     </div>

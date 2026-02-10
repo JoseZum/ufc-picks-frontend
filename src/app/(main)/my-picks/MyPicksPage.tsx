@@ -15,7 +15,7 @@ export function MyPicksPage() {
   const isLoading = picksLoading;
   const isAuthenticated = api.isAuthenticated();
 
-  // Group picks by event - separate by whether results are in (is_correct is not null)
+  // Agrupa picks por evento: pending vs completed
   const picksByEvent = useMemo(() => {
     if (!picks) return { pending: [], completed: [] };
 
@@ -37,22 +37,22 @@ export function MyPicksPage() {
       ...data
     }));
     
-    // Separate by whether picks have results (is_correct is not null/undefined)
-    const pending = entries.filter(e => 
+    // Separar por si los picks ya tienen resultado
+    const pending = entries.filter(e =>
       e.picks.some(p => p.is_correct === null || p.is_correct === undefined)
     );
-    const completed = entries.filter(e => 
+    const completed = entries.filter(e =>
       e.picks.every(p => p.is_correct !== null && p.is_correct !== undefined)
     );
 
-    // Sort by date: pending shows upcoming first, completed shows recent first
+    // Ordenar: pending por próximos primero, completed por recientes primero
     pending.sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
     completed.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
 
     return { pending, completed };
   }, [picks]);
 
-  // Calculate stats
+  // Calcula estadísticas generales del usuario
   const stats = useMemo(() => {
     if (!picks) return { correct: 0, incorrect: 0, pending: 0, total: 0, totalPoints: 0, perfect3Pointers: 0 };
 
@@ -81,32 +81,32 @@ export function MyPicksPage() {
     return { correct, incorrect, pending, total: picks.length, totalPoints, perfect3Pointers };
   }, [picks]);
 
-  // Not authenticated state
+  // Sin autenticación
   if (!isAuthenticated) {
     return (
       <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
         <div className="flex items-center gap-3">
           <Target className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">My Picks</h1>
+          <h1 className="text-2xl font-bold">Mis Picks</h1>
         </div>
         <Card className="card-gradient p-8 text-center">
           <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-xl font-semibold mb-2">Sign in to see your picks</h2>
+          <h2 className="text-xl font-semibold mb-2">Inicia sesión para ver tus picks</h2>
           <p className="text-muted-foreground">
-            Create an account or sign in to start making predictions
+            Crea una cuenta o inicia sesión para empezar a hacer predicciones
           </p>
         </Card>
       </div>
     );
   }
 
-  // Loading state
+  // Cargando
   if (isLoading) {
     return (
       <div className="container max-w-4xl py-6 px-4 space-y-6">
         <div className="flex items-center gap-3">
           <Target className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">My Picks</h1>
+          <h1 className="text-2xl font-bold">Mis Picks</h1>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -122,37 +122,37 @@ export function MyPicksPage() {
     );
   }
 
-  // Error state
+  // Error al cargar
   if (picksError) {
     return (
       <div className="container max-w-4xl py-6 px-4 space-y-6">
         <div className="flex items-center gap-3">
           <Target className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">My Picks</h1>
+          <h1 className="text-2xl font-bold">Mis Picks</h1>
         </div>
         <div className="flex items-center gap-2 text-destructive p-4 bg-destructive/10 rounded-lg">
           <AlertCircle className="h-5 w-5" />
-          <span>Failed to load picks. Please try again later.</span>
+          <span>Error al cargar tus picks. Intenta más tarde.</span>
         </div>
       </div>
     );
   }
 
-  // Format date helper
+  // Formatea fechas
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    return date.toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
   return (
     <div className="container max-w-4xl py-6 px-4 space-y-6 animate-fade-in">
-      {/* Header */}
+      {/* Encabezado */}
       <div className="flex items-center gap-3">
         <Target className="h-6 w-6 text-primary" />
-        <h1 className="text-2xl font-bold">My Picks</h1>
+        <h1 className="text-2xl font-bold">Mis Picks</h1>
       </div>
 
-      {/* Stats */}
+      {/* Estadísticas */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <Card className="card-gradient p-3 text-center">
           <p className="text-xl font-bold">{stats.total}</p>
@@ -185,23 +185,23 @@ export function MyPicksPage() {
         </Card>
       </div>
 
-      {/* Empty state */}
+      {/* Sin picks aún */}
       {picks?.length === 0 && (
         <Card className="card-gradient p-8 text-center">
           <Target className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-xl font-semibold mb-2">No picks yet</h2>
+          <h2 className="text-xl font-semibold mb-2">Sin picks aún</h2>
           <p className="text-muted-foreground">
-            Go to an upcoming event and make your predictions!
+            ¡Ve a un evento próximo y haz tus predicciones!
           </p>
         </Card>
       )}
 
-      {/* Pending Picks */}
+      {/* Picks Pendientes */}
       {picksByEvent.pending.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock className="h-5 w-5 text-warning" />
-            Awaiting Results ({picksByEvent.pending.reduce((acc, e) => acc + e.picks.length, 0)})
+            Esperando Resultados ({picksByEvent.pending.reduce((acc, e) => acc + e.picks.length, 0)})
           </h2>
           {picksByEvent.pending.map(({ eventId, eventName, eventDate, picks: eventPicks }) => (
             <div key={eventId} className="mb-6">
@@ -236,7 +236,7 @@ export function MyPicksPage() {
                           <div className="flex items-center gap-2">
                             <Clock className="h-5 w-5 text-warning" />
                           </div>
-                          <span className="text-xs text-warning font-medium">Pending</span>
+                          <span className="text-xs text-warning font-medium">Pendiente</span>
                         </div>
                       </div>
                     </Card>
@@ -248,12 +248,12 @@ export function MyPicksPage() {
         </section>
       )}
 
-      {/* Completed Picks */}
+      {/* Picks Completados */}
       {picksByEvent.completed.length > 0 && (
         <section>
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Trophy className="h-5 w-5 text-success" />
-            Past Results ({picksByEvent.completed.reduce((acc, e) => acc + e.picks.length, 0)})
+            Resultados Pasados ({picksByEvent.completed.reduce((acc, e) => acc + e.picks.length, 0)})
           </h2>
           {picksByEvent.completed.map(({ eventId, eventName, eventDate, picks: eventPicks }) => {
             const eventCorrect = eventPicks.filter(p => p.is_correct).length;
@@ -309,9 +309,9 @@ export function MyPicksPage() {
                                       PERFECT
                                     </span>
                                   ) : pick.points_awarded === 2 ? (
-                                    'Fighter + Method'
+                                    'Peleador + Método'
                                   ) : (
-                                    'Fighter Only'
+                                    'Peleador'
                                   )}
                                 </span>
                               </>
@@ -321,7 +321,7 @@ export function MyPicksPage() {
                                   <span className="text-xl font-bold text-destructive">0</span>
                                   <XCircle className="h-5 w-5 text-destructive" />
                                 </div>
-                                <span className="text-xs text-destructive font-medium">Wrong Pick</span>
+                                <span className="text-xs text-destructive font-medium">Pick Incorrecto</span>
                               </>
                             )}
                           </div>

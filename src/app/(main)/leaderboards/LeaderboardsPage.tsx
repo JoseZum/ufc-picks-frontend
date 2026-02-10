@@ -21,32 +21,32 @@ export function LeaderboardsPage() {
   const year = yearFilter === "all" ? undefined : parseInt(yearFilter);
   const eventId = eventFilter === "all" ? undefined : parseInt(eventFilter);
 
-  // Get events for filter dropdown
+  // Obtiene eventos para el filtro
   const { data: eventsData } = useEvents({ limit: 50 });
   const events = eventsData?.events || [];
 
-  // Determine which leaderboard to fetch
-  const { data: leaderboard, isLoading } = eventId 
+  // Determina qué tabla de clasificación cargar
+  const { data: leaderboard, isLoading } = eventId
     ? useEventLeaderboard(eventId, 100)
-    : activeTab === 'global' 
+    : activeTab === 'global'
       ? useGlobalLeaderboard({ year, limit: 100 })
       : useCategoryLeaderboard(activeTab, { year, limit: 100 });
 
   const { data: myPosition } = useMyLeaderboardPosition(activeTab);
-  
-  // Sort leaderboard based on selected criteria
+
+  // Ordena el leaderboard según criterio seleccionado
   const sortedLeaderboard = useMemo(() => {
     if (!leaderboard) return [];
-    
+
     const sorted = [...leaderboard];
-    
+
     switch (sortBy) {
       case 'points':
         sorted.sort((a, b) => b.total_points - a.total_points);
         break;
       case 'accuracy':
+        // Ordena por precisión, luego por picks correctos como desempate
         sorted.sort((a, b) => {
-          // Sort by accuracy first, then by correct picks as tiebreaker
           if (b.accuracy !== a.accuracy) {
             return b.accuracy - a.accuracy;
           }
@@ -57,8 +57,8 @@ export function LeaderboardsPage() {
         sorted.sort((a, b) => b.picks_correct - a.picks_correct);
         break;
       case 'perfect_picks':
+        // Ordena por picks perfectos, luego por puntos totales como desempate
         sorted.sort((a, b) => {
-          // Sort by perfect picks, then by total points as tiebreaker
           if (b.perfect_picks !== a.perfect_picks) {
             return b.perfect_picks - a.perfect_picks;
           }
@@ -69,23 +69,23 @@ export function LeaderboardsPage() {
         sorted.sort((a, b) => b.picks_total - a.picks_total);
         break;
     }
-    
+
     return sorted;
   }, [leaderboard, sortBy]);
-  
-  // Year options (only 2026)
+
+  // Opciones de año (2026 solo)
   const yearOptions = [
-    { value: "all", label: "All Time" },
+    { value: "all", label: "Todo el Tiempo" },
     { value: "2026", label: "2026" },
   ];
-  
-  // Sort options
+
+  // Opciones de ordenamiento
   const sortOptions = [
-    { value: "points", label: "Total Points" },
-    { value: "accuracy", label: "Best Accuracy" },
-    { value: "correct_picks", label: "Most Correct" },
-    { value: "perfect_picks", label: "Perfect Picks (3pts)" },
-    { value: "total_picks", label: "Most Active" },
+    { value: "points", label: "Puntos Totales" },
+    { value: "accuracy", label: "Mejor Precisión" },
+    { value: "correct_picks", label: "Más Correctos" },
+    { value: "perfect_picks", label: "Picks Perfectos (3pts)" },
+    { value: "total_picks", label: "Más Activo" },
   ];
 
   const getCategoryIcon = (category: LeaderboardCategory) => {
@@ -96,29 +96,32 @@ export function LeaderboardsPage() {
     }
   };
 
+  // Formatea el nombre de la categoría
   const getCategoryTitle = (category: LeaderboardCategory) => {
     return category.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
   return (
     <div className="container max-w-6xl py-6 px-4 space-y-6 animate-fade-in">
+      {/* Encabezado */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
           <Trophy className="h-6 w-6 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="font-bold text-2xl">Leaderboards</h1>
-          <p className="text-sm text-muted-foreground">See how you stack up</p>
+          <h1 className="font-bold text-2xl">Clasificaciones</h1>
+          <p className="text-sm text-muted-foreground">Mira cómo te comparas</p>
         </div>
       </div>
 
+      {/* Filtros */}
       <div className="flex items-center gap-3 flex-wrap">
         <Select value={eventFilter} onValueChange={setEventFilter}>
           <SelectTrigger className="w-[200px] bg-secondary border-border">
-            <SelectValue placeholder="Event" />
+            <SelectValue placeholder="Evento" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Events</SelectItem>
+            <SelectItem value="all">Todos los Eventos</SelectItem>
             {events.map((event) => (
               <SelectItem key={event.id} value={String(event.id)}>
                 {event.name}
@@ -129,7 +132,7 @@ export function LeaderboardsPage() {
 
         <Select value={yearFilter} onValueChange={setYearFilter}>
           <SelectTrigger className="w-[140px] bg-secondary border-border">
-            <SelectValue placeholder="Time Period" />
+            <SelectValue placeholder="Período" />
           </SelectTrigger>
           <SelectContent>
             {yearOptions.map((option) => (
@@ -139,10 +142,10 @@ export function LeaderboardsPage() {
             ))}
           </SelectContent>
         </Select>
-        
+
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortBy)}>
           <SelectTrigger className="w-[180px] bg-secondary border-border">
-            <SelectValue placeholder="Sort By" />
+            <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent>
             {sortOptions.map((option) => (
@@ -154,7 +157,7 @@ export function LeaderboardsPage() {
         </Select>
       </div>
 
-      {/* Hide category tabs when event filter is active */}
+      {/* Tabs de categorías (solo si no filtra por evento) */}
       {!eventId ? (
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as LeaderboardCategory)}>
           <TabsList className="grid w-full grid-cols-4 lg:w-auto">
@@ -164,15 +167,15 @@ export function LeaderboardsPage() {
             </TabsTrigger>
             <TabsTrigger value="main_events" className="gap-2">
               {getCategoryIcon('main_events')}
-              <span className="hidden sm:inline">Main Events</span>
+              <span className="hidden sm:inline">Eventos Principales</span>
             </TabsTrigger>
             <TabsTrigger value="main_card" className="gap-2">
               {getCategoryIcon('main_card')}
-              <span className="hidden sm:inline">Main Card</span>
+              <span className="hidden sm:inline">Cartelera Principal</span>
             </TabsTrigger>
             <TabsTrigger value="prelims" className="gap-2">
               {getCategoryIcon('prelims')}
-              <span className="hidden sm:inline">Prelims</span>
+              <span className="hidden sm:inline">Preliminares</span>
             </TabsTrigger>
           </TabsList>
 
@@ -205,15 +208,15 @@ export function LeaderboardsPage() {
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <Trophy className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                <p>No leaderboard data available yet</p>
-                <p className="text-sm">Make some picks to get started!</p>
+                <p>Sin datos en el leaderboard aún</p>
+                <p className="text-sm">¡Haz algunos picks para comenzar!</p>
               </div>
             )}
           </Card>
 
           {myPosition?.entry && (
             <Card className="card-gradient p-4 border-primary/30">
-              <h3 className="text-sm font-medium mb-3 text-muted-foreground">Your Position</h3>
+              <h3 className="text-sm font-medium mb-3 text-muted-foreground">Tu Posición</h3>
               <LeaderboardRow
                 rank={myPosition.rank!}
                 userId={myPosition.entry.user_id}
@@ -228,11 +231,11 @@ export function LeaderboardsPage() {
         </TabsContent>
       </Tabs>
       ) : (
-        // Show event leaderboard without category tabs
+        // Leaderboard de evento (sin tabs de categorías)
         <Card className="card-gradient p-4">
           <div className="flex items-center gap-2 mb-4">
             <Trophy className="h-5 w-5" />
-            <h2 className="font-semibold">Event Leaderboard</h2>
+            <h2 className="font-semibold">Clasificación del Evento</h2>
           </div>
 
           {isLoading ? (
@@ -249,7 +252,7 @@ export function LeaderboardsPage() {
                   username={user.username}
                   avatarUrl={user.avatar_url}
                   points={user.total_points}
-                  accuracy={Math.round(user.accuracy)}
+                  accuracy={Math.round(user.accuracy * 100)}
                   isCurrentUser={myPosition?.entry?.user_id === user.user_id}
                 />
               ))}
@@ -257,7 +260,7 @@ export function LeaderboardsPage() {
           ) : (
             <div className="text-center py-8 text-muted-foreground">
               <Trophy className="h-12 w-12 mx-auto mb-3 opacity-20" />
-              <p>No picks for this event yet</p>
+              <p>Sin picks en este evento aún</p>
             </div>
           )}
         </Card>
