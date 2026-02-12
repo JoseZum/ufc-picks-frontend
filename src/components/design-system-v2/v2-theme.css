@@ -2014,7 +2014,9 @@
     border-left: 4px solid var(--error);
 }
 
-.pick-row--pending {}
+.pick-row--pending {
+    border-left: 4px solid transparent;
+}
 
 .pick-row__fighter {
     padding: 1rem 1.5rem;
@@ -2041,11 +2043,8 @@
     height: 50px;
     background: var(--bg-elevated);
     border: 2px solid var(--border-strong);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: var(--text-muted);
+    display: block;
+    flex-shrink: 0;
 }
 
 .pick-row__fighter--selected .pick-row__photo {
@@ -2077,8 +2076,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 100px;
+    width: 110px;
+    min-width: 110px;
     border-left: 1px solid var(--border);
+    box-sizing: border-box;
 }
 
 .pick-row__result-badge {
@@ -2087,6 +2088,8 @@
     text-transform: uppercase;
     letter-spacing: 2px;
     font-weight: 700;
+    line-height: 1;
+    margin: 0;
 }
 
 .pick-row__result-badge--correct {
@@ -2108,7 +2111,8 @@
 .pick-row__points {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.2rem;
-    margin-top: 0.25rem;
+    line-height: 1;
+    margin: 0.25rem 0 0;
 }
 
 .pick-row__points--positive {
