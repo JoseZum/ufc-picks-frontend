@@ -89,7 +89,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         } catch (err) {
-            console.error('[Export Fight Card Error]', err);
+            // silenciar error
         }
     };
 
@@ -154,11 +154,6 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                 alt={bout.fighters.red.fighter_name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
-                                    console.error('[Fighter Image Error]', {
-                                        fighter: bout.fighters.red.fighter_name,
-                                        url: getFighterImageUrl(bout.fighters.red),
-                                        profile_image_url: bout.fighters.red.profile_image_url
-                                    });
                                     e.currentTarget.src = '/placeholder-fighter.svg';
                                 }}
                             />
@@ -201,11 +196,6 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                                 alt={bout.fighters.blue.fighter_name}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
-                                    console.error('[Fighter Image Error]', {
-                                        fighter: bout.fighters.blue.fighter_name,
-                                        url: getFighterImageUrl(bout.fighters.blue),
-                                        profile_image_url: bout.fighters.blue.profile_image_url
-                                    });
                                     e.currentTarget.src = '/placeholder-fighter.svg';
                                 }}
                             />

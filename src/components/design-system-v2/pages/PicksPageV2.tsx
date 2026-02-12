@@ -1,54 +1,69 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
 import { getFighterImageUrl } from '@/lib/api';
+import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { formatEventDate } from '@/lib/dateUtils';
+import { useQueryClient } from '@tanstack/react-query';
 
-interface PickWithBout {
-    pick: {
-        id: number;
-        bout_id: number;
-        event_id: number;
-        predicted_winner: string;
-        is_correct: boolean | null;
-        points_earned: number;
-        created_at: string;
+// Calcula puntos basado en el pick y el resultado de la pelea
+function computePoints(pick: any, bout: any): number {
+    if (pick.is_correct !== true || !bout?.result) return 0;
+
+    let points = 1; // Acertó el ganador
+
+    const normalize = (m: string | undefined) => {
+        if (!m) return "";
+        const u = m.toUpperCase();
+        if (["KO", "TKO", "KO/TKO"].includes(u)) return "KO/TKO";
+        if (["SUB", "SUBMISSION"].includes(u)) return "SUB";
+        if (["DEC", "DECISION"].includes(u)) return "DEC";
+        return u;
     };
-    bout?: {
-        id: number;
-        event_id: number;
-        fighter1_name: string;
-        fighter2_name: string;
-        fighter1_id?: string;
-        fighter2_id?: string;
-        fighter1_record?: string;
-        fighter2_record?: string;
-        weight_class?: string;
-        winner?: string;
-        status: string;
-    };
-    event?: {
-        id: number;
-        name: string;
-        date: string;
-        status: string;
-    };
+
+    const pickMethod = normalize(pick.picked_method);
+    const resultMethod = normalize(bout.result.method);
+
+    if (pickMethod && resultMethod && pickMethod === resultMethod) {
+        points += 1;
+        if (pickMethod !== "DEC" && pick.picked_round && bout.result.round) {
+            if (pick.picked_round === bout.result.round) {
+                points += 1;
+            }
+        }
+    }
+
+    return points;
 }
 
 export const PicksPageV2 = () => {
     const [selectedEventId, setSelectedEventId] = useState<number | 'all'>('all');
-    
+    const queryClient = useQueryClient();
+    const cleanupDone = useRef(false);
+
     const { data: currentUser } = useCurrentUser();
     const { data: allPicks, isLoading: picksLoading } = useAllMyPicks();
     const { data: eventsData, isLoading: eventsLoading } = useEvents({ limit: 50 });
-    
+
     const events = eventsData?.events || [];
     const isLoading = picksLoading || eventsLoading;
+
+    // Limpiar picks pendientes de eventos completados al entrar
+    useEffect(() => {
+        if (!currentUser || cleanupDone.current) return;
+        cleanupDone.current = true;
+
+        api.cleanupPendingPicks().then((res) => {
+            if (res.deleted > 0) {
+                queryClient.invalidateQueries({ queryKey: ['allMyPicks'] });
+            }
+        }).catch(() => {});
+    }, [currentUser, queryClient]);
 
     // Group picks by event
     const picksByEvent = useMemo(() => {
@@ -144,16 +159,14 @@ export const PicksPageV2 = () => {
                     return (
                         <div key={pick.id} className={rowClass}>
                             <div className={`pick-row__fighter pick-row__fighter--red ${isPicked1 ? 'pick-row__fighter--selected' : ''}`}>
-                                <div 
-                                    className="pick-row__photo" 
+                                <div
+                                    className="pick-row__photo"
                                     style={{
                                         backgroundImage: `url(${getFighterImageUrl(bout.fighters.red)})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}
-                                >
-                                    {bout.fighters.red.fighter_name?.charAt(0)}
-                                </div>
+                                />
                                 <div className="pick-row__info">
                                     <div className="pick-row__name">{bout.fighters.red.fighter_name?.toUpperCase()}</div>
                                     <div className="pick-row__record">
@@ -166,16 +179,14 @@ export const PicksPageV2 = () => {
                             </div>
                             <div className="pick-row__vs">VS</div>
                             <div className={`pick-row__fighter pick-row__fighter--blue ${isPicked2 ? 'pick-row__fighter--selected' : ''}`}>
-                                <div 
+                                <div
                                     className="pick-row__photo"
                                     style={{
                                         backgroundImage: `url(${getFighterImageUrl(bout.fighters.blue)})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}
-                                >
-                                    {bout.fighters.blue.fighter_name?.charAt(0)}
-                                </div>
+                                />
                                 <div className="pick-row__info">
                                     <div className="pick-row__name">{bout.fighters.blue.fighter_name?.toUpperCase()}</div>
                                     <div className="pick-row__record">
@@ -193,7 +204,7 @@ export const PicksPageV2 = () => {
                                 {isCorrect && (
                                     <>
                                         <span className="pick-row__result-badge pick-row__result-badge--correct">CORRECT</span>
-                                        <span className="pick-row__points pick-row__points--positive">+{pick.points_earned}</span>
+                                        <span className="pick-row__points pick-row__points--positive">+{computePoints(pick, bout)}</span>
                                     </>
                                 )}
                                 {isIncorrect && (
