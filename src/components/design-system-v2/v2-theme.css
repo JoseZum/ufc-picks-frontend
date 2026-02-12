@@ -2123,6 +2123,20 @@
     color: var(--error);
 }
 
+.pick-row--perfect {
+    background: rgba(217, 164, 6, 0.10);
+    border-left: 4px solid #d9a406;
+}
+
+.pick-row__result-badge--perfect {
+    background: #d9a406;
+    color: var(--bg-base);
+}
+
+.pick-row__points--perfect {
+    color: #d9a406;
+}
+
 /* YOUR PICK INDICATOR */
 .pick-row__your-pick {
     font-size: 0.5rem;

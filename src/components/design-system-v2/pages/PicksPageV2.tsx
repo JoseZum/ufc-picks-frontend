@@ -150,11 +150,16 @@ export const PicksPageV2 = () => {
                     const isIncorrect = pick.is_correct === false;
                     const isPendingPick = pick.is_correct === null;
                     
-                    const rowClass = isPendingPick 
-                        ? 'pick-row pick-row--pending' 
-                        : isCorrect 
-                            ? 'pick-row pick-row--correct' 
-                            : 'pick-row pick-row--incorrect';
+                    const pts = isCorrect && bout ? computePoints(pick, bout) : 0;
+                    const isPerfect = isCorrect && pts === 3;
+
+                    const rowClass = isPendingPick
+                        ? 'pick-row pick-row--pending'
+                        : isPerfect
+                            ? 'pick-row pick-row--perfect'
+                            : isCorrect
+                                ? 'pick-row pick-row--correct'
+                                : 'pick-row pick-row--incorrect';
 
                     return (
                         <div key={pick.id} className={rowClass}>
@@ -203,8 +208,10 @@ export const PicksPageV2 = () => {
                                 )}
                                 {isCorrect && (
                                     <>
-                                        <span className="pick-row__result-badge pick-row__result-badge--correct">CORRECT</span>
-                                        <span className="pick-row__points pick-row__points--positive">+{computePoints(pick, bout)}</span>
+                                        <span className={`pick-row__result-badge ${isPerfect ? 'pick-row__result-badge--perfect' : 'pick-row__result-badge--correct'}`}>
+                                            {isPerfect ? 'PERFECT' : 'CORRECT'}
+                                        </span>
+                                        <span className={`pick-row__points ${isPerfect ? 'pick-row__points--perfect' : 'pick-row__points--positive'}`}>+{pts}</span>
                                     </>
                                 )}
                                 {isIncorrect && (
