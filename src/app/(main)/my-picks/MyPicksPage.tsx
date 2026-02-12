@@ -1,16 +1,69 @@
 'use client'
 
-import { useMemo } from "react";
-import { BoutCard } from "@/components/BoutCard";
+import { useMemo, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Target, Calendar, CheckCircle, XCircle, Clock, Trophy, AlertCircle } from "lucide-react";
 import { useAllMyPicksDetailed } from "@/lib/hooks";
+import { useQueryClient } from "@tanstack/react-query";
 import type { DetailedPick } from "@/lib/api";
 import api from "@/lib/api";
 
+// Calcula puntos desde los datos del pick y resultado
+function computePoints(pick: DetailedPick): number {
+  if (!pick.is_correct) return 0;
+
+  let points = 1; // Acertó el ganador
+
+  const pickMethod = pick.picked_method?.toUpperCase();
+  const resultMethod = pick.result?.method?.toUpperCase();
+
+  // Normalizar método del resultado
+  const normalizeMethod = (m: string | undefined) => {
+    if (!m) return "";
+    const upper = m.toUpperCase();
+    if (["KO", "TKO", "KO/TKO"].includes(upper)) return "KO/TKO";
+    if (["SUB", "SUBMISSION"].includes(upper)) return "SUB";
+    if (["DEC", "DECISION"].includes(upper)) return "DEC";
+    return upper;
+  };
+
+  const normalizedPick = normalizeMethod(pickMethod);
+  const normalizedResult = normalizeMethod(resultMethod);
+
+  if (normalizedPick && normalizedResult && normalizedPick === normalizedResult) {
+    points += 1; // Acertó el método
+
+    // Round solo cuenta en finalizaciones (KO/TKO o SUB)
+    if (normalizedPick !== "DEC" && pick.picked_round && pick.result?.round) {
+      if (pick.picked_round === pick.result.round) {
+        points += 1; // Acertó el round
+      }
+    }
+  }
+
+  return points;
+}
+
 export function MyPicksPage() {
+  const queryClient = useQueryClient();
+  const cleanupDone = useRef(false);
   const { data: picks, isLoading: picksLoading, error: picksError } = useAllMyPicksDetailed();
+
+  // Limpiar picks pendientes de eventos completados al entrar
+  useEffect(() => {
+    if (!api.isAuthenticated() || cleanupDone.current) return;
+    cleanupDone.current = true;
+
+    api.cleanupPendingPicks().then((res) => {
+      if (res.deleted > 0) {
+        // Refrescar picks si se eliminó algo
+        queryClient.invalidateQueries({ queryKey: ['allMyPicksDetailed'] });
+      }
+    }).catch(() => {
+      // Silenciar errores del cleanup
+    });
+  }, [queryClient]);
 
   const isLoading = picksLoading;
   const isAuthenticated = api.isAuthenticated();
@@ -66,10 +119,11 @@ export function MyPicksPage() {
       if (pick.is_correct === null || pick.is_correct === undefined) {
         pending++;
       } else {
-        totalPoints += pick.points_awarded;
+        const pts = computePoints(pick);
+        totalPoints += pts;
         if (pick.is_correct) {
           correct++;
-          if (pick.points_awarded === 3) {
+          if (pts === 3) {
             perfect3Pointers++;
           }
         } else {
@@ -259,7 +313,7 @@ export function MyPicksPage() {
             const eventCorrect = eventPicks.filter(p => p.is_correct).length;
             const eventTotal = eventPicks.length;
             const eventAccuracy = eventTotal > 0 ? Math.round((eventCorrect / eventTotal) * 100) : 0;
-            const eventPoints = eventPicks.reduce((sum, p) => sum + (p.points_awarded || 0), 0);
+            const eventPoints = eventPicks.reduce((sum, p) => sum + computePoints(p), 0);
             
             return (
               <div key={eventId} className="mb-6">
@@ -278,6 +332,7 @@ export function MyPicksPage() {
                     const pickedFighter = pick.picked_fighter_name;
                     const isPickedRed = pick.picked_fighter_name?.toLowerCase() === pick.fighter_red?.toLowerCase();
                     const opponentFighter = isPickedRed ? pick.fighter_blue : pick.fighter_red;
+                    const pts = computePoints(pick);
 
                     return (
                       <Card key={pick.id} className={`card-gradient p-4 ${pick.is_correct ? 'border-success/30' : 'border-destructive/30'}`}>
@@ -299,16 +354,16 @@ export function MyPicksPage() {
                             {pick.is_correct ? (
                               <>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xl font-bold text-success">+{pick.points_awarded}</span>
+                                  <span className="text-xl font-bold text-success">+{pts}</span>
                                   <CheckCircle className="h-5 w-5 text-success" />
                                 </div>
                                 <span className="text-xs text-success font-medium">
-                                  {pick.points_awarded === 3 ? (
+                                  {pts === 3 ? (
                                     <span className="flex items-center gap-1 text-ufc-gold">
                                       <Trophy className="h-3 w-3" />
                                       PERFECT
                                     </span>
-                                  ) : pick.points_awarded === 2 ? (
+                                  ) : pts === 2 ? (
                                     'Peleador + Método'
                                   ) : (
                                     'Peleador'

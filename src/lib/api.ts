@@ -485,6 +485,13 @@ export async function getAllMyPicksDetailed(): Promise<DetailedPick[]> {
   return apiRequest<DetailedPick[]>('/picks/me/detailed');
 }
 
+/**
+ * Limpia picks pendientes en eventos completados (peleas canceladas sin resultado)
+ */
+export async function cleanupPendingPicks(): Promise<{ deleted: number }> {
+  return apiRequest<{ deleted: number }>('/picks/me/cleanup', { method: 'POST' });
+}
+
 // ============================================
 // LEADERBOARD ENDPOINTS
 // ============================================
@@ -727,6 +734,7 @@ const api = {
   getMyPicks,
   getAllMyPicks,
   getAllMyPicksDetailed,
+  cleanupPendingPicks,
 
   // Leaderboard
   getGlobalLeaderboard,

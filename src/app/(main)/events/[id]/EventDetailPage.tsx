@@ -77,6 +77,36 @@ function transformBout(bout: Bout, index: number): TransformedBout {
   };
 }
 
+// Calcula puntos basado en pick y resultado de la pelea
+function computePickPoints(pick: { picked_fighter_name: string; picked_method?: string; picked_round?: number; is_correct?: boolean | null }, bout: TransformedBout): number {
+  if (!pick.is_correct) return 0;
+
+  let points = 1;
+
+  const normalize = (m: string | undefined) => {
+    if (!m) return "";
+    const u = m.toUpperCase();
+    if (["KO", "TKO", "KO/TKO"].includes(u)) return "KO/TKO";
+    if (["SUB", "SUBMISSION"].includes(u)) return "SUB";
+    if (["DEC", "DECISION"].includes(u)) return "DEC";
+    return u;
+  };
+
+  const pickMethod = normalize(pick.picked_method);
+  const resultMethod = normalize(bout.actualMethod);
+
+  if (pickMethod && resultMethod && pickMethod === resultMethod) {
+    points += 1;
+    if (pickMethod !== "DEC" && pick.picked_round && bout.actualRound) {
+      if (pick.picked_round === bout.actualRound) {
+        points += 1;
+      }
+    }
+  }
+
+  return points;
+}
+
 export function EventDetailPage({ id }: { id: string }) {
   const router = useRouter();
   const [localPicks, setLocalPicks] = useState<Record<number, { fighter: "red" | "blue" }>>({});
@@ -255,7 +285,7 @@ export function EventDetailPage({ id }: { id: string }) {
               winner={bout.winner}
               actualMethod={bout.actualMethod}
               actualRound={bout.actualRound as 1 | 2 | 3 | 4 | 5 | undefined}
-              points={pick?.is_correct !== null && pick?.is_correct !== undefined ? pick?.points_awarded as 0 | 1 | 2 | 3 : undefined}
+              points={pick?.is_correct !== null && pick?.is_correct !== undefined ? computePickPoints(pick, bout) as 0 | 1 | 2 | 3 : undefined}
               pickStatus={pick ? pickStatus : undefined}
               isLocked={isLockedFinal}
               eventId={String(eventId)}
