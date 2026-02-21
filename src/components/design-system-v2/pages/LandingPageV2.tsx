@@ -106,10 +106,17 @@ export const LandingPageV2 = () => {
                         </div>
                     </div>
 
-                    <a href={nextEvent ? `/events/${nextEvent.id}` : '#'} className="hero__action glitch">
-                        <span className="hero__action-text">MAKE YOUR PICKS</span>
-                        <span className="hero__action-arrow">→</span>
-                    </a>
+                    {currentUser ? (
+                        <a href={nextEvent ? `/events/${nextEvent.id}` : '#'} className="hero__action glitch">
+                            <span className="hero__action-text">MAKE YOUR PICKS</span>
+                            <span className="hero__action-arrow">→</span>
+                        </a>
+                    ) : (
+                        <a href="/auth" className="hero__action hero__action--login glitch">
+                            <span className="hero__action-text">SIGN IN TO PICK</span>
+                            <span className="hero__action-arrow">→</span>
+                        </a>
+                    )}
                 </section>
 
                 {/* MAIN EVENT - BRUTAL VS CARD */}

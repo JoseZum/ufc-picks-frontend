@@ -41,15 +41,21 @@ export const NavBarV2 = ({ activePage }: NavBarV2Props) => {
                     </Link>
                 )}
             </div>
-            <div className="nav__user">
-                <div className="nav__avatar" style={{
-                    backgroundImage: currentUser?.profile_picture ? `url(${currentUser.profile_picture})` : 'none',
-                    backgroundSize: 'cover'
-                }}>
-                    {!currentUser?.profile_picture && (currentUser?.name?.charAt(0).toUpperCase() || '?')}
+            {currentUser ? (
+                <div className="nav__user">
+                    <div className="nav__avatar" style={{
+                        backgroundImage: currentUser.profile_picture ? `url(${currentUser.profile_picture})` : 'none',
+                        backgroundSize: 'cover'
+                    }}>
+                        {!currentUser.profile_picture && (currentUser.name?.charAt(0).toUpperCase() || '?')}
+                    </div>
+                    <span>{currentUser.name}</span>
                 </div>
-                <span>{currentUser?.name || 'GUEST'}</span>
-            </div>
+            ) : (
+                <Link href="/auth" className="nav__login-btn">
+                    LOG IN
+                </Link>
+            )}
         </nav>
     );
 };
