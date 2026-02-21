@@ -69,8 +69,8 @@ export const LandingPageV2 = () => {
                                     <Loader2 className="animate-spin" style={{ width: '40px', height: '40px' }} />
                                 </div>
                             )}
-                            <span className={`hero__event-badge ${isExpired ? 'hero__event-badge--locked' : ''}`}>
-                                {isExpired ? 'LOCKED' : 'OPEN FOR PICKS'}
+                            <span className={`hero__event-badge ${isExpired || nextEvent?.picks_locked ? 'hero__event-badge--locked' : ''}`}>
+                                {isExpired || nextEvent?.picks_locked ? 'LOCKED' : 'OPEN FOR PICKS'}
                             </span>
                         </div>
                         <div className="hero__event-content">

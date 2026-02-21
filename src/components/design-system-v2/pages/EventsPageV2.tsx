@@ -80,7 +80,9 @@ export const EventsPageV2 = () => {
                                         backgroundPosition: 'center'
                                     }}>
                                         {!getEventPosterUrl(featuredEvent) && <span className="event-card__image-text">UFC<br />{featuredEvent.id}</span>}
-                                        <span className="event-card__badge event-card__badge--open">OPEN</span>
+                                        <span className={`event-card__badge ${featuredEvent.picks_locked ? 'event-card__badge--completed' : 'event-card__badge--open'}`}>
+                                            {featuredEvent.picks_locked ? 'LOCKED' : 'OPEN'}
+                                        </span>
                                     </div>
                                     <div className="event-card__content">
                                         <div className="event-card__date">{formatEventDate(featuredEvent)}</div>
@@ -116,7 +118,9 @@ export const EventsPageV2 = () => {
                                         backgroundPosition: 'center'
                                     }}>
                                         {!getEventPosterUrl(event) && <span className="event-card__image-text">EVENT</span>}
-                                        <span className="event-card__badge">UPCOMING</span>
+                                        <span className={`event-card__badge ${event.picks_locked ? 'event-card__badge--completed' : ''}`}>
+                                            {event.picks_locked ? 'LOCKED' : 'UPCOMING'}
+                                        </span>
                                     </div>
                                     <div className="event-card__content">
                                         <div className="event-card__date">{formatEventDate(event)}</div>

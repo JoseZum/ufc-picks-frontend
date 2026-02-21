@@ -252,8 +252,8 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         }}
                     >
                         <span className="event-hero__image-text">{getEventNumber(event.name)}</span>
-                        <span className="event-hero__badge">
-                            {event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status.toUpperCase()}
+                        <span className={`event-hero__badge ${isExpired || event.picks_locked ? 'event-hero__badge--locked' : ''}`}>
+                            {isExpired || event.picks_locked ? 'LOCKED' : event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status.toUpperCase()}
                         </span>
                     </div>
                     
