@@ -26,7 +26,8 @@ export const EventsPageV2 = () => {
 
     const { data: currentUser } = useCurrentUser();
 
-    const upcomingEventsAll = upcomingData?.events || [];
+    // Solo mostrar eventos que tengan ":" en el nombre (significa que ya tienen pelea principal definida)
+    const upcomingEventsAll = (upcomingData?.events || []).filter(e => e.name.includes(':'));
     const completedEventsAll = completedData?.events || [];
 
     // Featured event is the FIRST upcoming event

@@ -18,9 +18,10 @@ export const LandingPageV2 = () => {
     // 1. Get Next Event
     const { data: eventsData, isLoading: eventsLoading } = useEvents({
         status: 'scheduled',
-        limit: 1
+        limit: 10
     });
-    const nextEvent = eventsData?.events?.[0];
+    // Solo mostrar eventos que tengan ":" en el nombre (significa que ya tienen pelea principal definida)
+    const nextEvent = eventsData?.events?.find(e => e.name.includes(':'));
 
     // 2. Get Main Event Bout
     const { data: bouts } = useEventBouts(nextEvent?.id || 0);
@@ -199,7 +200,7 @@ export const LandingPageV2 = () => {
                         <div className="stat-card">
                             <div className="stat-card__label">ACCURACY</div>
                             <div className="stat-card__value">
-                                {currentUser?.accuracy ? Math.round(currentUser.accuracy) : 0}
+                                {currentUser?.picks_total ? Math.round((currentUser.picks_correct || 0) / currentUser.picks_total * 100) : 0}
                                 <span className="stat-card__suffix">%</span>
                             </div>
                         </div>
@@ -240,7 +241,7 @@ export const LandingPageV2 = () => {
                                     </td>
                                     <td className="leaderboard__cell leaderboard__points">{user.total_points}</td>
                                     <td className="leaderboard__cell leaderboard__accuracy">
-                                        {Math.round(user.accuracy)}%
+                                        {user.picks_total ? Math.round(user.picks_correct / user.picks_total * 100) : 0}%
                                     </td>
                                 </tr>
                             ))}

@@ -115,7 +115,7 @@ export const LeaderboardPageV2 = () => {
                                             <div className="podium__stat-label">POINTS</div>
                                         </div>
                                         <div>
-                                            <div className="podium__stat-value">{Math.round((top3[1].accuracy || 0) )}%</div>
+                                            <div className="podium__stat-value">{top3[1].picks_total ? Math.round(top3[1].picks_correct / top3[1].picks_total * 100) : 0}%</div>
                                             <div className="podium__stat-label">ACCURACY</div>
                                         </div>
                                     </div>
@@ -142,7 +142,7 @@ export const LeaderboardPageV2 = () => {
                                             <div className="podium__stat-label">POINTS</div>
                                         </div>
                                         <div>
-                                            <div className="podium__stat-value">{Math.round((top3[0].accuracy || 0) )}%</div>
+                                            <div className="podium__stat-value">{top3[0].picks_total ? Math.round(top3[0].picks_correct / top3[0].picks_total * 100) : 0}%</div>
                                             <div className="podium__stat-label">ACCURACY</div>
                                         </div>
                                     </div>
@@ -169,7 +169,7 @@ export const LeaderboardPageV2 = () => {
                                             <div className="podium__stat-label">POINTS</div>
                                         </div>
                                         <div>
-                                            <div className="podium__stat-value">{Math.round((top3[2].accuracy || 0) )}%</div>
+                                            <div className="podium__stat-value">{top3[2].picks_total ? Math.round(top3[2].picks_correct / top3[2].picks_total * 100) : 0}%</div>
                                             <div className="podium__stat-label">ACCURACY</div>
                                         </div>
                                     </div>
@@ -198,7 +198,7 @@ export const LeaderboardPageV2 = () => {
                                     <div className="your-position__stat-label">POINTS</div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{Math.round((myPosition.entry?.accuracy || 0) )}%</div>
+                                    <div className="your-position__stat-value">{myPosition.entry?.picks_total ? Math.round((myPosition.entry.picks_correct || 0) / myPosition.entry.picks_total * 100) : 0}%</div>
                                     <div className="your-position__stat-label">ACCURACY</div>
                                 </div>
                                 <div className="your-position__stat">
@@ -236,7 +236,7 @@ export const LeaderboardPageV2 = () => {
                                             <span className="leaderboard-full__name">{entry.username?.toUpperCase()}</span>
                                         </div>
                                         <span className="leaderboard-full__points">{entry.total_points?.toLocaleString()}</span>
-                                        <span className="leaderboard-full__accuracy">{Math.round((entry.accuracy || 0) )}%</span>
+                                        <span className="leaderboard-full__accuracy">{entry.picks_total ? Math.round(entry.picks_correct / entry.picks_total * 100) : 0}%</span>
                                         <span className="leaderboard-full__picks">{entry.picks_total || '-'}</span>
                                     </a>
                                 ))}
