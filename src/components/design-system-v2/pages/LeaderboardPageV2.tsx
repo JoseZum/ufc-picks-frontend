@@ -5,12 +5,11 @@ import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
-import { useGlobalLeaderboard, useEventLeaderboard, useEvents, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
+import { useGlobalLeaderboard, useEventLeaderboard, useEvents, useCurrentUser } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
 
 export const LeaderboardPageV2 = () => {
     const router = useRouter();
-    const [timeFilter, setTimeFilter] = useState<'all' | 'year' | 'month'>('all');
     const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
 
     // Fetch events for the dropdown
@@ -23,16 +22,19 @@ export const LeaderboardPageV2 = () => {
 
     // Fetch real data
     const { data: currentUser } = useCurrentUser();
-    const { data: myPosition } = useMyLeaderboardPosition('global');
     const { data: globalLeaderboard, isLoading: globalLoading } = useGlobalLeaderboard({
         limit: 50,
-        year: !selectedEventId && timeFilter === 'year' ? new Date().getFullYear() : undefined
     });
     const { data: eventLeaderboard, isLoading: eventLoading } = useEventLeaderboard(selectedEventId || 0, 50);
 
     // Use event leaderboard when an event is selected, otherwise global
     const leaderboard = selectedEventId ? eventLeaderboard : globalLeaderboard;
     const isLoading = selectedEventId ? eventLoading : globalLoading;
+
+    // Buscar la posición del usuario en el leaderboard actual (global o por evento)
+    const myEntry = currentUser && leaderboard
+        ? leaderboard.find(e => e.user_id === currentUser.id)
+        : null;
 
     // Get top 3 for podium
     const top3 = leaderboard?.slice(0, 3) || [];
@@ -55,22 +57,6 @@ export const LeaderboardPageV2 = () => {
                         </p>
                     </div>
                     <div className="page-header__filters">
-                        {!selectedEventId && (
-                            <>
-                                <button
-                                    className={`filter-btn ${timeFilter === 'all' ? 'filter-btn--active' : ''}`}
-                                    onClick={() => setTimeFilter('all')}
-                                >
-                                    ALL TIME
-                                </button>
-                                <button
-                                    className={`filter-btn ${timeFilter === 'year' ? 'filter-btn--active' : ''}`}
-                                    onClick={() => setTimeFilter('year')}
-                                >
-                                    THIS YEAR
-                                </button>
-                            </>
-                        )}
                         <select
                             className="event-filter-select"
                             value={selectedEventId || ''}
@@ -178,9 +164,9 @@ export const LeaderboardPageV2 = () => {
                         </div>
 
                         {/* YOUR POSITION */}
-                        {currentUser && myPosition && (
+                        {currentUser && myEntry && (
                             <div className="your-position">
-                                <div className="your-position__rank">#{myPosition.rank}</div>
+                                <div className="your-position__rank">#{myEntry.rank}</div>
                                 <div className="your-position__user">
                                     <div className="your-position__avatar" style={{
                                         backgroundImage: currentUser.profile_picture ? `url(${currentUser.profile_picture})` : 'none',
@@ -194,15 +180,15 @@ export const LeaderboardPageV2 = () => {
                                     </div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{myPosition.entry?.total_points?.toLocaleString() || 0}</div>
+                                    <div className="your-position__stat-value">{myEntry.total_points?.toLocaleString() || 0}</div>
                                     <div className="your-position__stat-label">POINTS</div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{myPosition.entry?.picks_total ? Math.round((myPosition.entry.picks_correct || 0) / myPosition.entry.picks_total * 100) : 0}%</div>
+                                    <div className="your-position__stat-value">{myEntry.picks_total ? Math.round(myEntry.picks_correct / myEntry.picks_total * 100) : 0}%</div>
                                     <div className="your-position__stat-label">ACCURACY</div>
                                 </div>
                                 <div className="your-position__stat">
-                                    <div className="your-position__stat-value">{currentUser.picks_total || 0}</div>
+                                    <div className="your-position__stat-value">{myEntry.picks_total || 0}</div>
                                     <div className="your-position__stat-label">PICKS</div>
                                 </div>
                             </div>
