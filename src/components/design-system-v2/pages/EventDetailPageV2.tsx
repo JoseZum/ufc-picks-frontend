@@ -270,7 +270,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         </div>
                         <h1 className="event-hero__title">{event.name}</h1>
                         <p className="event-hero__location">
-                            {event.location?.venue}, {event.location?.city}{event.location?.country ? `, ${event.location.country}` : ''}
+                            {event.location?.venue || 'Location TBD'}
                         </p>
 
                         {event.status === 'scheduled' && (

@@ -245,7 +245,7 @@ function EventTimingCard({
             <div className="event-timing-card__header" onClick={onToggle} style={{ cursor: 'pointer' }}>
                 <div className="event-timing-card__info">
                     <h3>{event.name}</h3>
-                    <p>{formatDate(event.date)} // {event.location?.city || 'TBA'}</p>
+                    <p>{formatDate(event.date)} // {event.location?.venue || 'TBA'}</p>
                 </div>
                 <span className={`event-timing-card__status ${event.picks_locked ? 'event-timing-card__status--locked' : 'event-timing-card__status--open'}`}>
                     {event.picks_locked ? 'LOCKED' : 'OPEN'}

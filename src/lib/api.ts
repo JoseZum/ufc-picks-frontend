@@ -78,7 +78,9 @@ async function apiRequest<T>(
   // Manejar errores HTTP
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Error desconocido' }));
-    throw new Error(error.detail || `HTTP ${response.status}`);
+    const detail = error.detail;
+    const message = typeof detail === 'string' ? detail : JSON.stringify(detail) || `HTTP ${response.status}`;
+    throw new Error(message);
   }
 
   return response.json();

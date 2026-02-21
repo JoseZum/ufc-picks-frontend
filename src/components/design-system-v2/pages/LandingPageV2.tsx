@@ -78,7 +78,7 @@ export const LandingPageV2 = () => {
                                 <>
                                     <h1 className="hero__event-title">{nextEvent.name}</h1>
                                     <p className="hero__event-subtitle">
-                                        {formatEventDate(nextEvent.date)} // {nextEvent.location?.venue ? `${nextEvent.location.venue}, ${nextEvent.location.venue.toLowerCase() === 'meta apex' ? 'LAS VEGAS' : nextEvent.location.city}` : (nextEvent.location?.city || 'VENUE TBA')}
+                                        {formatEventDate(nextEvent.date)} // {nextEvent.location?.venue || 'VENUE TBA'}
                                     </p>
                                     <div className="hero__countdown">
                                         <div className="hero__countdown-label">TIME UNTIL EVENT</div>

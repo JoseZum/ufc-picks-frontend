@@ -85,7 +85,7 @@ export const EventsPageV2 = () => {
                                     <div className="event-card__content">
                                         <div className="event-card__date">{formatEventDate(featuredEvent)}</div>
                                         <h2 className="event-card__title">{featuredEvent.name}</h2>
-                                        <p className="event-card__location">{featuredEvent.location?.venue || 'Location TBD'}, {featuredEvent.location?.city || ''}</p>
+                                        <p className="event-card__location">{featuredEvent.location?.venue || 'Location TBD'}</p>
                                         <div className="event-card__meta">
                                             <div className="event-card__stat">
                                                 <span className="event-card__stat-value">{featuredEvent.total_bouts}</span>
@@ -121,7 +121,7 @@ export const EventsPageV2 = () => {
                                     <div className="event-card__content">
                                         <div className="event-card__date">{formatEventDate(event)}</div>
                                         <h2 className="event-card__title">{event.name}</h2>
-                                        <p className="event-card__location">{event.location?.venue}, {event.location?.city}</p>
+                                        <p className="event-card__location">{event.location?.venue || 'Location TBD'}</p>
                                         <div className="event-card__meta">
                                             <div className="event-card__stat">
                                                 <span className="event-card__stat-value">{event.total_bouts}</span>
@@ -160,7 +160,7 @@ export const EventsPageV2 = () => {
                                             <div className="event-card__content">
                                                 <div className="event-card__date">{formatEventDate(event)}</div>
                                                 <h2 className="event-card__title">{event.name}</h2>
-                                                <p className="event-card__location">{event.location?.venue}, {event.location?.city}</p>
+                                                <p className="event-card__location">{event.location?.venue || 'Location TBD'}</p>
                                                 <div className="event-card__meta">
                                                     {/* Placeholder for user stats per event - data not available in list view yet */}
                                                     <div className="event-card__stat">
