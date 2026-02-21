@@ -126,6 +126,22 @@ export async function loginWithGoogle(googleIdToken: string): Promise<AuthRespon
 }
 
 /**
+ * Autentica con Google OAuth usando access_token (custom button flow)
+ * @param accessToken - Access token de Google
+ */
+export async function loginWithGoogleAccessToken(accessToken: string): Promise<AuthResponse> {
+  const response = await apiRequest<AuthResponse>('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ access_token: accessToken }),
+  });
+
+  // Guardar el token automaticamente
+  setAuthToken(response.access_token);
+
+  return response;
+}
+
+/**
  * Obtiene el usuario actual
  */
 export async function getCurrentUser(): Promise<User> {
@@ -715,6 +731,7 @@ export async function getUserPicksStats(userId: string, year?: number): Promise<
 const api = {
   // Auth
   loginWithGoogle,
+  loginWithGoogleAccessToken,
   getCurrentUser,
   logout,
   updateProfile,

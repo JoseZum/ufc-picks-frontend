@@ -36,7 +36,7 @@ export function useCurrentUser() {
 }
 
 /**
- * Hook para login con Google
+ * Hook para login con Google (id_token flow - legacy)
  */
 export function useGoogleLogin() {
   const queryClient = useQueryClient();
@@ -45,6 +45,20 @@ export function useGoogleLogin() {
     mutationFn: (googleToken: string) => api.loginWithGoogle(googleToken),
     onSuccess: () => {
       // Refrescar el usuario actual despues de login
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    },
+  });
+}
+
+/**
+ * Hook para login con Google (access_token flow - custom button)
+ */
+export function useGoogleAccessTokenLogin() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (accessToken: string) => api.loginWithGoogleAccessToken(accessToken),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
   });
