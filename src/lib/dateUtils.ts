@@ -67,6 +67,20 @@ export function getDaysUntilEvent(event: Event | { date: string; start_time_et?:
 }
 
 /**
+ * Verifica si un evento todavía debe mostrarse en el frontend.
+ *
+ * El evento se mantiene visible hasta las 00:00 hora Costa Rica (UTC-6)
+ * del día SIGUIENTE a la fecha del evento. Esto da tiempo para que el admin
+ * lo marque como completed después de que termine la cartelera.
+ */
+export function isEventStillVisible(event: Event | { date: string }): boolean {
+  const [year, month, day] = event.date.split('-').map(Number);
+  // Medianoche Costa Rica (UTC-6) del día siguiente = 06:00 UTC del día +1
+  const cutoff = new Date(Date.UTC(year, month - 1, day + 1, 6, 0, 0));
+  return new Date() < cutoff;
+}
+
+/**
  * Format days left until event for display
  */
 export function formatDaysLeft(event: Event | { date: string; start_time_et?: string; timezone?: string }): string {

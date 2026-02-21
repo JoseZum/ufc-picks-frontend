@@ -11,6 +11,7 @@ import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTi
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
+import { isEventStillVisible } from '@/lib/dateUtils';
 
 export const LandingPageV2 = () => {
     const router = useRouter();
@@ -20,8 +21,8 @@ export const LandingPageV2 = () => {
         status: 'scheduled',
         limit: 10
     });
-    // Solo mostrar eventos que tengan ":" en el nombre (significa que ya tienen pelea principal definida)
-    const nextEvent = eventsData?.events?.find(e => e.name.includes(':'));
+    // Solo mostrar eventos que tengan ":" en el nombre y que no hayan pasado de medianoche CR
+    const nextEvent = eventsData?.events?.find(e => e.name.includes(':') && isEventStillVisible(e));
 
     // 2. Get Main Event Bout
     const { data: bouts } = useEventBouts(nextEvent?.id || 0);

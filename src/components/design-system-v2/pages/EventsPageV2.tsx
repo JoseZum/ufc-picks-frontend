@@ -8,7 +8,7 @@ import { MobileNav } from '../MobileNav';
 import { useEvents, useCurrentUser } from '@/lib/hooks';
 import { getEventPosterUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
-import { formatEventDate, formatDaysLeft } from '@/lib/dateUtils';
+import { formatEventDate, formatDaysLeft, isEventStillVisible } from '@/lib/dateUtils';
 
 export const EventsPageV2 = () => {
     const router = useRouter();
@@ -26,8 +26,8 @@ export const EventsPageV2 = () => {
 
     const { data: currentUser } = useCurrentUser();
 
-    // Solo mostrar eventos que tengan ":" en el nombre (significa que ya tienen pelea principal definida)
-    const upcomingEventsAll = (upcomingData?.events || []).filter(e => e.name.includes(':'));
+    // Solo mostrar eventos con ":" en el nombre y que no hayan pasado de medianoche CR
+    const upcomingEventsAll = (upcomingData?.events || []).filter(e => e.name.includes(':') && isEventStillVisible(e));
     const completedEventsAll = completedData?.events || [];
 
     // Featured event is the FIRST upcoming event
