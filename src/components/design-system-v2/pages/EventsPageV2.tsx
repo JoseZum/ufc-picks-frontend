@@ -8,7 +8,7 @@ import { MobileNav } from '../MobileNav';
 import { useEvents, useCurrentUser } from '@/lib/hooks';
 import { getEventPosterUrl } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
-import { formatEventDate, formatDaysLeft, isEventStillVisible } from '@/lib/dateUtils';
+import { formatEventDate, formatDaysLeft, isEventStillVisible, getDaysUntilEvent } from '@/lib/dateUtils';
 
 export const EventsPageV2 = () => {
     const router = useRouter();
@@ -26,8 +26,12 @@ export const EventsPageV2 = () => {
 
     const { data: currentUser } = useCurrentUser();
 
-    // Solo mostrar eventos con ":" en el nombre y que no hayan pasado de medianoche CR
-    const upcomingEventsAll = (upcomingData?.events || []).filter(e => e.name.includes(':') && isEventStillVisible(e));
+    // Visible hasta medianoche CR, y ocultar eventos lejanos (>30 días) sin subtítulo
+    const upcomingEventsAll = (upcomingData?.events || []).filter(e => {
+        if (!isEventStillVisible(e)) return false;
+        if (getDaysUntilEvent(e) > 30 && !e.name.includes(':')) return false;
+        return true;
+    });
     const completedEventsAll = completedData?.events || [];
 
     // Featured event is the FIRST upcoming event
