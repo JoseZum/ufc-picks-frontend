@@ -844,7 +844,7 @@ function PhotoUploaderTab() {
                 <label className="admin-form-label">SELECCIONAR FOTO</label>
                 <input
                     type="file"
-                    accept="image/png,image/jpeg"
+                    accept="image/png,image/jpeg,image/webp,image/avif"
                     onChange={handleFileChange}
                     disabled={uploading}
                     style={{
