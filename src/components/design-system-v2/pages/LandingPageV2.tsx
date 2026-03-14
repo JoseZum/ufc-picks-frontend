@@ -7,7 +7,7 @@ import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime } from '@/lib/api';
+import { getFighterDisplayName, getFighterImageUrl, getEventImageUrl, getEventDateTime } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
@@ -31,6 +31,8 @@ export const LandingPageV2 = () => {
     // 2. Get Main Event Bout
     const { data: bouts } = useEventBouts(nextEvent?.id || 0);
     const mainEventBout = bouts?.[0];
+    const redMainEventName = getFighterDisplayName(mainEventBout?.fighters?.red);
+    const blueMainEventName = getFighterDisplayName(mainEventBout?.fighters?.blue);
 
     // 3. Get Leaderboard
     const { data: leaderboard, isLoading: leaderboardLoading } = useGlobalLeaderboard({
@@ -136,13 +138,13 @@ export const LandingPageV2 = () => {
                                 <div className="main-event__photo">
                                     <img
                                         src={getFighterImageUrl(mainEventBout.fighters.red)}
-                                        alt={mainEventBout.fighters.red.fighter_name}
+                                        alt={redMainEventName}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         onError={(e) => e.currentTarget.style.display = 'none'}
                                     />
                                     {/* Fallback placeholder styled via CSS if img fails/missing */}
                                 </div>
-                                <div className="main-event__name">{mainEventBout.fighters.red.fighter_name}</div>
+                                <div className="main-event__name">{redMainEventName}</div>
                                 <div className="main-event__record">
                                     {mainEventBout.fighters.red.record_at_fight ?
                                         `${mainEventBout.fighters.red.record_at_fight.wins}-${mainEventBout.fighters.red.record_at_fight.losses}-${mainEventBout.fighters.red.record_at_fight.draws}`
@@ -166,12 +168,12 @@ export const LandingPageV2 = () => {
                                 <div className="main-event__photo">
                                     <img
                                         src={getFighterImageUrl(mainEventBout.fighters.blue)}
-                                        alt={mainEventBout.fighters.blue.fighter_name}
+                                        alt={blueMainEventName}
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                         onError={(e) => e.currentTarget.style.display = 'none'}
                                     />
                                 </div>
-                                <div className="main-event__name">{mainEventBout.fighters.blue.fighter_name}</div>
+                                <div className="main-event__name">{blueMainEventName}</div>
                                 <div className="main-event__record">
                                     {mainEventBout.fighters.blue.record_at_fight ?
                                         `${mainEventBout.fighters.blue.record_at_fight.wins}-${mainEventBout.fighters.blue.record_at_fight.losses}-${mainEventBout.fighters.blue.record_at_fight.draws}`

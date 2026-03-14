@@ -6,7 +6,13 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
-import { getFighterImageUrl, getEventDateTime } from '@/lib/api';
+import {
+    getFighterDisplayName,
+    getFighterImageUrl,
+    getFighterShortName,
+    getEventDateTime,
+    getNormalizedFighterName
+} from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
@@ -45,9 +51,9 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     useEffect(() => {
         if (existingPick && bout) {
             // Convert picked_fighter_name back to corner for UI state
-            const redName = bout.fighters.red?.fighter_name?.toLowerCase().trim();
-            const blueName = bout.fighters.blue?.fighter_name?.toLowerCase().trim();
-            const pickedName = existingPick.picked_fighter_name?.toLowerCase().trim();
+            const redName = getNormalizedFighterName(bout.fighters.red);
+            const blueName = getNormalizedFighterName(bout.fighters.blue);
+            const pickedName = existingPick.picked_fighter_name?.toLowerCase().trim() || '';
 
             // Explicitly check both corners
             let corner: 'red' | 'blue' | null = null;
@@ -98,8 +104,8 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
         try {
             // Get fighter name from selected corner
             const selectedFighterName = selectedFighter === 'red'
-                ? bout?.fighters.red?.fighter_name
-                : bout?.fighters.blue?.fighter_name;
+                ? getFighterDisplayName(bout?.fighters.red)
+                : getFighterDisplayName(bout?.fighters.blue);
 
             await createPickMutation.mutateAsync({
                 event_id: eventId,
@@ -155,6 +161,8 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
 
     const redFighter = bout.fighters.red;
     const blueFighter = bout.fighters.blue;
+    const redFighterName = getFighterDisplayName(redFighter);
+    const blueFighterName = getFighterDisplayName(blueFighter);
     const isLocked = event.status !== 'scheduled';
 
     const formatRecord = (record: any) => {
@@ -227,7 +235,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                     <span className="fighter-card__rank">#{redFighter.ranking.position}</span>
                                 )}
                             </div>
-                            <h2 className="fighter-card__name">{redFighter.fighter_name}</h2>
+                            <h2 className="fighter-card__name">{redFighterName}</h2>
                             {isValidNickname(redFighter.nickname) && (
                                 <p className="fighter-card__nickname">"{redFighter.nickname}"</p>
                             )}
@@ -303,7 +311,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                     className="fighter-card__pick-btn"
                                     onClick={(e) => { e.stopPropagation(); handleSelectFighter('red'); }}
                                 >
-                                    PICK {redFighter.fighter_name.split(' ').pop()?.toUpperCase()}
+                                    PICK {getFighterShortName(redFighter)}
                                 </button>
                             )}
                         </div>
@@ -332,7 +340,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                     <span className="fighter-card__rank">#{blueFighter.ranking.position}</span>
                                 )}
                             </div>
-                            <h2 className="fighter-card__name">{blueFighter.fighter_name}</h2>
+                            <h2 className="fighter-card__name">{blueFighterName}</h2>
                             {isValidNickname(blueFighter.nickname) && (
                                 <p className="fighter-card__nickname">"{blueFighter.nickname}"</p>
                             )}
@@ -408,7 +416,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                     className="fighter-card__pick-btn"
                                     onClick={(e) => { e.stopPropagation(); handleSelectFighter('blue'); }}
                                 >
-                                    PICK {blueFighter.fighter_name.split(' ').pop()?.toUpperCase()}
+                                    PICK {getFighterShortName(blueFighter)}
                                 </button>
                             )}
                         </div>
@@ -477,7 +485,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                     <div className="confirm-panel">
                                         <div className="confirm-panel__preview">
                                             <span className="confirm-panel__fighter">
-                                                {selectedFighter === 'red' ? redFighter.fighter_name : blueFighter.fighter_name}
+                                                {selectedFighter === 'red' ? redFighterName : blueFighterName}
                                             </span>
                                             <div className="confirm-panel__details">
                                                 <span className="confirm-panel__badge">
@@ -508,7 +516,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                     <div className="pick-success__icon">✓</div>
                                     <div className="pick-success__title">PICK SAVED!</div>
                                     <div className="pick-success__details">
-                                        {selectedFighter === 'red' ? redFighter.fighter_name : blueFighter.fighter_name} by {selectedMethod === 'DEC' ? 'DECISION' : selectedMethod === 'KO/TKO' ? 'KO/TKO' : 'SUBMISSION'}
+                                        {selectedFighter === 'red' ? redFighterName : blueFighterName} by {selectedMethod === 'DEC' ? 'DECISION' : selectedMethod === 'KO/TKO' ? 'KO/TKO' : 'SUBMISSION'}
                                         {selectedRound && ` in Round ${selectedRound}`}
                                     </div>
                                     <span className="pick-success__edit" onClick={handleReset}>EDIT PICK</span>

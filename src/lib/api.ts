@@ -260,6 +260,7 @@ export function getEventDateTime(event: Event): Date {
 
 export interface Fighter {
   fighter_name: string;
+  name?: string;
   corner: 'red' | 'blue';
 
   // Basic info
@@ -325,6 +326,26 @@ export interface Fighter {
   tapology_id?: string;
   tapology_url?: string;
   profile_image_url?: string;
+}
+
+export function getFighterDisplayName(fighter?: Partial<Fighter> | null): string {
+  const rawName =
+    (typeof fighter?.fighter_name === 'string' && fighter.fighter_name) ||
+    (typeof fighter?.name === 'string' && fighter.name) ||
+    '';
+
+  const normalizedName = rawName.trim();
+  return normalizedName || 'TBD';
+}
+
+export function getNormalizedFighterName(fighter?: Partial<Fighter> | null): string {
+  return getFighterDisplayName(fighter).toLowerCase().trim();
+}
+
+export function getFighterShortName(fighter?: Partial<Fighter> | null): string {
+  const name = getFighterDisplayName(fighter);
+  const nameParts = name.split(/\s+/).filter(Boolean);
+  return (nameParts[nameParts.length - 1] || name).toUpperCase();
 }
 
 /**

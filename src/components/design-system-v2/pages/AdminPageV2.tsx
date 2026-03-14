@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvents, useEventBouts, useCurrentUser } from '@/lib/hooks';
-import { getAuthToken, Event, Bout } from '@/lib/api';
+import { getAuthToken, getFighterDisplayName, getFighterShortName, Event, Bout } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -427,8 +427,8 @@ function BoutResultCard({
     const [saving, setSaving] = useState(false);
 
     const hasResult = bout.result && bout.status === 'completed';
-    const redFighter = bout.fighters.red?.fighter_name || 'TBD';
-    const blueFighter = bout.fighters.blue?.fighter_name || 'TBD';
+    const redFighter = getFighterDisplayName(bout.fighters.red);
+    const blueFighter = getFighterDisplayName(bout.fighters.blue);
 
     const handleSubmit = async () => {
         if (!winner || !method) {
@@ -499,7 +499,7 @@ function BoutResultCard({
                 <div className="bout-result-card__fighter bout-result-card__fighter--red">
                     <div className="bout-result-card__fighter-photo">★</div>
                     <div className="bout-result-card__fighter-info">
-                        <div className="bout-result-card__fighter-name">{redFighter.split(' ').pop()?.toUpperCase()}</div>
+                        <div className="bout-result-card__fighter-name">{getFighterShortName(bout.fighters.red)}</div>
                         <div className="bout-result-card__fighter-record">RED CORNER</div>
                     </div>
                 </div>
@@ -507,7 +507,7 @@ function BoutResultCard({
                 <div className="bout-result-card__fighter bout-result-card__fighter--blue">
                     <div className="bout-result-card__fighter-photo">♥</div>
                     <div className="bout-result-card__fighter-info">
-                        <div className="bout-result-card__fighter-name">{blueFighter.split(' ').pop()?.toUpperCase()}</div>
+                        <div className="bout-result-card__fighter-name">{getFighterShortName(bout.fighters.blue)}</div>
                         <div className="bout-result-card__fighter-record">BLUE CORNER</div>
                     </div>
                 </div>
@@ -1026,8 +1026,8 @@ function BoutManageCard({
 
     const [saving, setSaving] = useState(false);
 
-    const redFighter = bout.fighters.red?.fighter_name || 'TBD';
-    const blueFighter = bout.fighters.blue?.fighter_name || 'TBD';
+    const redFighter = getFighterDisplayName(bout.fighters.red);
+    const blueFighter = getFighterDisplayName(bout.fighters.blue);
 
     // Guarda solo los campos que cambiaron respecto a los valores originales
     const handleSave = async () => {

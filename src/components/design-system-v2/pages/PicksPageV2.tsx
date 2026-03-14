@@ -5,7 +5,7 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
-import { getFighterImageUrl } from '@/lib/api';
+import { getFighterDisplayName, getFighterImageUrl, getNormalizedFighterName } from '@/lib/api';
 import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { formatEventDate } from '@/lib/dateUtils';
@@ -143,9 +143,13 @@ export const PicksPageV2 = () => {
 
                 {eventPicks.map(({ pick, bout }) => {
                     if (!bout) return null;
+
+                    const pickedFighterName = (pick.picked_fighter_name || pick.predicted_winner || '').toLowerCase().trim();
+                    const redFighterName = getFighterDisplayName(bout.fighters.red);
+                    const blueFighterName = getFighterDisplayName(bout.fighters.blue);
                     
-                    const isPicked1 = pick.predicted_winner === bout.fighters.red.fighter_name;
-                    const isPicked2 = pick.predicted_winner === bout.fighters.blue.fighter_name;
+                    const isPicked1 = pickedFighterName === getNormalizedFighterName(bout.fighters.red);
+                    const isPicked2 = pickedFighterName === getNormalizedFighterName(bout.fighters.blue);
                     const isCorrect = pick.is_correct === true;
                     const isIncorrect = pick.is_correct === false;
                     const isPendingPick = pick.is_correct === null;
@@ -173,7 +177,7 @@ export const PicksPageV2 = () => {
                                     }}
                                 />
                                 <div className="pick-row__info">
-                                    <div className="pick-row__name">{bout.fighters.red.fighter_name?.toUpperCase()}</div>
+                                    <div className="pick-row__name">{redFighterName.toUpperCase()}</div>
                                     <div className="pick-row__record">
                                         {bout.fighters.red.record_at_fight ? 
                                             `${bout.fighters.red.record_at_fight.wins}-${bout.fighters.red.record_at_fight.losses}-${bout.fighters.red.record_at_fight.draws}` 
@@ -193,7 +197,7 @@ export const PicksPageV2 = () => {
                                     }}
                                 />
                                 <div className="pick-row__info">
-                                    <div className="pick-row__name">{bout.fighters.blue.fighter_name?.toUpperCase()}</div>
+                                    <div className="pick-row__name">{blueFighterName.toUpperCase()}</div>
                                     <div className="pick-row__record">
                                         {bout.fighters.blue.record_at_fight ? 
                                             `${bout.fighters.blue.record_at_fight.wins}-${bout.fighters.blue.record_at_fight.losses}-${bout.fighters.blue.record_at_fight.draws}` 

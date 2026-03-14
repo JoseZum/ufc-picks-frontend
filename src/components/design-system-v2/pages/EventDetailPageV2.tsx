@@ -6,7 +6,15 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
-import { getEventPosterUrl, getFighterImageUrl, getEventImageUrl, getEventDateTime, getApiUrl, getAuthToken } from '@/lib/api';
+import {
+    getApiUrl,
+    getAuthToken,
+    getEventDateTime,
+    getEventImageUrl,
+    getFighterDisplayName,
+    getFighterImageUrl,
+    getNormalizedFighterName
+} from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
@@ -95,14 +103,16 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
     const renderBout = (bout: any, type: 'main' | 'co-main' | 'standard') => {
         const pick = picksByBout[bout.id];
+        const redFighterName = getFighterDisplayName(bout.fighters.red);
+        const blueFighterName = getFighterDisplayName(bout.fighters.blue);
 
         // Determine which corner was actually picked by comparing fighter names
         let isRedSelected = false;
         let isBlueSelected = false;
         if (pick) {
             const pickedName = pick.fighterName?.toLowerCase().trim();
-            const redName = bout.fighters.red?.fighter_name?.toLowerCase().trim();
-            const blueName = bout.fighters.blue?.fighter_name?.toLowerCase().trim();
+            const redName = getNormalizedFighterName(bout.fighters.red);
+            const blueName = getNormalizedFighterName(bout.fighters.blue);
 
             if (pickedName === redName) {
                 isRedSelected = true;
@@ -151,7 +161,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         <div className="fight-card__photo">
                             <img
                                 src={getFighterImageUrl(bout.fighters.red)}
-                                alt={bout.fighters.red.fighter_name}
+                                alt={redFighterName}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
                                     e.currentTarget.src = '/placeholder-fighter.svg';
@@ -159,7 +169,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             />
                         </div>
                         <div className="fight-card__info">
-                            <h3 className="fight-card__name">{bout.fighters.red.fighter_name}</h3>
+                            <h3 className="fight-card__name">{redFighterName}</h3>
                             <p className="fight-card__record">
                                 {bout.fighters.red.record_at_fight ?
                                     `${bout.fighters.red.record_at_fight.wins}-${bout.fighters.red.record_at_fight.losses}-${bout.fighters.red.record_at_fight.draws}`
@@ -193,7 +203,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         <div className="fight-card__photo">
                             <img
                                 src={getFighterImageUrl(bout.fighters.blue)}
-                                alt={bout.fighters.blue.fighter_name}
+                                alt={blueFighterName}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 onError={(e) => {
                                     e.currentTarget.src = '/placeholder-fighter.svg';
@@ -201,7 +211,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             />
                         </div>
                         <div className="fight-card__info">
-                            <h3 className="fight-card__name">{bout.fighters.blue.fighter_name}</h3>
+                            <h3 className="fight-card__name">{blueFighterName}</h3>
                             <p className="fight-card__record">
                                 {bout.fighters.blue.record_at_fight ?
                                     `${bout.fighters.blue.record_at_fight.wins}-${bout.fighters.blue.record_at_fight.losses}-${bout.fighters.blue.record_at_fight.draws}`
