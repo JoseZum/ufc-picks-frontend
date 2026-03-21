@@ -4498,6 +4498,71 @@
     border-color: var(--success);
 }
 
+/* FIGHT RESULT STATES */
+.fighter-card--winner {
+    opacity: 1;
+}
+
+.fighter-card--loser {
+    opacity: 0.45;
+    filter: grayscale(60%);
+}
+
+.fighter-card__result-badge {
+    margin-top: 1rem;
+    padding: 0.5rem 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    border-radius: 4px;
+    text-align: center;
+    width: 100%;
+}
+
+.fighter-card__result-badge--win {
+    background: var(--success, #22c55e);
+    color: #000;
+}
+
+.fighter-card__result-badge--loss {
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+/* FIGHT RESULT BANNER */
+.fight-result-banner {
+    margin: 1.5rem 0;
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    text-align: center;
+}
+
+.fight-result-banner__label {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+}
+
+.fight-result-banner__winner {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+}
+
+.fight-result-banner__detail {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+}
+
 /* VS DIVIDER */
 .vs-divider {
     background: var(--bg-elevated);

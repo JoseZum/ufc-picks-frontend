@@ -1,7 +1,7 @@
 /**
  * Country Code Mapping Utility
- * Maps country names/nationalities to ISO 3166-1 alpha-2 codes
- * Used with react-flagpack for displaying country flags
+ * Maps country names/nationalities to country and Flagpack-specific codes.
+ * Used with local react-flagpack assets in /public/flags.
  */
 
 interface CountryMapping {
@@ -30,7 +30,11 @@ const countryMappings: CountryMapping[] = [
   { code: 'SR', patterns: [/^suriname$/i, /surinamese/i] },
 
   // Europe - Western
-  { code: 'GB', patterns: [/^uk$/i, /^england$/i, /^britain$/i, /^great\s*britain$/i, /united\s*kingdom/i, /british/i, /english/i, /^wales$/i, /welsh/i, /^scotland$/i, /scottish/i] },
+  { code: 'GB-ENG', patterns: [/^england$/i, /english/i] },
+  { code: 'GB-SCT', patterns: [/^scotland$/i, /scottish/i] },
+  { code: 'GB-WLS', patterns: [/^wales$/i, /welsh/i] },
+  { code: 'GB-NIR', patterns: [/^northern\s*ireland$/i, /northern\s*irish/i] },
+  { code: 'GB-UKM', patterns: [/^uk$/i, /^britain$/i, /^great\s*britain$/i, /united\s*kingdom/i, /british/i] },
   { code: 'IE', patterns: [/^ireland$/i, /irish/i] },
   { code: 'FR', patterns: [/^france$/i, /french/i] },
   { code: 'DE', patterns: [/^germany$/i, /german/i, /deutschland/i] },
@@ -223,18 +227,22 @@ const countryMappings: CountryMapping[] = [
 ];
 
 /**
- * Maps a country name or nationality to its ISO 3166-1 alpha-2 code
+ * Maps a country name or nationality to a code supported by the local flag assets
  * @param countryOrNationality - Country name or nationality string
- * @returns ISO 3166-1 alpha-2 code or null if not found
+ * @returns Country or Flagpack-specific code, or null if not found
  */
 export function getCountryCode(countryOrNationality: string | null | undefined): string | null {
   if (!countryOrNationality) return null;
 
   const normalized = countryOrNationality.trim();
+  const uppercased = normalized.toUpperCase();
 
-  // First check if it's already a valid 2-letter code
-  if (/^[A-Z]{2}$/i.test(normalized)) {
-    return normalized.toUpperCase();
+  // Preserve direct country codes and Flagpack's UK subdivision codes.
+  if (
+    /^[A-Z]{2}$/i.test(normalized) ||
+    /^GB-(ENG|NIR|SCT|UKM|WLS)$/i.test(normalized)
+  ) {
+    return uppercased;
   }
 
   // Search through mappings
@@ -250,19 +258,25 @@ export function getCountryCode(countryOrNationality: string | null | undefined):
 }
 
 /**
- * Maps a country code or name to a flag code suitable for react-flagpack
- * react-flagpack uses 2-letter codes but some special cases need handling
+ * Maps a country code or name to a flag code for the local Flagpack assets.
+ * Most flags use alpha-2 codes, but UK subdivisions use GB-ENG/GB-SCT/etc.
  */
 export function getFlagCode(countryOrCode: string | null | undefined): string {
   if (!countryOrCode) return 'UN'; // United Nations as fallback
 
-  // If it's already a 2-letter code, use it directly
-  if (/^[A-Z]{2}$/i.test(countryOrCode.trim())) {
-    return countryOrCode.toUpperCase();
+  const normalized = countryOrCode.trim();
+  const uppercased = normalized.toUpperCase();
+
+  // Preserve direct country codes and Flagpack's UK subdivision codes.
+  if (
+    /^[A-Z]{2}$/i.test(normalized) ||
+    /^GB-(ENG|NIR|SCT|UKM|WLS)$/i.test(normalized)
+  ) {
+    return uppercased;
   }
 
   // Try to get the country code
-  const code = getCountryCode(countryOrCode);
+  const code = getCountryCode(normalized);
   return code || 'UN'; // United Nations as fallback
 }
 

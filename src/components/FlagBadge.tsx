@@ -23,26 +23,28 @@ export function FlagBadge({
   size = 'M',
   showCountryName = true
 }: FlagBadgeProps) {
-  // Use provided countryCode or derive from country name
-  const finalCode = countryCode || country;
-  const flagCode = getFlagCode(finalCode);
+  const explicitCode = countryCode?.trim();
+  const flagCode = explicitCode || getFlagCode(country);
   const sizeDir = sizeMap[size];
+  const shouldRenderFlag = Boolean(flagCode && flagCode !== 'UN');
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <img
-        src={`/flags/${sizeDir}/${flagCode}.svg`}
-        alt={country}
-        style={{
-          width: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
-          height: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
-          objectFit: 'contain'
-        }}
-        onError={(e) => {
-          console.warn(`Flag not found: /flags/${sizeDir}/${flagCode}.svg`);
-          e.currentTarget.style.display = 'none';
-        }}
-      />
+      {shouldRenderFlag && (
+        <img
+          src={`/flags/${sizeDir}/${flagCode}.svg`}
+          alt={country}
+          style={{
+            width: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
+            height: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
+            objectFit: 'contain'
+          }}
+          onError={(e) => {
+            console.warn(`Flag not found: /flags/${sizeDir}/${flagCode}.svg`);
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      )}
       {showCountryName && (
         <span className="text-sm text-muted-foreground">{country}</span>
       )}
@@ -60,14 +62,19 @@ export function CountryFlag({
   countryCode?: string;
   size?: 'S' | 'M' | 'L';
 }) {
-  const code = countryCode || country;
-  const flagCode = getFlagCode(code);
+  const explicitCode = countryCode?.trim();
+  const flagCode = explicitCode || getFlagCode(country);
   const sizeDir = sizeMap[size];
+  const shouldRenderFlag = Boolean(flagCode && flagCode !== 'UN');
+
+  if (!shouldRenderFlag) {
+    return null;
+  }
 
   return (
     <img
       src={`/flags/${sizeDir}/${flagCode}.svg`}
-      alt={country || code || 'Flag'}
+      alt={country || explicitCode || 'Flag'}
       style={{
         width: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',
         height: size === 'S' ? '20px' : size === 'M' ? '32px' : '48px',

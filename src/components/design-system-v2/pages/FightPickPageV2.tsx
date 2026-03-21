@@ -73,7 +73,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     }, [existingPick, bout]);
 
     const handleSelectFighter = (corner: 'red' | 'blue') => {
-        if (event?.status !== 'scheduled') return;
+        if (event?.status !== 'scheduled' || hasFightResult) return;
         setSelectedFighter(corner);
         setCurrentStep(1);
         setShowSuccess(false);
@@ -164,6 +164,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     const redFighterName = getFighterDisplayName(redFighter);
     const blueFighterName = getFighterDisplayName(blueFighter);
     const isLocked = event.status !== 'scheduled';
+    const hasFightResult = !!bout.result?.winner;
 
     const formatRecord = (record: any) => {
         if (!record || (record.wins === undefined && record.losses === undefined)) return null;
@@ -219,10 +220,10 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                 {/* FIGHTERS CONTAINER */}
                 <div className="fighters-container">
                     {/* RED CORNER */}
-                    <div 
-                        className={`fighter-card fighter-card--red ${selectedFighter === 'red' ? 'fighter-card--selected' : ''}`}
-                        onClick={() => !isLocked && handleSelectFighter('red')}
-                        style={{ cursor: isLocked ? 'default' : 'pointer' }}
+                    <div
+                        className={`fighter-card fighter-card--red ${selectedFighter === 'red' ? 'fighter-card--selected' : ''} ${hasFightResult && bout.result?.winner === 'red' ? 'fighter-card--winner' : ''} ${hasFightResult && bout.result?.winner !== 'red' ? 'fighter-card--loser' : ''}`}
+                        onClick={() => !isLocked && !hasFightResult && handleSelectFighter('red')}
+                        style={{ cursor: isLocked || hasFightResult ? 'default' : 'pointer' }}
                     >
                         <span className="fighter-card__corner">RED CORNER</span>
                         <div className="fighter-card__content">
@@ -306,8 +307,12 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 </div>
                             )}
 
-                            {!isLocked && (
-                                <button 
+                            {hasFightResult ? (
+                                <div className={`fighter-card__result-badge ${bout.result?.winner === 'red' ? 'fighter-card__result-badge--win' : 'fighter-card__result-badge--loss'}`}>
+                                    {bout.result?.winner === 'red' ? 'WINNER' : 'LOSS'}
+                                </div>
+                            ) : !isLocked && (
+                                <button
                                     className="fighter-card__pick-btn"
                                     onClick={(e) => { e.stopPropagation(); handleSelectFighter('red'); }}
                                 >
@@ -324,10 +329,10 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     </div>
 
                     {/* BLUE CORNER */}
-                    <div 
-                        className={`fighter-card fighter-card--blue ${selectedFighter === 'blue' ? 'fighter-card--selected' : ''}`}
-                        onClick={() => !isLocked && handleSelectFighter('blue')}
-                        style={{ cursor: isLocked ? 'default' : 'pointer' }}
+                    <div
+                        className={`fighter-card fighter-card--blue ${selectedFighter === 'blue' ? 'fighter-card--selected' : ''} ${hasFightResult && bout.result?.winner === 'blue' ? 'fighter-card--winner' : ''} ${hasFightResult && bout.result?.winner !== 'blue' ? 'fighter-card--loser' : ''}`}
+                        onClick={() => !isLocked && !hasFightResult && handleSelectFighter('blue')}
+                        style={{ cursor: isLocked || hasFightResult ? 'default' : 'pointer' }}
                     >
                         <span className="fighter-card__corner">BLUE CORNER</span>
                         <div className="fighter-card__content">
@@ -411,8 +416,12 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 </div>
                             )}
 
-                            {!isLocked && (
-                                <button 
+                            {hasFightResult ? (
+                                <div className={`fighter-card__result-badge ${bout.result?.winner === 'blue' ? 'fighter-card__result-badge--win' : 'fighter-card__result-badge--loss'}`}>
+                                    {bout.result?.winner === 'blue' ? 'WINNER' : 'LOSS'}
+                                </div>
+                            ) : !isLocked && (
+                                <button
                                     className="fighter-card__pick-btn"
                                     onClick={(e) => { e.stopPropagation(); handleSelectFighter('blue'); }}
                                 >
@@ -423,8 +432,23 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     </div>
                 </div>
 
+                {/* RESULT BANNER */}
+                {hasFightResult && (
+                    <div className="fight-result-banner">
+                        <div className="fight-result-banner__label">FIGHT RESULT</div>
+                        <div className="fight-result-banner__winner">
+                            {bout.result?.winner === 'red' ? redFighterName : blueFighterName} WIN
+                        </div>
+                        <div className="fight-result-banner__detail">
+                            {bout.result?.method}
+                            {bout.result?.round && ` · Round ${bout.result.round}`}
+                            {bout.result?.time && ` · ${bout.result.time}`}
+                        </div>
+                    </div>
+                )}
+
                 {/* PICK FLOW PANEL */}
-                {!isLocked && (currentStep > 0 || showSuccess) && (
+                {!isLocked && !hasFightResult && (currentStep > 0 || showSuccess) && (
                     <div className={`pick-panel pick-panel--active`}>
                         <div className="pick-panel__content">
                             {/* STEP INDICATOR */}
@@ -526,7 +550,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     </div>
                 )}
 
-                {isLocked && (
+                {isLocked && !hasFightResult && (
                     <div className="pick-panel pick-panel--active" style={{ background: 'var(--bg-elevated)' }}>
                         <div className="pick-panel__content" style={{ textAlign: 'center', padding: '1rem' }}>
                             <div style={{ fontSize: '1.2rem', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '2px' }}>
