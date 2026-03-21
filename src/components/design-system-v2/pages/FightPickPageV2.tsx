@@ -179,14 +179,6 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
         return 3;
     };
 
-    // Filter out garbage nicknames (scraper artifacts)
-    const isValidNickname = (nickname: string | undefined) => {
-        if (!nickname) return false;
-        // Filter out scraper artifacts that contain CSS class names
-        if (nickname.includes('tapology') || nickname.includes('_') || nickname.includes('leaderboard')) return false;
-        return nickname.length > 0 && nickname.length < 50;
-    };
-
     // Get weight class display
     const getWeightDisplay = () => {
         if (!bout.weight_class || bout.weight_class === 'Unknown') return null;
@@ -237,9 +229,6 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 )}
                             </div>
                             <h2 className="fighter-card__name">{redFighterName}</h2>
-                            {isValidNickname(redFighter.nickname) && (
-                                <p className="fighter-card__nickname">"{redFighter.nickname}"</p>
-                            )}
                             {formatRecord(redFighter.record_at_fight) ? (
                                 <p className="fighter-card__record">{formatRecord(redFighter.record_at_fight)}</p>
                             ) : null}
@@ -346,9 +335,6 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 )}
                             </div>
                             <h2 className="fighter-card__name">{blueFighterName}</h2>
-                            {isValidNickname(blueFighter.nickname) && (
-                                <p className="fighter-card__nickname">"{blueFighter.nickname}"</p>
-                            )}
                             {formatRecord(blueFighter.record_at_fight) ? (
                                 <p className="fighter-card__record">{formatRecord(blueFighter.record_at_fight)}</p>
                             ) : null}
