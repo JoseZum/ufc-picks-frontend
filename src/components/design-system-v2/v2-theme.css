@@ -1457,7 +1457,7 @@
 .fight-card {
     background: var(--bg-panel);
     border: var(--border-thick) solid var(--border-strong);
-    margin-bottom: 2px;
+    margin-bottom: 2rem;
     transition: all 0.1s;
 }
 
