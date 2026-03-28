@@ -5,7 +5,7 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
-import { getFighterDisplayName, getFighterImageUrl, getNormalizedFighterName } from '@/lib/api';
+import { getBoutResultOutcome, getFighterDisplayName, getFighterImageUrl, getNormalizedFighterName } from '@/lib/api';
 import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { formatEventDate } from '@/lib/dateUtils';
@@ -153,6 +153,7 @@ export const PicksPageV2 = () => {
                     const isCorrect = pick.is_correct === true;
                     const isIncorrect = pick.is_correct === false;
                     const isPendingPick = pick.is_correct === null;
+                    const isDrawResult = getBoutResultOutcome(bout.result) === 'draw';
                     
                     const pts = isCorrect && bout ? computePoints(pick, bout) : 0;
                     const isPerfect = isCorrect && pts === 3;
@@ -163,7 +164,9 @@ export const PicksPageV2 = () => {
                             ? 'pick-row pick-row--perfect'
                             : isCorrect
                                 ? 'pick-row pick-row--correct'
-                                : 'pick-row pick-row--incorrect';
+                                : isDrawResult
+                                    ? 'pick-row pick-row--draw'
+                                    : 'pick-row pick-row--incorrect';
 
                     return (
                         <div key={pick.id} className={rowClass}>
@@ -220,8 +223,8 @@ export const PicksPageV2 = () => {
                                 )}
                                 {isIncorrect && (
                                     <>
-                                        <span className="pick-row__result-badge pick-row__result-badge--incorrect">WRONG</span>
-                                        <span className="pick-row__points pick-row__points--negative">0</span>
+                                        <span className={`pick-row__result-badge ${isDrawResult ? 'pick-row__result-badge--draw' : 'pick-row__result-badge--incorrect'}`}>WRONG</span>
+                                        <span className={`pick-row__points ${isDrawResult ? 'pick-row__points--draw' : 'pick-row__points--negative'}`}>0</span>
                                     </>
                                 )}
                             </div>

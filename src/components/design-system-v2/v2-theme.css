@@ -1613,6 +1613,37 @@
     right: 0;
 }
 
+.fight-card__fighter--draw {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: #f59e0b !important;
+}
+
+.fight-card__fighter--draw::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #f59e0b;
+}
+
+.fight-card__fighter--red.fight-card__fighter--draw::before {
+    left: 0;
+}
+
+.fight-card__fighter--blue.fight-card__fighter--draw::before {
+    right: 0;
+}
+
+.fight-card__fighter--draw.fight-card__fighter--selected {
+    background: rgba(245, 158, 11, 0.16);
+    border-color: #f59e0b !important;
+}
+
+.fight-card__fighter--draw.fight-card__fighter--selected::before {
+    background: #f59e0b;
+}
+
 .fight-card__fighter--loser {
     opacity: 0.6;
     filter: grayscale(0.3);
@@ -1640,6 +1671,12 @@
 .fight-card__fighter--blue .fight-card__winner-badge {
     right: auto;
     left: 0.75rem;
+}
+
+.fight-card__winner-badge--draw {
+    background: #f59e0b;
+    color: var(--bg-base);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
 }
 
 .fight-card__winner-icon {
@@ -2037,6 +2074,11 @@
     border-left: 4px solid var(--error);
 }
 
+.pick-row--draw {
+    background: rgba(245, 158, 11, 0.08);
+    border-left: 4px solid #f59e0b;
+}
+
 .pick-row--pending {
     border-left: 4px solid transparent;
 }
@@ -2125,6 +2167,11 @@
     color: var(--text-primary);
 }
 
+.pick-row__result-badge--draw {
+    background: #f59e0b;
+    color: var(--bg-base);
+}
+
 .pick-row__result-badge--pending {
     background: var(--bg-elevated);
     color: var(--text-muted);
@@ -2144,6 +2191,10 @@
 
 .pick-row__points--negative {
     color: var(--error);
+}
+
+.pick-row__points--draw {
+    color: #f59e0b;
 }
 
 .pick-row--perfect {

@@ -130,6 +130,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         const hasResult = hasBoutResult(bout.result);
         const isRedWinner = resultOutcome === 'red';
         const isBlueWinner = resultOutcome === 'blue';
+        const isDrawResult = resultOutcome === 'draw';
         const hasWinningCorner = isRedWinner || isBlueWinner;
         const resultMethod = hasResult ? (bout.result?.method ?? '') : '';
         const resultRound = hasResult ? bout.result?.round : null;
@@ -158,8 +159,12 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 </div>
                 <div className="fight-card__content">
                     {/* RED CORNER */}
-                    <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''} ${isRedWinner ? 'fight-card__fighter--winner' : hasWinningCorner ? 'fight-card__fighter--loser' : ''}`}>
-                        {isRedWinner && (
+                    <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''} ${isDrawResult ? 'fight-card__fighter--draw' : ''} ${isRedWinner ? 'fight-card__fighter--winner' : hasWinningCorner ? 'fight-card__fighter--loser' : ''}`}>
+                        {isDrawResult ? (
+                            <div className="fight-card__winner-badge fight-card__winner-badge--draw">
+                                <span className="fight-card__winner-text">DRAW</span>
+                            </div>
+                        ) : isRedWinner && (
                             <div className="fight-card__winner-badge">
                                 <span className="fight-card__winner-icon">👑</span>
                                 <span className="fight-card__winner-text">WINNER</span>
@@ -200,8 +205,12 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     </div>
 
                     {/* BLUE CORNER */}
-                    <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''} ${isBlueWinner ? 'fight-card__fighter--winner' : hasWinningCorner ? 'fight-card__fighter--loser' : ''}`}>
-                        {isBlueWinner && (
+                    <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''} ${isDrawResult ? 'fight-card__fighter--draw' : ''} ${isBlueWinner ? 'fight-card__fighter--winner' : hasWinningCorner ? 'fight-card__fighter--loser' : ''}`}>
+                        {isDrawResult ? (
+                            <div className="fight-card__winner-badge fight-card__winner-badge--draw">
+                                <span className="fight-card__winner-text">DRAW</span>
+                            </div>
+                        ) : isBlueWinner && (
                             <div className="fight-card__winner-badge">
                                 <span className="fight-card__winner-icon">👑</span>
                                 <span className="fight-card__winner-text">WINNER</span>
