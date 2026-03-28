@@ -7,10 +7,14 @@ import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useEvent, useEventBouts, useMyPicks, useCreatePick, useCurrentUser } from '@/lib/hooks';
 import {
+    type Fighter,
+    getBoutResultHeadline,
+    getBoutResultOutcome,
     getFighterDisplayName,
     getFighterImageUrl,
     getFighterShortName,
     getEventDateTime,
+    hasBoutResult,
     getNormalizedFighterName
 } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -164,7 +168,14 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     const redFighterName = getFighterDisplayName(redFighter);
     const blueFighterName = getFighterDisplayName(blueFighter);
     const isLocked = event.status !== 'scheduled';
-    const hasFightResult = !!bout.result?.winner;
+    const resultOutcome = getBoutResultOutcome(bout.result);
+    const hasFightResult = hasBoutResult(bout.result);
+    const hasWinningCorner = resultOutcome === 'red' || resultOutcome === 'blue';
+    const fightResultDetail = [
+        bout.result?.method,
+        bout.result?.round ? `Round ${bout.result.round}` : null,
+        bout.result?.time ?? null
+    ].filter(Boolean).join(' · ');
 
     const formatRecord = (record: any) => {
         if (!record || (record.wins === undefined && record.losses === undefined)) return null;
@@ -183,6 +194,18 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     const getWeightDisplay = () => {
         if (!bout.weight_class || bout.weight_class === 'Unknown') return null;
         return bout.weight_class;
+    };
+
+    const getAgeAtFightYears = (fighter: Fighter) => {
+        if ((fighter.age_at_fight_years ?? 0) > 0) {
+            return fighter.age_at_fight_years ?? null;
+        }
+
+        if ((fighter.age_at_fight?.years ?? 0) > 0) {
+            return fighter.age_at_fight?.years ?? null;
+        }
+
+        return null;
     };
 
     return (
@@ -213,7 +236,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                 <div className="fighters-container">
                     {/* RED CORNER */}
                     <div
-                        className={`fighter-card fighter-card--red ${selectedFighter === 'red' ? 'fighter-card--selected' : ''} ${hasFightResult && bout.result?.winner === 'red' ? 'fighter-card--winner' : ''} ${hasFightResult && bout.result?.winner !== 'red' ? 'fighter-card--loser' : ''}`}
+                        className={`fighter-card fighter-card--red ${selectedFighter === 'red' ? 'fighter-card--selected' : ''} ${resultOutcome === 'red' ? 'fighter-card--winner' : ''} ${hasWinningCorner && resultOutcome !== 'red' ? 'fighter-card--loser' : ''}`}
                         onClick={() => !isLocked && !hasFightResult && handleSelectFighter('red')}
                         style={{ cursor: isLocked || hasFightResult ? 'default' : 'pointer' }}
                     >
@@ -262,12 +285,10 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         </div>
                                     </div>
                                 )}
-                                {(redFighter.age_at_fight_years ?? 0) > 0 && (
-                                    <div className="stat">
-                                        <div className="stat__label">AGE</div>
-                                        <div className="stat__value">{redFighter.age_at_fight_years}</div>
-                                    </div>
-                                )}
+                                <div className="stat">
+                                    <div className="stat__label">AGE</div>
+                                    <div className="stat__value">{getAgeAtFightYears(redFighter) ?? '--'}</div>
+                                </div>
                                 {(redFighter.latest_weight?.lbs || getWeightDisplay()) && (
                                     <div className="stat">
                                         <div className="stat__label">WEIGHT</div>
@@ -296,11 +317,11 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 </div>
                             )}
 
-                            {hasFightResult ? (
-                                <div className={`fighter-card__result-badge ${bout.result?.winner === 'red' ? 'fighter-card__result-badge--win' : 'fighter-card__result-badge--loss'}`}>
-                                    {bout.result?.winner === 'red' ? 'WINNER' : 'LOSS'}
+                            {resultOutcome === 'red' ? (
+                                <div className="fighter-card__result-badge fighter-card__result-badge--win">
+                                    WINNER
                                 </div>
-                            ) : !isLocked && (
+                            ) : !hasFightResult && !isLocked && (
                                 <button
                                     className="fighter-card__pick-btn"
                                     onClick={(e) => { e.stopPropagation(); handleSelectFighter('red'); }}
@@ -319,7 +340,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
 
                     {/* BLUE CORNER */}
                     <div
-                        className={`fighter-card fighter-card--blue ${selectedFighter === 'blue' ? 'fighter-card--selected' : ''} ${hasFightResult && bout.result?.winner === 'blue' ? 'fighter-card--winner' : ''} ${hasFightResult && bout.result?.winner !== 'blue' ? 'fighter-card--loser' : ''}`}
+                        className={`fighter-card fighter-card--blue ${selectedFighter === 'blue' ? 'fighter-card--selected' : ''} ${resultOutcome === 'blue' ? 'fighter-card--winner' : ''} ${hasWinningCorner && resultOutcome !== 'blue' ? 'fighter-card--loser' : ''}`}
                         onClick={() => !isLocked && !hasFightResult && handleSelectFighter('blue')}
                         style={{ cursor: isLocked || hasFightResult ? 'default' : 'pointer' }}
                     >
@@ -368,12 +389,10 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                         </div>
                                     </div>
                                 )}
-                                {(blueFighter.age_at_fight_years ?? 0) > 0 && (
-                                    <div className="stat">
-                                        <div className="stat__label">AGE</div>
-                                        <div className="stat__value">{blueFighter.age_at_fight_years}</div>
-                                    </div>
-                                )}
+                                <div className="stat">
+                                    <div className="stat__label">AGE</div>
+                                    <div className="stat__value">{getAgeAtFightYears(blueFighter) ?? '--'}</div>
+                                </div>
                                 {(blueFighter.latest_weight?.lbs || getWeightDisplay()) && (
                                     <div className="stat">
                                         <div className="stat__label">WEIGHT</div>
@@ -402,11 +421,11 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                                 </div>
                             )}
 
-                            {hasFightResult ? (
-                                <div className={`fighter-card__result-badge ${bout.result?.winner === 'blue' ? 'fighter-card__result-badge--win' : 'fighter-card__result-badge--loss'}`}>
-                                    {bout.result?.winner === 'blue' ? 'WINNER' : 'LOSS'}
+                            {resultOutcome === 'blue' ? (
+                                <div className="fighter-card__result-badge fighter-card__result-badge--win">
+                                    WINNER
                                 </div>
-                            ) : !isLocked && (
+                            ) : !hasFightResult && !isLocked && (
                                 <button
                                     className="fighter-card__pick-btn"
                                     onClick={(e) => { e.stopPropagation(); handleSelectFighter('blue'); }}
@@ -423,13 +442,9 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     <div className="fight-result-banner">
                         <div className="fight-result-banner__label">FIGHT RESULT</div>
                         <div className="fight-result-banner__winner">
-                            {bout.result?.winner === 'red' ? redFighterName : blueFighterName} WIN
+                            {getBoutResultHeadline(bout.result, redFighterName, blueFighterName)}
                         </div>
-                        <div className="fight-result-banner__detail">
-                            {bout.result?.method}
-                            {bout.result?.round && ` · Round ${bout.result.round}`}
-                            {bout.result?.time && ` · ${bout.result.time}`}
-                        </div>
+                        <div className="fight-result-banner__detail">{fightResultDetail}</div>
                     </div>
                 )}
 

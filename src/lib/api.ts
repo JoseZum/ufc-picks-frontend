@@ -426,13 +426,64 @@ export interface Bout {
     red: Fighter;
     blue: Fighter;
   };
-  result?: {
-    winner?: 'red' | 'blue' | null;
-    method?: string;
-    round?: number;
-    time?: string;
-  };
+  result?: BoutResult;
   picks_locked?: boolean;
+}
+
+export type BoutResultOutcome = 'red' | 'blue' | 'draw' | 'nc';
+
+export interface BoutResult {
+  winner?: 'red' | 'blue' | null;
+  outcome?: BoutResultOutcome | null;
+  method?: string;
+  round?: number;
+  time?: string;
+}
+
+export function getBoutResultOutcome(result?: BoutResult | null): BoutResultOutcome | null {
+  if (!result) return null;
+  if (result.outcome) return result.outcome;
+  if (result.winner === 'red' || result.winner === 'blue') return result.winner;
+  if (result.method || result.round !== undefined || result.time) return 'draw';
+  return null;
+}
+
+export function hasBoutResult(result?: BoutResult | null): boolean {
+  return getBoutResultOutcome(result) !== null;
+}
+
+export function getBoutResultLabel(result?: BoutResult | null): string {
+  switch (getBoutResultOutcome(result)) {
+    case 'red':
+      return 'RED WIN';
+    case 'blue':
+      return 'BLUE WIN';
+    case 'draw':
+      return 'DRAW';
+    case 'nc':
+      return 'NO CONTEST';
+    default:
+      return 'RESULT';
+  }
+}
+
+export function getBoutResultHeadline(
+  result: BoutResult | null | undefined,
+  redFighterName: string,
+  blueFighterName: string
+): string {
+  switch (getBoutResultOutcome(result)) {
+    case 'red':
+      return `${redFighterName} WIN`;
+    case 'blue':
+      return `${blueFighterName} WIN`;
+    case 'draw':
+      return 'DRAW';
+    case 'nc':
+      return 'NO CONTEST';
+    default:
+      return 'RESULT';
+  }
 }
 
 /**
@@ -476,12 +527,7 @@ export interface DetailedPick {
   fighter_red?: string;
   fighter_blue?: string;
   weight_class?: string;
-  result?: {
-    winner: 'red' | 'blue';
-    method: string;
-    round?: number;
-    time?: string;
-  };
+  result?: BoutResult;
 }
 
 export interface CreatePickRequest {
@@ -688,12 +734,7 @@ export interface UserPick {
   fighter_red?: string;
   fighter_blue?: string;
   weight_class?: string;
-  result?: {
-    winner: 'red' | 'blue';
-    method: string;
-    round?: number;
-    time?: string;
-  };
+  result?: BoutResult;
 }
 
 export interface UserPicksStats {

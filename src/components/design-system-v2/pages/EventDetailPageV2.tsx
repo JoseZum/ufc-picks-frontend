@@ -9,10 +9,13 @@ import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import {
     getApiUrl,
     getAuthToken,
+    getBoutResultLabel,
+    getBoutResultOutcome,
     getEventDateTime,
     getEventImageUrl,
     getFighterDisplayName,
     getFighterImageUrl,
+    hasBoutResult,
     getNormalizedFighterName
 } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -123,11 +126,13 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         const hasPick = !!pick;
 
         // Check if bout has result
-        const hasResult = bout.result && bout.result.winner;
-        const isRedWinner = hasResult && bout.result.winner === 'red';
-        const isBlueWinner = hasResult && bout.result.winner === 'blue';
-        const resultMethod = hasResult ? bout.result.method : null;
-        const resultRound = hasResult ? bout.result.round : null;
+        const resultOutcome = getBoutResultOutcome(bout.result);
+        const hasResult = hasBoutResult(bout.result);
+        const isRedWinner = resultOutcome === 'red';
+        const isBlueWinner = resultOutcome === 'blue';
+        const hasWinningCorner = isRedWinner || isBlueWinner;
+        const resultMethod = hasResult ? (bout.result?.method ?? '') : '';
+        const resultRound = hasResult ? bout.result?.round : null;
 
         return (
             <Link
@@ -140,7 +145,9 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         {hasResult && (
                             <span className="fight-card__result-badge">
-                                {resultMethod}{resultRound ? ` R${resultRound}` : ''}
+                                {hasWinningCorner
+                                    ? (resultMethod ? `${resultMethod}${resultRound ? ` R${resultRound}` : ''}` : getBoutResultLabel(bout.result))
+                                    : getBoutResultLabel(bout.result)}
                             </span>
                         )}
                         {hasPick && !hasResult && (
@@ -151,7 +158,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 </div>
                 <div className="fight-card__content">
                     {/* RED CORNER */}
-                    <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''} ${isRedWinner ? 'fight-card__fighter--winner' : hasResult ? 'fight-card__fighter--loser' : ''}`}>
+                    <div className={`fight-card__fighter fight-card__fighter--red ${isRedSelected ? 'fight-card__fighter--selected' : ''} ${isRedWinner ? 'fight-card__fighter--winner' : hasWinningCorner ? 'fight-card__fighter--loser' : ''}`}>
                         {isRedWinner && (
                             <div className="fight-card__winner-badge">
                                 <span className="fight-card__winner-icon">👑</span>
@@ -193,7 +200,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     </div>
 
                     {/* BLUE CORNER */}
-                    <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''} ${isBlueWinner ? 'fight-card__fighter--winner' : hasResult ? 'fight-card__fighter--loser' : ''}`}>
+                    <div className={`fight-card__fighter fight-card__fighter--blue ${isBlueSelected ? 'fight-card__fighter--selected' : ''} ${isBlueWinner ? 'fight-card__fighter--winner' : hasWinningCorner ? 'fight-card__fighter--loser' : ''}`}>
                         {isBlueWinner && (
                             <div className="fight-card__winner-badge">
                                 <span className="fight-card__winner-icon">👑</span>

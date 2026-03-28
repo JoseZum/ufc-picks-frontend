@@ -4,7 +4,14 @@ import React, { useState } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvents, useEventBouts, useCurrentUser } from '@/lib/hooks';
-import { getAuthToken, getFighterDisplayName, getFighterShortName, Event, Bout } from '@/lib/api';
+import {
+    getAuthToken,
+    getBoutResultLabel,
+    getFighterDisplayName,
+    getFighterShortName,
+    Event,
+    Bout
+} from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -420,7 +427,7 @@ function BoutResultCard({
     onToggle: () => void;
     onSuccess: () => void;
 }) {
-    const [winner, setWinner] = useState('');
+    const [winner, setWinner] = useState<'red' | 'blue' | 'draw' | 'nc' | ''>('');
     const [method, setMethod] = useState('');
     const [round, setRound] = useState('');
     const [time, setTime] = useState('');
@@ -513,7 +520,7 @@ function BoutResultCard({
                 </div>
                 {hasResult && (
                     <span className="bout-result-card__result-badge">
-                        {bout.result?.winner === 'red' ? 'RED WIN' : bout.result?.winner === 'blue' ? 'BLUE WIN' : 'DRAW'}
+                        {getBoutResultLabel(bout.result)}
                     </span>
                 )}
                 <span className="bout-result-card__toggle">{expanded ? '▲' : '▼'}</span>
@@ -529,7 +536,7 @@ function BoutResultCard({
 
                     {hasResult && (
                         <div className="admin-alert admin-alert--success" style={{ marginBottom: '1rem' }}>
-                            <span>✓ Result recorded: {bout.result?.winner?.toUpperCase() || 'DRAW'} by {bout.result?.method}</span>
+                            <span>✓ Result recorded: {getBoutResultLabel(bout.result)} by {bout.result?.method}</span>
                             <button className="admin-btn admin-btn--secondary" onClick={handleDelete} disabled={saving} style={{ marginLeft: 'auto', fontSize: '0.85rem', padding: '0.4rem 0.8rem' }}>
                                 {saving ? 'DELETING...' : 'DELETE'}
                             </button>
@@ -553,6 +560,22 @@ function BoutResultCard({
                         >
                             <div className="winner-option__name">{blueFighter.toUpperCase()}</div>
                             <div className="winner-option__label">BLUE CORNER</div>
+                        </div>
+                        <div
+                            className={`winner-option winner-option--draw ${winner === 'draw' ? 'winner-option--selected' : ''}`}
+                            onClick={() => setWinner('draw')}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <div className="winner-option__name">DRAW</div>
+                            <div className="winner-option__label">0 POINTS FOR EVERYONE</div>
+                        </div>
+                        <div
+                            className={`winner-option winner-option--nc ${winner === 'nc' ? 'winner-option--selected' : ''}`}
+                            onClick={() => setWinner('nc')}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <div className="winner-option__name">NO CONTEST</div>
+                            <div className="winner-option__label">NO WINNER RECORDED</div>
                         </div>
                     </div>
 

@@ -3517,6 +3517,16 @@
     background: rgba(37, 99, 235, 0.1);
 }
 
+.winner-option--draw.winner-option--selected {
+    border-color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.winner-option--nc.winner-option--selected {
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.08);
+}
+
 .winner-option__name {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.2rem;
@@ -3537,6 +3547,14 @@
 
 .winner-option--blue .winner-option__label {
     color: var(--fighter-blue);
+}
+
+.winner-option--draw .winner-option__label {
+    color: #f59e0b;
+}
+
+.winner-option--nc .winner-option__label {
+    color: rgba(255, 255, 255, 0.7);
 }
 
 /* RESULT FORM (Renamed) */
