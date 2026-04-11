@@ -1121,6 +1121,17 @@
     color: var(--text-primary);
 }
 
+.event-card__badge--live {
+    background: #dc2626;
+    color: #fff;
+    animation: pulse-live 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+}
+
 .event-card__badge--completed {
     background: var(--bg-elevated);
     color: var(--text-muted);

@@ -232,6 +232,15 @@ export async function getEvent(eventId: number): Promise<Event> {
 }
 
 /**
+ * Marca un evento como completado (solo admins)
+ */
+export async function completeEvent(eventId: number): Promise<void> {
+  await apiRequest<{ success: boolean }>(`/admin/events/${eventId}/complete`, {
+    method: 'POST',
+  });
+}
+
+/**
  * Construye un Date object para un evento con su hora ET
  *
  * Convierte ET a UTC correctamente: ET = UTC-5, entonces UTC = ET + 5 horas

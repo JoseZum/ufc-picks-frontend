@@ -278,8 +278,15 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         }}
                     >
                         <span className="event-hero__image-text">{getEventNumber(event.name)}</span>
-                        <span className={`event-hero__badge ${isExpired || event.picks_locked ? 'event-hero__badge--locked' : ''}`}>
-                            {isExpired || event.picks_locked ? 'LOCKED' : event.status === 'scheduled' ? 'OPEN FOR PICKS' : event.status.toUpperCase()}
+                        <span className={`event-hero__badge ${isExpired && event.status === 'scheduled' ? 'event-hero__badge--live' : event.picks_locked ? 'event-hero__badge--locked' : ''}`}
+                            style={isExpired && event.status === 'scheduled' ? { background: '#dc2626', color: '#fff' } : undefined}>
+                            {isExpired && event.status === 'scheduled'
+                                ? 'LIVE NOW'
+                                : event.picks_locked
+                                    ? 'LOCKED'
+                                    : event.status === 'scheduled'
+                                        ? 'OPEN FOR PICKS'
+                                        : event.status.toUpperCase()}
                         </span>
                     </div>
                     
@@ -301,10 +308,21 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
                         {event.status === 'scheduled' && (
                             <div className="event-hero__countdown">
-                                <div className="event-hero__countdown-label">TIME UNTIL EVENT</div>
-                                <div className="event-hero__countdown-time">
-                                    {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
-                                </div>
+                                {isExpired ? (
+                                    <>
+                                        <div className="event-hero__countdown-label">EVENT IN PROGRESS</div>
+                                        <div className="event-hero__countdown-time" style={{ color: '#dc2626' }}>
+                                            LIVE NOW
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="event-hero__countdown-label">TIME UNTIL EVENT</div>
+                                        <div className="event-hero__countdown-time">
+                                            {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         )}
 

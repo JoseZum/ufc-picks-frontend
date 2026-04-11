@@ -9,6 +9,8 @@ import {
     getBoutResultLabel,
     getFighterDisplayName,
     getFighterShortName,
+    completeEvent,
+    getEventDateTime,
     Event,
     Bout
 } from '@/lib/api';
@@ -117,6 +119,7 @@ function EventTimingTab() {
     const [expandedEvent, setExpandedEvent] = useState<number | null>(null);
     const [saving, setSaving] = useState<number | null>(null);
     const [locking, setLocking] = useState<number | null>(null);
+    const [completing, setCompleting] = useState<number | null>(null);
     const [eventFilter, setEventFilter] = useState<'upcoming' | 'completed'>('upcoming');
 
     const handleLockPicks = async (eventId: number) => {
@@ -165,6 +168,21 @@ function EventTimingTab() {
         }
     };
 
+    const handleCompleteEvent = async (eventId: number) => {
+        if (!confirm('¿Marcar este evento como COMPLETED? Desaparecerá del panel de upcoming.')) return;
+        setCompleting(eventId);
+        try {
+            await completeEvent(eventId);
+            alert('✅ Evento marcado como completado');
+            refetch();
+        } catch (error) {
+            console.error(error);
+            alert('❌ Error al completar el evento');
+        } finally {
+            setCompleting(null);
+        }
+    };
+
     if (isLoading) {
         return <div className="admin-section-title">Loading events...</div>;
     }
@@ -202,8 +220,10 @@ function EventTimingTab() {
                     onToggle={() => setExpandedEvent(expandedEvent === event.id ? null : event.id)}
                     onLock={() => handleLockPicks(event.id)}
                     onUnlock={() => handleUnlockPicks(event.id)}
+                    onComplete={() => handleCompleteEvent(event.id)}
                     saving={saving === event.id}
                     locking={locking === event.id}
+                    completing={completing === event.id}
                     onSave={async (eventDate, picksLockDate) => {
                         setSaving(event.id);
                         try {
@@ -245,18 +265,22 @@ function EventTimingCard({
     onToggle,
     onLock,
     onUnlock,
+    onComplete,
     onSave,
     saving,
     locking,
+    completing,
 }: {
     event: Event;
     expanded: boolean;
     onToggle: () => void;
     onLock: () => void;
     onUnlock: () => void;
+    onComplete: () => void;
     onSave: (eventDate: string, picksLockDate: string) => void;
     saving: boolean;
     locking: boolean;
+    completing: boolean;
 }) {
     const [eventDate, setEventDate] = useState('');
     const [picksLockDate, setPicksLockDate] = useState('');
@@ -274,9 +298,15 @@ function EventTimingCard({
                     <h3>{event.name}</h3>
                     <p>{formatDate(event.date)} // {event.location?.venue || 'TBA'}</p>
                 </div>
-                <span className={`event-timing-card__status ${event.picks_locked ? 'event-timing-card__status--locked' : 'event-timing-card__status--open'}`}>
-                    {event.picks_locked ? 'LOCKED' : 'OPEN'}
-                </span>
+                {(() => {
+                    const isLive = event.status === 'scheduled' && new Date() >= getEventDateTime(event);
+                    return (
+                        <span className={`event-timing-card__status ${isLive ? '' : event.picks_locked ? 'event-timing-card__status--locked' : 'event-timing-card__status--open'}`}
+                            style={isLive ? { background: '#dc2626', color: '#fff' } : undefined}>
+                            {isLive ? 'LIVE NOW' : event.picks_locked ? 'LOCKED' : 'OPEN'}
+                        </span>
+                    );
+                })()}
                 <span className="event-timing-card__toggle">{expanded ? '▲' : '▼'}</span>
             </div>
 
@@ -336,6 +366,19 @@ function EventTimingCard({
                         >
                             {saving ? 'SAVING...' : 'SAVE CHANGES'}
                         </button>
+                        {event.status === 'scheduled' && (
+                            <button
+                                className="admin-btn"
+                                style={{ background: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onComplete();
+                                }}
+                                disabled={completing}
+                            >
+                                {completing ? 'COMPLETING...' : 'MARK AS COMPLETED'}
+                            </button>
+                        )}
                     </div>
                 </div>
             )}

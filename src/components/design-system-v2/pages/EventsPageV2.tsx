@@ -6,9 +6,14 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useEvents, useCurrentUser } from '@/lib/hooks';
-import { getEventPosterUrl } from '@/lib/api';
+import { getEventPosterUrl, getEventDateTime, Event } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
-import { formatEventDate, formatDaysLeft, isEventStillVisible, getDaysUntilEvent } from '@/lib/dateUtils';
+import { formatEventDate, getDaysUntilEvent } from '@/lib/dateUtils';
+
+// Evento cuyo datetime ya pasó pero sigue en estado "scheduled" → está en curso (LIVE)
+function isEventLive(event: Event): boolean {
+    return new Date() >= getEventDateTime(event);
+}
 
 export const EventsPageV2 = () => {
     const router = useRouter();
@@ -26,9 +31,8 @@ export const EventsPageV2 = () => {
 
     const { data: currentUser } = useCurrentUser();
 
-    // Visible hasta medianoche CR, y ocultar eventos lejanos (>30 días) sin subtítulo
+    // Ocultar eventos lejanos (>30 días) sin subtítulo; eventos pasados siguen visibles hasta que admin los complete
     const upcomingEventsAll = (upcomingData?.events || []).filter(e => {
-        if (!isEventStillVisible(e)) return false;
         if (getDaysUntilEvent(e) > 30 && !e.name.includes(':')) return false;
         return true;
     });
@@ -84,8 +88,8 @@ export const EventsPageV2 = () => {
                                         backgroundPosition: 'center'
                                     }}>
                                         {!getEventPosterUrl(featuredEvent) && <span className="event-card__image-text">UFC<br />{featuredEvent.id}</span>}
-                                        <span className={`event-card__badge ${featuredEvent.picks_locked ? 'event-card__badge--completed' : 'event-card__badge--open'}`}>
-                                            {featuredEvent.picks_locked ? 'LOCKED' : 'OPEN'}
+                                        <span className={`event-card__badge ${isEventLive(featuredEvent) ? 'event-card__badge--live' : featuredEvent.picks_locked ? 'event-card__badge--completed' : 'event-card__badge--open'}`}>
+                                            {isEventLive(featuredEvent) ? 'LIVE NOW' : featuredEvent.picks_locked ? 'LOCKED' : 'OPEN'}
                                         </span>
                                     </div>
                                     <div className="event-card__content">
@@ -97,9 +101,10 @@ export const EventsPageV2 = () => {
                                                 <span className="event-card__stat-value">{featuredEvent.total_bouts}</span>
                                                 <span className="event-card__stat-label">FIGHTS</span>
                                             </div>
-                                            {/* We don't have title bout count easily without fetching bouts, omitting for now or calculating if we had bouts */}
                                             <div className="event-card__stat">
-                                                <span className="event-card__stat-value">{formatDaysLeft(featuredEvent)}</span>
+                                                <span className="event-card__stat-value" style={isEventLive(featuredEvent) ? { color: '#dc2626' } : undefined}>
+                                                    {isEventLive(featuredEvent) ? 'LIVE' : `${Math.max(0, getDaysUntilEvent(featuredEvent))}D`}
+                                                </span>
                                                 <span className="event-card__stat-label">LEFT</span>
                                             </div>
                                         </div>
@@ -122,8 +127,8 @@ export const EventsPageV2 = () => {
                                         backgroundPosition: 'center'
                                     }}>
                                         {!getEventPosterUrl(event) && <span className="event-card__image-text">EVENT</span>}
-                                        <span className={`event-card__badge ${event.picks_locked ? 'event-card__badge--completed' : ''}`}>
-                                            {event.picks_locked ? 'LOCKED' : 'UPCOMING'}
+                                        <span className={`event-card__badge ${isEventLive(event) ? 'event-card__badge--live' : event.picks_locked ? 'event-card__badge--completed' : ''}`}>
+                                            {isEventLive(event) ? 'LIVE NOW' : event.picks_locked ? 'LOCKED' : 'UPCOMING'}
                                         </span>
                                     </div>
                                     <div className="event-card__content">
@@ -136,7 +141,9 @@ export const EventsPageV2 = () => {
                                                 <span className="event-card__stat-label">FIGHTS</span>
                                             </div>
                                             <div className="event-card__stat">
-                                                <span className="event-card__stat-value">{formatDaysLeft(event)}</span>
+                                                <span className="event-card__stat-value" style={isEventLive(event) ? { color: '#dc2626' } : undefined}>
+                                                    {isEventLive(event) ? 'LIVE' : `${Math.max(0, getDaysUntilEvent(event))}D`}
+                                                </span>
                                                 <span className="event-card__stat-label">LEFT</span>
                                             </div>
                                         </div>
