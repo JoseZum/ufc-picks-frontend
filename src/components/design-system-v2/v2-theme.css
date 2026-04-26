@@ -69,16 +69,17 @@
 }
 
 .nav__logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem;
-    color: var(--text-primary);
-    background: var(--accent);
-    padding: 0 1.5rem;
     display: flex;
     align-items: center;
     border-right: var(--border-thick) solid var(--border-strong);
-    letter-spacing: 3px;
     text-decoration: none;
+    padding: 0;
+}
+
+.nav__logo-img {
+    height: 70px;
+    width: auto;
+    display: block;
 }
 
 .nav__items {
@@ -168,8 +169,11 @@
     }
 
     .nav__logo {
-        font-size: 1.8rem;
         border-right: none;
+    }
+
+    .nav__logo-img {
+        height: 60px;
     }
 }
 
@@ -915,9 +919,8 @@
 }
 
 @media (max-width: 600px) {
-    .nav__logo {
-        font-size: 1.6rem;
-        padding: 0 1rem;
+    .nav__logo-img {
+        height: 50px;
     }
 
     .nav__user {
@@ -3740,13 +3743,15 @@
 }
 
 .login-header__logo {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    color: var(--text-primary);
-    background: var(--accent);
-    padding: 0.5rem 1.5rem;
-    letter-spacing: 3px;
+    display: flex;
+    align-items: center;
     text-decoration: none;
+}
+
+.login-header__logo-img {
+    height: 60px;
+    width: auto;
+    display: block;
 }
 
 .login-container {

@@ -21,7 +21,9 @@ export const NavBarV2 = ({ activePage }: NavBarV2Props) => {
 
     return (
         <nav className="nav">
-            <Link href="/" className="nav__logo">UFC PICKS</Link>
+            <Link href="/" className="nav__logo">
+                <img src="/ufcPISK.png" alt="UFC PICKS" className="nav__logo-img" />
+            </Link>
             <div className="nav__items">
                 {navItems.map((item) => (
                     <Link
