@@ -73,11 +73,12 @@
     align-items: center;
     border-right: var(--border-thick) solid var(--border-strong);
     text-decoration: none;
-    padding: 0;
+    background: var(--accent);
+    padding: 0 1.2rem;
 }
 
 .nav__logo-img {
-    height: 70px;
+    height: 38px;
     width: auto;
     display: block;
 }
@@ -173,7 +174,7 @@
     }
 
     .nav__logo-img {
-        height: 60px;
+        height: 32px;
     }
 }
 
@@ -920,7 +921,7 @@
 
 @media (max-width: 600px) {
     .nav__logo-img {
-        height: 50px;
+        height: 28px;
     }
 
     .nav__user {
@@ -3746,10 +3747,12 @@
     display: flex;
     align-items: center;
     text-decoration: none;
+    background: var(--accent);
+    padding: 0.6rem 1.2rem;
 }
 
 .login-header__logo-img {
-    height: 60px;
+    height: 38px;
     width: auto;
     display: block;
 }
