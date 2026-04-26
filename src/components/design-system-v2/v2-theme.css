@@ -74,11 +74,11 @@
     border-right: var(--border-thick) solid var(--border-strong);
     text-decoration: none;
     background: var(--accent);
-    padding: 0 1.2rem;
+    padding: 0 0.6rem;
 }
 
 .nav__logo-img {
-    height: 48px;
+    height: 56px;
     width: auto;
     display: block;
 }
