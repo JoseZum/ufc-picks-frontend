@@ -188,6 +188,7 @@ export interface EventLocation {
 export interface Event {
   id: number;
   name: string;
+  subtitle?: string;
   date: string;
   start_time_et?: string;  // Hora en ET (ej: "17:00")
   timezone?: string;  // Zona horaria (ej: "ET")

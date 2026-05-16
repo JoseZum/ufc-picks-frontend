@@ -1438,6 +1438,12 @@
     letter-spacing: 3px;
 }
 
+.fights-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .fights-header__progress {
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -1466,6 +1472,349 @@
 .export-picks-btn:hover {
     background: var(--accent);
     color: var(--bg-dark);
+}
+
+.fast-picks-toggle {
+    background: transparent;
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    padding: 0.55rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.fast-picks-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.fast-picks-toggle--active {
+    border-color: var(--accent);
+    background: rgba(225, 6, 0, 0.12);
+    color: var(--accent);
+}
+
+.fast-picks-toggle__label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+}
+
+.fast-picks-toggle__state {
+    font-size: 0.58rem;
+    color: var(--text-secondary);
+}
+
+.fast-picks-panel {
+    border: var(--border-thick) solid var(--border-strong);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0)),
+        var(--bg-panel);
+    margin-bottom: 2rem;
+}
+
+.fast-picks-panel__header {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.fast-picks-panel__eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.fast-picks-panel__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    margin: 0;
+}
+
+.fast-picks-panel__copy {
+    margin: 0.5rem 0 0;
+    max-width: 48rem;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+    line-height: 1.6;
+}
+
+.fast-picks-panel__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(90px, 1fr));
+    gap: 0.75rem;
+    min-width: 300px;
+}
+
+.fast-picks-stat {
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    padding: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    align-items: flex-start;
+}
+
+.fast-picks-stat__value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+}
+
+.fast-picks-stat__label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+}
+
+.fast-picks-notice {
+    margin: 1rem 1.5rem 0;
+    padding: 0.9rem 1rem;
+    border-left: 3px solid var(--accent);
+    background: rgba(225, 6, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+
+.fast-picks-notice--muted {
+    border-left-color: var(--border-strong);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.fast-picks-notice__link {
+    color: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 2px;
+    text-decoration: none;
+}
+
+.fast-picks-table-wrap {
+    overflow-x: auto;
+    padding: 1rem 1.5rem 0;
+}
+
+.fast-picks-table {
+    width: 100%;
+    min-width: 1020px;
+    border-collapse: collapse;
+}
+
+.fast-picks-table thead th {
+    text-align: left;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    padding: 0.75rem 0.75rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.fast-picks-table tbody td {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: top;
+}
+
+.fast-picks-row {
+    transition: background 0.15s ease;
+}
+
+.fast-picks-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.fast-picks-row--error {
+    background: rgba(225, 6, 0, 0.08);
+}
+
+.fast-picks-fight {
+    min-width: 250px;
+}
+
+.fast-picks-fight__slot {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 0.45rem;
+}
+
+.fast-picks-fight__names {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+}
+
+.fast-picks-fight__vs {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.fast-picks-fight__meta,
+.fast-picks-fight__summary {
+    margin-top: 0.45rem;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.fast-picks-fight__link {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: var(--accent);
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-decoration: none;
+}
+
+.fast-picks-option {
+    min-width: 90px;
+    padding: 0.65rem 0.7rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.fast-picks-option:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.fast-picks-option--active {
+    border-color: var(--accent);
+    background: rgba(225, 6, 0, 0.12);
+    color: var(--text-primary);
+}
+
+.fast-picks-option--blue.fast-picks-option--active {
+    border-color: var(--fighter-blue);
+    background: rgba(37, 99, 235, 0.15);
+}
+
+.fast-picks-option--method.fast-picks-option--active {
+    border-color: var(--success);
+    background: rgba(34, 197, 94, 0.14);
+}
+
+.fast-picks-option:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.fast-picks-round-select {
+    width: 100%;
+    min-width: 86px;
+    padding: 0.65rem 0.7rem;
+    border: 1px solid var(--border);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.fast-picks-round-select:disabled {
+    opacity: 0.45;
+}
+
+.fast-picks-status-cell {
+    min-width: 170px;
+}
+
+.fast-picks-status {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+}
+
+.fast-picks-status__error {
+    display: block;
+    margin-top: 0.35rem;
+    color: #fca5a5;
+    font-size: 0.72rem;
+    line-height: 1.5;
+}
+
+.fast-picks-submitbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.fast-picks-submitbar__copy {
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.fast-picks-submitbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.fast-picks-submitbar__btn {
+    min-width: 180px;
+    padding: 0.8rem 1.25rem;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--text-primary);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.fast-picks-submitbar__btn:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 rgba(255, 255, 255, 0.1);
+}
+
+.fast-picks-submitbar__btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.fast-picks-submitbar__btn--ghost {
+    border-color: var(--border-strong);
+    background: transparent;
+    color: var(--text-primary);
+}
+
+.fast-picks-submitbar__saving {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
 }
 
 /* FIGHT CARD */
@@ -1905,6 +2254,38 @@
     .submit-bar__btn {
         width: 100%;
     }
+
+    .fights-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .fights-header__actions,
+    .fast-picks-panel__header,
+    .fast-picks-submitbar {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .fast-picks-panel__stats {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .fast-picks-notice {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .fast-picks-submitbar__actions {
+        width: 100%;
+    }
+
+    .fast-picks-submitbar__btn {
+        width: 100%;
+    }
 }
 
 @media (max-width: 600px) {
@@ -1924,6 +2305,36 @@
 
     .fight-card__name {
         font-size: 1.1rem;
+    }
+
+    .fights-section {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .fights-header__actions {
+        gap: 0.75rem;
+    }
+
+    .fast-picks-toggle,
+    .export-picks-btn {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .fast-picks-panel__header,
+    .fast-picks-table-wrap,
+    .fast-picks-submitbar {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .fast-picks-panel__title {
+        font-size: 1.55rem;
+    }
+
+    .fast-picks-panel__stats {
+        grid-template-columns: 1fr;
     }
 }
 

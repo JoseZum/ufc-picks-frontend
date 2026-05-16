@@ -15,6 +15,12 @@ function isEventLive(event: Event): boolean {
     return new Date() >= getEventDateTime(event);
 }
 
+function isGenericFuturePlaceholder(event: Event): boolean {
+    const name = event.name.trim();
+    const hasAnnouncedMatchup = name.includes(':') || Boolean(event.subtitle?.trim());
+    return !hasAnnouncedMatchup && /^UFC(?:\s+\d+|\s+Fight Night)$/i.test(name);
+}
+
 export const EventsPageV2 = () => {
     const router = useRouter();
     const [filter, setFilter] = useState<'upcoming' | 'completed'>('upcoming');
@@ -31,9 +37,9 @@ export const EventsPageV2 = () => {
 
     const { data: currentUser } = useCurrentUser();
 
-    // Ocultar eventos lejanos (>30 días) sin subtítulo; eventos pasados siguen visibles hasta que admin los complete
+    // Hide far-away generic placeholder events while keeping specifically named events visible.
     const upcomingEventsAll = (upcomingData?.events || []).filter(e => {
-        if (getDaysUntilEvent(e) > 30 && !e.name.includes(':')) return false;
+        if (getDaysUntilEvent(e) > 30 && isGenericFuturePlaceholder(e)) return false;
         return true;
     });
     const completedEventsAll = completedData?.events || [];

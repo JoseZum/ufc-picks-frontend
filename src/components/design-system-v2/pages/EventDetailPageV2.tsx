@@ -22,6 +22,7 @@ import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import { useCountdown } from '../hooks/useCountdown';
+import { FastPicksPanel } from '../FastPicksPanel';
 
 interface EventDetailPageV2Props {
     params: {
@@ -34,7 +35,8 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
     const { data: event, isLoading: eventLoading } = useEvent(eventId);
     const { data: bouts, isLoading: boutsLoading } = useEventBouts(eventId);
-    const { data: userPicks } = useMyPicks(eventId);
+    const { data: userPicks, refetch: refetchUserPicks } = useMyPicks(eventId);
+    const [isFastPicksOpen, setIsFastPicksOpen] = React.useState(false);
 
     // Countdown timer
     const eventDateTime = event ? getEventDateTime(event) : null;
@@ -342,7 +344,18 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 <section className="fights-section">
                     <div className="fights-header">
                         <h2 className="fights-header__title">FIGHT CARD</h2>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div className="fights-header__actions">
+                            <button
+                                type="button"
+                                className={`fast-picks-toggle ${isFastPicksOpen ? 'fast-picks-toggle--active' : ''}`}
+                                onClick={() => setIsFastPicksOpen((current) => !current)}
+                                aria-expanded={isFastPicksOpen}
+                            >
+                                <span className="fast-picks-toggle__label">FAST PICKS</span>
+                                <span className="fast-picks-toggle__state">
+                                    {isFastPicksOpen ? 'HIDE FORM' : 'OPEN FORM'}
+                                </span>
+                            </button>
                             {picksMadeCount > 0 && (
                                 <button
                                     onClick={handleExportPicks}
@@ -354,6 +367,15 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             <div className="fights-header__progress"><span>{picksMadeCount}</span> / {totalFights} PICKS MADE</div>
                         </div>
                     </div>
+
+                    {isFastPicksOpen && (
+                        <FastPicksPanel
+                            event={event}
+                            bouts={bouts}
+                            userPicks={userPicks}
+                            onPicksSaved={refetchUserPicks}
+                        />
+                    )}
 
                     {renderBout(mainEvent, 'main')}
                     {coMain && renderBout(coMain, 'co-main')}
