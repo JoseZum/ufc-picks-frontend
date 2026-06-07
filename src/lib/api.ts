@@ -199,6 +199,7 @@ export interface Event {
   poster_image_url?: string;
   event_art_url?: string;
   picks_locked?: boolean;
+  is_title_fight?: boolean;  // True si la pelea principal es por título
 }
 
 export interface EventsResponse {
@@ -490,6 +491,7 @@ export interface Bout {
   gender: string;
   rounds_scheduled: number;
   is_title_fight: boolean;
+  is_main_event?: boolean;
   status: string;
   fighters: {
     red: Fighter;

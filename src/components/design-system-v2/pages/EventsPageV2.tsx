@@ -87,13 +87,14 @@ export const EventsPageV2 = () => {
                         <div className="events-grid">
                             {/* FEATURED EVENT */}
                             {showUpcoming && featuredEvent && (
-                                <a href={`/events/${featuredEvent.id}`} className="event-card event-card--featured">
+                                <a href={`/events/${featuredEvent.id}`} className={`event-card event-card--featured ${featuredEvent.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(featuredEvent)})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}>
                                         {!getEventPosterUrl(featuredEvent) && <span className="event-card__image-text">UFC<br />{featuredEvent.id}</span>}
+                                        {featuredEvent.is_title_fight && <span className="event-card__title-flag">★ TITLE</span>}
                                         <span className={`event-card__badge ${isEventLive(featuredEvent) ? 'event-card__badge--live' : featuredEvent.picks_locked ? 'event-card__badge--completed' : 'event-card__badge--open'}`}>
                                             {isEventLive(featuredEvent) ? 'LIVE NOW' : featuredEvent.picks_locked ? 'LOCKED' : 'OPEN'}
                                         </span>
@@ -126,13 +127,14 @@ export const EventsPageV2 = () => {
 
                             {/* UPCOMING EVENTS */}
                             {showUpcoming && otherUpcomingEvents.map(event => (
-                                <a key={event.id} href={`/events/${event.id}`} className="event-card">
+                                <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(event)})`,
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center'
                                     }}>
                                         {!getEventPosterUrl(event) && <span className="event-card__image-text">EVENT</span>}
+                                        {event.is_title_fight && <span className="event-card__title-flag">★ TITLE</span>}
                                         <span className={`event-card__badge ${isEventLive(event) ? 'event-card__badge--live' : event.picks_locked ? 'event-card__badge--completed' : ''}`}>
                                             {isEventLive(event) ? 'LIVE NOW' : event.picks_locked ? 'LOCKED' : 'UPCOMING'}
                                         </span>
@@ -169,13 +171,14 @@ export const EventsPageV2 = () => {
 
                                 <div className="events-grid">
                                     {completedEventsAll.map(event => (
-                                        <a key={event.id} href={`/events/${event.id}`} className="event-card">
+                                        <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_title_fight ? 'event-card--title' : ''}`}>
                                             <div className="event-card__image" style={{
                                                 backgroundImage: `url(${getEventPosterUrl(event)})`,
                                                 backgroundSize: 'cover',
                                                 backgroundPosition: 'center'
                                             }}>
                                                 {!getEventPosterUrl(event) && <span className="event-card__image-text">UFC</span>}
+                                                {event.is_title_fight && <span className="event-card__title-flag">★ TITLE</span>}
                                                 <span className="event-card__badge event-card__badge--completed">COMPLETED</span>
                                             </div>
                                             <div className="event-card__content">

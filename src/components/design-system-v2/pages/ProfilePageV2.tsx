@@ -4,9 +4,10 @@ import React, { useMemo } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
-import { useCurrentUser, useMyLeaderboardPosition, useAllMyPicks, useGlobalLeaderboard, useLogout } from '@/lib/hooks';
+import { useCurrentUser, useMyLeaderboardPosition, useAllMyPicks, useGlobalLeaderboard, useLogout, useEvents } from '@/lib/hooks';
 import { Loader2, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { EventPicksSection } from '../EventPicksSection';
 
 export const ProfilePageV2 = () => {
     const router = useRouter();
@@ -14,10 +15,32 @@ export const ProfilePageV2 = () => {
     const { data: myPosition } = useMyLeaderboardPosition('global');
     const { data: allPicks, isLoading: picksLoading } = useAllMyPicks();
     const { data: leaderboard } = useGlobalLeaderboard({ limit: 100 });
+    const { data: eventsData } = useEvents({ limit: 50 });
     const logout = useLogout();
-    
+
     const isLoading = userLoading || picksLoading;
     const totalUsers = leaderboard?.length || 0;
+    const events = eventsData?.events || [];
+
+    // Agrupar los picks del usuario por evento (para la sección "YOUR PICKS")
+    const picksByEvent = useMemo(() => {
+        const grouped = new Map<number, Array<{ pick: any, event: any }>>();
+        if (!allPicks || !events.length) return grouped;
+        allPicks.forEach(pick => {
+            const event = events.find(e => e.id === pick.event_id);
+            const existing = grouped.get(pick.event_id) || [];
+            existing.push({ pick, event });
+            grouped.set(pick.event_id, existing);
+        });
+        return grouped;
+    }, [allPicks, events]);
+
+    // Eventos con picks, más reciente primero
+    const eventsWithPicks = useMemo(() => {
+        return events
+            .filter(e => picksByEvent.has(e.id))
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [events, picksByEvent]);
 
     // Calculate stats from picks
     const stats = useMemo(() => {
@@ -139,41 +162,14 @@ export const ProfilePageV2 = () => {
                                     </div>
                                 </div>
 
-                                <div className="accuracy-section">
-                                    <div className="accuracy-section__header">
-                                        <h3 className="accuracy-section__title">YOUR STATISTICS</h3>
+                                <div className="profile-points-row">
+                                    <div className="profile-points-row__item">
+                                        <span className="profile-points-row__value">{myPosition?.entry?.total_points?.toLocaleString() || 0}</span>
+                                        <span className="profile-points-row__label">TOTAL POINTS</span>
                                     </div>
-                                    
-                                    <div style={{ 
-                                        display: 'grid', 
-                                        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
-                                        gap: '1rem',
-                                        marginTop: '1rem'
-                                    }}>
-                                        <div style={{
-                                            padding: '1.5rem',
-                                            backgroundColor: 'var(--bg-light)',
-                                            border: '2px solid var(--border)'
-                                        }}>
-                                            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--accent)' }}>
-                                                {myPosition?.entry?.total_points?.toLocaleString() || 0}
-                                            </div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                                                TOTAL POINTS
-                                            </div>
-                                        </div>
-                                        <div style={{
-                                            padding: '1.5rem',
-                                            backgroundColor: 'var(--bg-light)',
-                                            border: '2px solid var(--border)'
-                                        }}>
-                                            <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text)' }}>
-                                                {stats.pending}
-                                            </div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                                                PENDING PICKS
-                                            </div>
-                                        </div>
+                                    <div className="profile-points-row__item">
+                                        <span className="profile-points-row__value">{stats.pending}</span>
+                                        <span className="profile-points-row__label">PENDING PICKS</span>
                                     </div>
                                 </div>
                             </div>
@@ -229,53 +225,27 @@ export const ProfilePageV2 = () => {
                                 </a>
                             </div>
 
-                            {/* ACHIEVEMENTS (Future feature - keeping as placeholder) */}
+                            {/* YOUR PICKS - historial con resultado y puntos */}
                             <div className="section-header" style={{ marginTop: '3rem' }}>
-                                <h2 className="section-header__title">ACHIEVEMENTS</h2>
+                                <h2 className="section-header__title">YOUR PICKS</h2>
                             </div>
 
-                            <div className="achievements-grid">
-                                <div className={`achievement ${stats.total >= 1 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#127942;</div>
-                                    <div className="achievement__name">FIRST BLOOD</div>
-                                    <div className="achievement__desc">Make your first pick</div>
+                            {eventsWithPicks.length > 0 ? (
+                                eventsWithPicks.map(event => (
+                                    <EventPicksSection
+                                        key={event.id}
+                                        event={event}
+                                        picks={picksByEvent.get(event.id) || []}
+                                    />
+                                ))
+                            ) : (
+                                <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
+                                    <p>No picks yet.</p>
+                                    <a href="/events" style={{ color: 'var(--accent)', marginTop: '1rem', display: 'inline-block' }}>
+                                        Browse Events &rarr;
+                                    </a>
                                 </div>
-                                <div className={`achievement ${stats.correct >= 5 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#128293;</div>
-                                    <div className="achievement__name">ON FIRE</div>
-                                    <div className="achievement__desc">5 correct picks</div>
-                                </div>
-                                <div className={`achievement ${stats.total >= 100 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#127775;</div>
-                                    <div className="achievement__name">CENTURY</div>
-                                    <div className="achievement__desc">100 total picks made</div>
-                                </div>
-                                <div className={`achievement ${(myPosition?.rank || 999) <= 10 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#128081;</div>
-                                    <div className="achievement__name">CHAMPION</div>
-                                    <div className="achievement__desc">Reach top 10 globally</div>
-                                </div>
-                                <div className={`achievement ${stats.accuracy >= 70 && stats.total >= 50 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#129504;</div>
-                                    <div className="achievement__name">ANALYST</div>
-                                    <div className="achievement__desc">70% accuracy (min 50 picks)</div>
-                                </div>
-                                <div className="achievement">
-                                    <div className="achievement__icon">&#127919;</div>
-                                    <div className="achievement__name">PERFECT EVENT</div>
-                                    <div className="achievement__desc">100% accuracy on full card</div>
-                                </div>
-                                <div className="achievement">
-                                    <div className="achievement__icon">&#128640;</div>
-                                    <div className="achievement__name">RISING STAR</div>
-                                    <div className="achievement__desc">Gain 20 ranks in one event</div>
-                                </div>
-                                <div className={`achievement ${stats.accuracy >= 80 && stats.total >= 100 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#9889;</div>
-                                    <div className="achievement__name">ORACLE</div>
-                                    <div className="achievement__desc">80% accuracy (min 100 picks)</div>
-                                </div>
-                            </div>
+                            )}
                         </section>
                     </>
                 )}

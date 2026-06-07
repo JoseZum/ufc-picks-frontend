@@ -66,7 +66,7 @@ export const LandingPageV2 = () => {
             <main className="main">
                 {/* HERO SECTION - BROKEN GRID */}
                 <section className="hero">
-                    <div className="hero__event">
+                    <div className={`hero__event ${nextEvent?.is_title_fight ? 'hero__event--title' : ''}`}>
                         <div className="hero__event-image" style={{
                             backgroundImage: nextEvent ? `url(${getEventImageUrl(nextEvent)})` : 'none',
                             backgroundSize: 'cover',
@@ -130,9 +130,9 @@ export const LandingPageV2 = () => {
 
                 {/* MAIN EVENT - BRUTAL VS CARD */}
                 {mainEventBout && (
-                    <div className="main-event">
+                    <div className={`main-event ${mainEventBout.is_title_fight ? 'main-event--title' : ''}`}>
                         <div className="main-event__header">
-                            Main Event // {mainEventBout.weight_class} {mainEventBout.is_title_fight ? 'Title' : 'Bout'}
+                            {mainEventBout.is_title_fight && '★ '}Main Event // {mainEventBout.weight_class} {mainEventBout.is_title_fight ? 'Title' : 'Bout'}
                         </div>
                         <div className="main-event__content">
                             <div className="main-event__fighter main-event__fighter--red">

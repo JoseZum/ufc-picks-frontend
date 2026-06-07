@@ -4,46 +4,18 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
-import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
-import { getBoutResultOutcome, getFighterDisplayName, getNormalizedFighterName } from '@/lib/api';
+import { EventPicksSection } from '../EventPicksSection';
+import { useCurrentUser, useAllMyPicks, useEvents } from '@/lib/hooks';
+import { getEventPosterUrl } from '@/lib/api';
 import api from '@/lib/api';
-import { FighterPhoto } from '@/components/FighterImage';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search, X } from 'lucide-react';
 import { formatEventDate } from '@/lib/dateUtils';
 import { useQueryClient } from '@tanstack/react-query';
 
-// Calcula puntos basado en el pick y el resultado de la pelea
-function computePoints(pick: any, bout: any): number {
-    if (pick.is_correct !== true || !bout?.result) return 0;
-
-    let points = 1; // Acertó el ganador
-
-    const normalize = (m: string | undefined) => {
-        if (!m) return "";
-        const u = m.toUpperCase();
-        if (["KO", "TKO", "KO/TKO"].includes(u)) return "KO/TKO";
-        if (["SUB", "SUBMISSION"].includes(u)) return "SUB";
-        if (["DEC", "DECISION"].includes(u)) return "DEC";
-        return u;
-    };
-
-    const pickMethod = normalize(pick.picked_method);
-    const resultMethod = normalize(bout.result.method);
-
-    if (pickMethod && resultMethod && pickMethod === resultMethod) {
-        points += 1;
-        if (pickMethod !== "DEC" && pick.picked_round && bout.result.round) {
-            if (pick.picked_round === bout.result.round) {
-                points += 1;
-            }
-        }
-    }
-
-    return points;
-}
-
 export const PicksPageV2 = () => {
     const [selectedEventId, setSelectedEventId] = useState<number | 'all'>('all');
+    const [browseOpen, setBrowseOpen] = useState(false);
+    const [browseQuery, setBrowseQuery] = useState('');
     const queryClient = useQueryClient();
     const cleanupDone = useRef(false);
 
@@ -66,30 +38,28 @@ export const PicksPageV2 = () => {
         }).catch(() => {});
     }, [currentUser, queryClient]);
 
-    // Group picks by event
+    // Agrupar picks por evento
     const picksByEvent = useMemo(() => {
         if (!allPicks || !events.length) return new Map();
-        
+
         const grouped = new Map<number, Array<{ pick: any, event: any }>>();
-        
         allPicks.forEach(pick => {
             const event = events.find(e => e.id === pick.event_id);
             const existing = grouped.get(pick.event_id) || [];
             existing.push({ pick, event });
             grouped.set(pick.event_id, existing);
         });
-        
         return grouped;
     }, [allPicks, events]);
 
-    // Calculate stats
+    // Estadísticas globales
     const stats = useMemo(() => {
         if (!allPicks) return { total: 0, correct: 0, incorrect: 0, accuracy: 0 };
-        
+
         const decided = allPicks.filter(p => p.is_correct !== null);
         const correct = decided.filter(p => p.is_correct === true).length;
         const incorrect = decided.filter(p => p.is_correct === false).length;
-        
+
         return {
             total: allPicks.length,
             correct,
@@ -98,7 +68,7 @@ export const PicksPageV2 = () => {
         };
     }, [allPicks]);
 
-    // Events with picks, sorted by date
+    // Eventos con picks, ordenados por fecha (más reciente primero)
     const eventsWithPicks = useMemo(() => {
         return events
             .filter(e => picksByEvent.has(e.id))
@@ -108,125 +78,22 @@ export const PicksPageV2 = () => {
     const pendingEvents = eventsWithPicks.filter(e => e.status === 'scheduled');
     const completedEvents = eventsWithPicks.filter(e => e.status !== 'scheduled');
 
-    // Component to render picks for an event (fetches bouts for that event)
-    const EventPicksSection = ({ event, picks }: { event: any, picks: Array<{ pick: any, event: any }> }) => {
-        const { data: bouts } = useEventBouts(event.id);
-        
-        const picksWithBouts = picks.map(p => ({
-            ...p,
-            bout: bouts?.find(b => b.id === p.pick.bout_id)
-        }));
+    // Eventos filtrados por la búsqueda del navegador "Browse Events"
+    const browseEvents = useMemo(() => {
+        const q = browseQuery.trim().toLowerCase();
+        if (!q) return eventsWithPicks;
+        return eventsWithPicks.filter(e => e.name.toLowerCase().includes(q));
+    }, [eventsWithPicks, browseQuery]);
 
-        const eventPicks = picksWithBouts.filter(p => p.bout);
-        const decidedPicks = eventPicks.filter(p => p.pick.is_correct !== null);
-        const correctPicks = decidedPicks.filter(p => p.pick.is_correct === true).length;
-        const eventAccuracy = decidedPicks.length > 0 
-            ? Math.round((correctPicks / decidedPicks.length) * 100) 
-            : null;
-        const isPending = event.status === 'scheduled';
-
-        return (
-            <div className="picks-event">
-                <div className="picks-event__header">
-                    <div>
-                        <h2 className="picks-event__title">{event.name}</h2>
-                        <p className="picks-event__date">{formatEventDate(event)} {isPending && '// PENDING'}</p>
-                    </div>
-                    <div className="picks-event__score">
-                        <div className="picks-event__score-value">
-                            {isPending ? `${eventPicks.length}` : `${correctPicks}/${decidedPicks.length}`}
-                        </div>
-                        <div className="picks-event__score-label">
-                            {isPending ? 'PICKS MADE' : eventAccuracy !== null ? `${eventAccuracy}% ACCURACY` : 'NO RESULTS'}
-                        </div>
-                    </div>
-                </div>
-
-                {eventPicks.map(({ pick, bout }) => {
-                    if (!bout) return null;
-
-                    const pickedFighterName = (pick.picked_fighter_name || pick.predicted_winner || '').toLowerCase().trim();
-                    const redFighterName = getFighterDisplayName(bout.fighters.red);
-                    const blueFighterName = getFighterDisplayName(bout.fighters.blue);
-                    
-                    const isPicked1 = pickedFighterName === getNormalizedFighterName(bout.fighters.red);
-                    const isPicked2 = pickedFighterName === getNormalizedFighterName(bout.fighters.blue);
-                    const isCorrect = pick.is_correct === true;
-                    const isIncorrect = pick.is_correct === false;
-                    const isPendingPick = pick.is_correct === null;
-                    const isDrawResult = getBoutResultOutcome(bout.result) === 'draw';
-                    
-                    const pts = isCorrect && bout ? computePoints(pick, bout) : 0;
-                    const isPerfect = isCorrect && pts === 3;
-
-                    const rowClass = isPendingPick
-                        ? 'pick-row pick-row--pending'
-                        : isPerfect
-                            ? 'pick-row pick-row--perfect'
-                            : isCorrect
-                                ? 'pick-row pick-row--correct'
-                                : isDrawResult
-                                    ? 'pick-row pick-row--draw'
-                                    : 'pick-row pick-row--incorrect';
-
-                    return (
-                        <div key={pick.id} className={rowClass}>
-                            <div className={`pick-row__fighter pick-row__fighter--red ${isPicked1 ? 'pick-row__fighter--selected' : ''}`}>
-                                <FighterPhoto
-                                    className="pick-row__photo"
-                                    fighter={bout.fighters.red}
-                                />
-                                <div className="pick-row__info">
-                                    <div className="pick-row__name">{redFighterName.toUpperCase()}</div>
-                                    <div className="pick-row__record">
-                                        {bout.fighters.red.record_at_fight ? 
-                                            `${bout.fighters.red.record_at_fight.wins}-${bout.fighters.red.record_at_fight.losses}-${bout.fighters.red.record_at_fight.draws}` 
-                                            : '-'}
-                                    </div>
-                                    {isPicked1 && <div className="pick-row__your-pick">YOUR PICK</div>}
-                                </div>
-                            </div>
-                            <div className="pick-row__vs">VS</div>
-                            <div className={`pick-row__fighter pick-row__fighter--blue ${isPicked2 ? 'pick-row__fighter--selected' : ''}`}>
-                                <FighterPhoto
-                                    className="pick-row__photo"
-                                    fighter={bout.fighters.blue}
-                                />
-                                <div className="pick-row__info">
-                                    <div className="pick-row__name">{blueFighterName.toUpperCase()}</div>
-                                    <div className="pick-row__record">
-                                        {bout.fighters.blue.record_at_fight ? 
-                                            `${bout.fighters.blue.record_at_fight.wins}-${bout.fighters.blue.record_at_fight.losses}-${bout.fighters.blue.record_at_fight.draws}` 
-                                            : '-'}
-                                    </div>
-                                    {isPicked2 && <div className="pick-row__your-pick">YOUR PICK</div>}
-                                </div>
-                            </div>
-                            <div className="pick-row__result">
-                                {isPendingPick && (
-                                    <span className="pick-row__result-badge pick-row__result-badge--pending">PENDING</span>
-                                )}
-                                {isCorrect && (
-                                    <>
-                                        <span className={`pick-row__result-badge ${isPerfect ? 'pick-row__result-badge--perfect' : 'pick-row__result-badge--correct'}`}>
-                                            {isPerfect ? 'PERFECT' : 'CORRECT'}
-                                        </span>
-                                        <span className={`pick-row__points ${isPerfect ? 'pick-row__points--perfect' : 'pick-row__points--positive'}`}>+{pts}</span>
-                                    </>
-                                )}
-                                {isIncorrect && (
-                                    <>
-                                        <span className={`pick-row__result-badge ${isDrawResult ? 'pick-row__result-badge--draw' : 'pick-row__result-badge--incorrect'}`}>WRONG</span>
-                                        <span className={`pick-row__points ${isDrawResult ? 'pick-row__points--draw' : 'pick-row__points--negative'}`}>0</span>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        );
+    const selectEvent = (id: number | 'all') => {
+        setSelectedEventId(id);
+        setBrowseOpen(false);
+        setBrowseQuery('');
     };
+
+    const selectedEvent = selectedEventId !== 'all'
+        ? events.find(e => e.id === selectedEventId)
+        : null;
 
     return (
         <V2Layout>
@@ -270,46 +137,53 @@ export const PicksPageV2 = () => {
                             </div>
                         </div>
 
-                        {/* Event Tabs */}
+                        {/* Barra de control: ALL EVENTS + (evento seleccionado) + BROWSE EVENTS */}
                         {eventsWithPicks.length > 0 && (
-                            <div className="event-tabs">
-                                <button 
+                            <div className="picks-controls">
+                                <button
                                     className={`event-tab ${selectedEventId === 'all' ? 'event-tab--active' : ''}`}
-                                    onClick={() => setSelectedEventId('all')}
+                                    onClick={() => selectEvent('all')}
                                 >
                                     ALL EVENTS
                                 </button>
-                                {eventsWithPicks.slice(0, 4).map(event => (
-                                    <button
-                                        key={event.id}
-                                        className={`event-tab ${selectedEventId === event.id ? 'event-tab--active' : ''}`}
-                                        onClick={() => setSelectedEventId(event.id)}
-                                    >
-                                        {event.name.replace('UFC ', '').toUpperCase()}
-                                        {event.status === 'scheduled' && ' (PENDING)'}
-                                    </button>
-                                ))}
+
+                                {selectedEvent && (
+                                    <span className="picks-controls__current">
+                                        {selectedEvent.name.toUpperCase()}
+                                        <button
+                                            className="picks-controls__clear"
+                                            onClick={() => selectEvent('all')}
+                                            aria-label="Clear selection"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </span>
+                                )}
+
+                                <button
+                                    className="picks-controls__browse"
+                                    onClick={() => setBrowseOpen(true)}
+                                >
+                                    <Search size={14} />
+                                    BROWSE EVENTS
+                                </button>
                             </div>
                         )}
 
-                        {/* Show selected event or all */}
-                        {selectedEventId !== 'all' ? (
+                        {/* Vista de un evento seleccionado o de todos */}
+                        {selectedEvent ? (
                             (() => {
-                                const event = events.find(e => e.id === selectedEventId);
-                                const picks = picksByEvent.get(selectedEventId) || [];
-                                return event && picks.length > 0 ? (
-                                    <EventPicksSection event={event} picks={picks} />
-                                ) : null;
+                                const picks = picksByEvent.get(selectedEvent.id) || [];
+                                return picks.length > 0
+                                    ? <EventPicksSection event={selectedEvent} picks={picks} />
+                                    : null;
                             })()
                         ) : (
                             <>
-                                {/* PENDING PICKS */}
-                                {pendingEvents.map(event => {
-                                    const picks = picksByEvent.get(event.id) || [];
-                                    return <EventPicksSection key={event.id} event={event} picks={picks} />;
-                                })}
+                                {pendingEvents.map(event => (
+                                    <EventPicksSection key={event.id} event={event} picks={picksByEvent.get(event.id) || []} />
+                                ))}
 
-                                {/* Divider between pending and completed */}
                                 {pendingEvents.length > 0 && completedEvents.length > 0 && (
                                     <div className="section-divider">
                                         <div className="section-divider__line"></div>
@@ -318,13 +192,10 @@ export const PicksPageV2 = () => {
                                     </div>
                                 )}
 
-                                {/* COMPLETED PICKS */}
-                                {completedEvents.map(event => {
-                                    const picks = picksByEvent.get(event.id) || [];
-                                    return <EventPicksSection key={event.id} event={event} picks={picks} />;
-                                })}
+                                {completedEvents.map(event => (
+                                    <EventPicksSection key={event.id} event={event} picks={picksByEvent.get(event.id) || []} />
+                                ))}
 
-                                {/* Empty state */}
                                 {eventsWithPicks.length === 0 && (
                                     <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
                                         <p>No picks made yet.</p>
@@ -339,6 +210,58 @@ export const PicksPageV2 = () => {
                 )}
             </div>
 
+            {/* MODAL: BROWSE EVENTS */}
+            {browseOpen && (
+                <div className="browse-modal" onClick={() => setBrowseOpen(false)}>
+                    <div className="browse-modal__panel" onClick={(e) => e.stopPropagation()}>
+                        <div className="browse-modal__header">
+                            <h2 className="browse-modal__title">BROWSE EVENTS</h2>
+                            <button className="browse-modal__close" onClick={() => setBrowseOpen(false)} aria-label="Close">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="browse-search">
+                            <Search size={16} className="browse-search__icon" />
+                            <input
+                                autoFocus
+                                className="browse-search__input"
+                                placeholder="Search events..."
+                                value={browseQuery}
+                                onChange={(e) => setBrowseQuery(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="browse-grid">
+                            {browseEvents.map(event => (
+                                <button
+                                    key={event.id}
+                                    className={`browse-card ${event.is_title_fight ? 'event-card--title' : ''}`}
+                                    onClick={() => selectEvent(event.id)}
+                                >
+                                    <div
+                                        className="browse-card__image"
+                                        style={{
+                                            backgroundImage: `url(${getEventPosterUrl(event)})`,
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center'
+                                        }}
+                                    >
+                                        {event.is_title_fight && <span className="event-card__title-flag">★</span>}
+                                        {event.status === 'scheduled' && <span className="browse-card__pending">PENDING</span>}
+                                    </div>
+                                    <div className="browse-card__name">{event.name}</div>
+                                </button>
+                            ))}
+
+                            {browseEvents.length === 0 && (
+                                <div className="browse-grid__empty">No events match "{browseQuery}".</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <footer className="footer">
                 <div className="footer__grid">
                     <div className="footer__block">
@@ -347,7 +270,7 @@ export const PicksPageV2 = () => {
                     </div>
                 </div>
             </footer>
-        <MobileNav activePage="picks" />
+            <MobileNav activePage="picks" />
         </V2Layout>
     );
 };
