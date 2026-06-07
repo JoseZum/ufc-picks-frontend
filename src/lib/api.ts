@@ -380,6 +380,65 @@ export function getFighterImageUrl(
   // profile_image_url should be like: /proxy/tapology/letterboxd_images/33428/profile/thumb.jpg
   return `${API_URL}${fighter.profile_image_url}`;
 }
+
+// Orden de extensiones a probar cuando la imagen original no existe.
+// El backend a veces guarda image_key con la extensión equivocada
+// (ej: guarda .jpg pero en S3 el archivo es .png), lo que produce un
+// 403/404 de CloudFront. Probamos variantes hasta encontrar una que cargue.
+const FIGHTER_IMAGE_EXT_PRIORITY = ['png', 'jpg', 'jpeg', 'webp', 'avif', 'gif'] as const;
+
+export const FIGHTER_PLACEHOLDER = '/placeholder-fighter.svg';
+
+/**
+ * Devuelve la lista ordenada de URLs candidatas para la foto de un peleador.
+ *
+ * Sólo hace el "cascadeo" de extensiones para nuestras propias imágenes de
+ * CloudFront/S3 (las que terminan en una extensión de imagen conocida).
+ * Para URLs externas (avatares de Google) o proxys con query string, devuelve
+ * la URL tal cual seguida del placeholder.
+ *
+ * La última entrada siempre es el placeholder, así el consumidor sabe que
+ * cuando llega ahí debe rendirse.
+ */
+export function getFighterImageCandidates(
+  fighter: Fighter,
+  size: 'small' | 'medium' | 'large' = 'small'
+): string[] {
+  const base = getFighterImageUrl(fighter, size);
+
+  if (base === FIGHTER_PLACEHOLDER) {
+    return [FIGHTER_PLACEHOLDER];
+  }
+
+  // ^(prefijo).(ext)(?query)$ -> sólo cascadeamos si reconocemos la extensión.
+  const match = base.match(/^(.*)\.(png|jpe?g|webp|avif|gif)(\?.*)?$/i);
+  if (!match) {
+    return [base, FIGHTER_PLACEHOLDER];
+  }
+
+  const prefix = match[1];
+  const originalExt = match[2].toLowerCase();
+  const query = match[3] ?? '';
+
+  // Probar la extensión original primero (suele ser la correcta y ya cacheada),
+  // luego el resto en orden de probabilidad.
+  const orderedExts = [
+    originalExt,
+    ...FIGHTER_IMAGE_EXT_PRIORITY.filter((ext) => ext !== originalExt),
+  ];
+
+  const seen = new Set<string>();
+  const candidates: string[] = [];
+  for (const ext of orderedExts) {
+    const url = `${prefix}.${ext}${query}`;
+    if (!seen.has(url)) {
+      seen.add(url);
+      candidates.push(url);
+    }
+  }
+  candidates.push(FIGHTER_PLACEHOLDER);
+  return candidates;
+}
 /**
  * Helper to get event poster URL
  * Handles both CloudFront URLs (absolute) and proxy URLs (relative)

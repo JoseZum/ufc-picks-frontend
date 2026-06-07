@@ -5,8 +5,9 @@ import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useAllMyPicks, useEvents, useEventBouts } from '@/lib/hooks';
-import { getBoutResultOutcome, getFighterDisplayName, getFighterImageUrl, getNormalizedFighterName } from '@/lib/api';
+import { getBoutResultOutcome, getFighterDisplayName, getNormalizedFighterName } from '@/lib/api';
 import api from '@/lib/api';
+import { FighterPhoto } from '@/components/FighterImage';
 import { Loader2 } from 'lucide-react';
 import { formatEventDate } from '@/lib/dateUtils';
 import { useQueryClient } from '@tanstack/react-query';
@@ -171,13 +172,9 @@ export const PicksPageV2 = () => {
                     return (
                         <div key={pick.id} className={rowClass}>
                             <div className={`pick-row__fighter pick-row__fighter--red ${isPicked1 ? 'pick-row__fighter--selected' : ''}`}>
-                                <div
+                                <FighterPhoto
                                     className="pick-row__photo"
-                                    style={{
-                                        backgroundImage: `url(${getFighterImageUrl(bout.fighters.red)})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
-                                    }}
+                                    fighter={bout.fighters.red}
                                 />
                                 <div className="pick-row__info">
                                     <div className="pick-row__name">{redFighterName.toUpperCase()}</div>
@@ -191,13 +188,9 @@ export const PicksPageV2 = () => {
                             </div>
                             <div className="pick-row__vs">VS</div>
                             <div className={`pick-row__fighter pick-row__fighter--blue ${isPicked2 ? 'pick-row__fighter--selected' : ''}`}>
-                                <div
+                                <FighterPhoto
                                     className="pick-row__photo"
-                                    style={{
-                                        backgroundImage: `url(${getFighterImageUrl(bout.fighters.blue)})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
-                                    }}
+                                    fighter={bout.fighters.blue}
                                 />
                                 <div className="pick-row__info">
                                     <div className="pick-row__name">{blueFighterName.toUpperCase()}</div>

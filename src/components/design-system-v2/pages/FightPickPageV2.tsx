@@ -11,13 +11,13 @@ import {
     getBoutResultHeadline,
     getBoutResultOutcome,
     getFighterDisplayName,
-    getFighterImageUrl,
     getFighterShortName,
     getEventDateTime,
     hasBoutResult,
     getNormalizedFighterName
 } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { FighterPhoto } from '@/components/FighterImage';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 
@@ -242,15 +242,15 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     >
                         <span className="fighter-card__corner">RED CORNER</span>
                         <div className="fighter-card__content">
-                            <div className="fighter-card__photo" style={{
-                                backgroundImage: `url(${getFighterImageUrl(redFighter)})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'top center'
-                            }}>
+                            <FighterPhoto
+                                className="fighter-card__photo"
+                                fighter={redFighter}
+                                backgroundPosition="top center"
+                            >
                                 {redFighter.ranking?.position && (
                                     <span className="fighter-card__rank">#{redFighter.ranking.position}</span>
                                 )}
-                            </div>
+                            </FighterPhoto>
                             <h2 className="fighter-card__name">{redFighterName}</h2>
                             {formatRecord(redFighter.record_at_fight) ? (
                                 <p className="fighter-card__record">{formatRecord(redFighter.record_at_fight)}</p>
@@ -346,15 +346,15 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     >
                         <span className="fighter-card__corner">BLUE CORNER</span>
                         <div className="fighter-card__content">
-                            <div className="fighter-card__photo" style={{
-                                backgroundImage: `url(${getFighterImageUrl(blueFighter)})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'top center'
-                            }}>
+                            <FighterPhoto
+                                className="fighter-card__photo"
+                                fighter={blueFighter}
+                                backgroundPosition="top center"
+                            >
                                 {blueFighter.ranking?.position && (
                                     <span className="fighter-card__rank">#{blueFighter.ranking.position}</span>
                                 )}
-                            </div>
+                            </FighterPhoto>
                             <h2 className="fighter-card__name">{blueFighterName}</h2>
                             {formatRecord(blueFighter.record_at_fight) ? (
                                 <p className="fighter-card__record">{formatRecord(blueFighter.record_at_fight)}</p>

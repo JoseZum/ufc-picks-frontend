@@ -14,11 +14,11 @@ import {
     getEventDateTime,
     getEventImageUrl,
     getFighterDisplayName,
-    getFighterImageUrl,
     hasBoutResult,
     getNormalizedFighterName
 } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
+import { FighterImage } from '@/components/FighterImage';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import { useCountdown } from '../hooks/useCountdown';
@@ -173,13 +173,10 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             </div>
                         )}
                         <div className="fight-card__photo">
-                            <img
-                                src={getFighterImageUrl(bout.fighters.red)}
+                            <FighterImage
+                                fighter={bout.fighters.red}
                                 alt={redFighterName}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                onError={(e) => {
-                                    e.currentTarget.src = '/placeholder-fighter.svg';
-                                }}
                             />
                         </div>
                         <div className="fight-card__info">
@@ -219,13 +216,10 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             </div>
                         )}
                         <div className="fight-card__photo">
-                            <img
-                                src={getFighterImageUrl(bout.fighters.blue)}
+                            <FighterImage
+                                fighter={bout.fighters.blue}
                                 alt={blueFighterName}
                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                onError={(e) => {
-                                    e.currentTarget.src = '/placeholder-fighter.svg';
-                                }}
                             />
                         </div>
                         <div className="fight-card__info">
