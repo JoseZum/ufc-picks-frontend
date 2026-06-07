@@ -5612,11 +5612,7 @@
     border-color: var(--gold);
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(251, 191, 36, 0.25);
 }
-
-.hero__event--title .hero__event-badge {
-    background: var(--gold);
-    color: #1a1200;
-}
+/* El badge "OPEN FOR PICKS" se mantiene rojo aunque el evento sea de título */
 
 /* Main event VS card dorado */
 .main-event--title {
@@ -5628,6 +5624,39 @@
     background: var(--gold);
     color: #1a1200;
     font-weight: 700;
+}
+
+/* Gradiente dorado para AMBOS corners en main event de título.
+   El corner sólo se distingue por la barra inferior de la foto (::after),
+   que NO cambia de color. */
+.main-event--title .main-event__fighter--red,
+.main-event--title .main-event__fighter--blue {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.14) 0%, var(--bg-panel) 100%);
+}
+
+/* Tarjeta de pelea (event detail) por título: mismo rectángulo que el main
+   event pero en dorado. Va después de .fight-card--main para ganarle por
+   orden de fuente cuando un main event es además título. */
+.fight-card--title {
+    border-color: var(--gold);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(251, 191, 36, 0.3);
+}
+
+.fight-card--title:hover {
+    border-color: var(--gold);
+}
+
+.fight-card--title .fight-card__header {
+    background: var(--gold);
+}
+
+.fight-card--title .fight-card__weight {
+    color: #1a1200;
+    font-weight: 700;
+}
+
+.fight-card--title .fight-card__rounds {
+    color: rgba(26, 18, 0, 0.7);
 }
 
 /* ============================================

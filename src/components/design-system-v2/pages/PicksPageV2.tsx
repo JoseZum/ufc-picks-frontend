@@ -9,7 +9,6 @@ import { useCurrentUser, useAllMyPicks, useEvents } from '@/lib/hooks';
 import { getEventPosterUrl } from '@/lib/api';
 import api from '@/lib/api';
 import { Loader2, Search, X } from 'lucide-react';
-import { formatEventDate } from '@/lib/dateUtils';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const PicksPageV2 = () => {

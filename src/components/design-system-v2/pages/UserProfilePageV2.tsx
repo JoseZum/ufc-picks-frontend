@@ -3,7 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { V2Layout } from '../V2Layout';
-import { useUserProfile, useUserPicks, useUserPicksStats, useGlobalLeaderboard } from '@/lib/hooks';
+import { EventPicksSection } from '../EventPicksSection';
+import { useUserProfile, useUserPicks, useUserPicksStats, useGlobalLeaderboard, useEvents } from '@/lib/hooks';
+import { getEventPosterUrl } from '@/lib/api';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import './UserProfilePageV2.css';
 
@@ -13,81 +15,110 @@ interface UserProfilePageV2Props {
 
 export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
     const { data: profile, isLoading: profileLoading } = useUserProfile(userId);
-    const { data: stats, isLoading: statsLoading } = useUserPicksStats(userId);
-    const { data: picks, isLoading: picksLoading } = useUserPicks(userId, { limit: 50 });
-    const { data: leaderboard } = useGlobalLeaderboard({ limit: 200 });
+    const { data: stats } = useUserPicksStats(userId);
+    // Traer todos los picks públicos (máx del backend) para cálculos correctos
+    const { data: picks } = useUserPicks(userId, { limit: 200 });
+    const { data: leaderboard } = useGlobalLeaderboard({ limit: 500 });
+    const { data: eventsData } = useEvents({ limit: 50 });
 
-    // Calculate user rank
+    const [selectedEventId, setSelectedEventId] = React.useState<number | null>(null);
+
+    const events = eventsData?.events || [];
+
+    // Rank global del usuario: usar el rank real de la entrada del leaderboard
     const userRank = React.useMemo(() => {
         if (!leaderboard) return null;
-        const index = leaderboard.findIndex((entry) => entry.user_id === userId);
-        return index >= 0 ? index + 1 : null;
+        const entry = leaderboard.find((e) => String(e.user_id) === String(userId));
+        return entry ? entry.rank : null;
     }, [userId, leaderboard]);
 
     const totalUsers = leaderboard?.length || 0;
 
-    // Calculate method breakdown with accuracy
+    // Desglose por método. La precisión se calcula sólo sobre picks ya evaluados
+    // (excluye pendientes del denominador). "total" = picks hechos con ese método.
     const methodStats = React.useMemo(() => {
-        if (!picks) return {
-            KO: { total: 0, correct: 0, accuracy: 0 },
-            SUB: { total: 0, correct: 0, accuracy: 0 },
-            DEC: { total: 0, correct: 0, accuracy: 0 }
-        };
+        const makeEmpty = () => ({
+            KO: { total: 0, decided: 0, correct: 0, accuracy: 0 },
+            SUB: { total: 0, decided: 0, correct: 0, accuracy: 0 },
+            DEC: { total: 0, decided: 0, correct: 0, accuracy: 0 }
+        });
+        if (!picks) return makeEmpty();
 
-        const stats = picks.reduce((acc, pick) => {
-            if (pick.picked_method) {
-                let method: 'KO' | 'SUB' | 'DEC';
-                if (pick.picked_method === 'KO/TKO') method = 'KO';
-                else if (pick.picked_method === 'SUB') method = 'SUB';
-                else method = 'DEC';
+        const result = picks.reduce((acc, pick) => {
+            if (!pick.picked_method) return acc;
 
-                acc[method].total++;
+            let method: 'KO' | 'SUB' | 'DEC';
+            if (pick.picked_method === 'KO/TKO') method = 'KO';
+            else if (pick.picked_method === 'SUB') method = 'SUB';
+            else method = 'DEC';
+
+            acc[method].total++;
+            if (pick.is_correct !== null && pick.is_correct !== undefined) {
+                acc[method].decided++;
                 if (pick.is_correct) acc[method].correct++;
             }
             return acc;
-        }, {
-            KO: { total: 0, correct: 0, accuracy: 0 },
-            SUB: { total: 0, correct: 0, accuracy: 0 },
-            DEC: { total: 0, correct: 0, accuracy: 0 }
-        });
+        }, makeEmpty());
 
-        // Calculate accuracy percentages
-        Object.keys(stats).forEach((key) => {
-            const method = key as 'KO' | 'SUB' | 'DEC';
-            stats[method].accuracy = stats[method].total > 0
-                ? Math.round((stats[method].correct / stats[method].total) * 100)
+        (Object.keys(result) as Array<'KO' | 'SUB' | 'DEC'>).forEach((method) => {
+            result[method].accuracy = result[method].decided > 0
+                ? Math.round((result[method].correct / result[method].decided) * 100)
                 : 0;
         });
 
-        return stats;
+        return result;
     }, [picks]);
 
-    // Calculate perfect picks (finish method KO/TKO or SUB + correct round)
-    const perfectPicks = React.useMemo(() => {
-        if (!picks) return 0;
-        return picks.filter(pick =>
-            pick.is_correct &&
-            pick.picked_round && // Must have picked a round
-            (pick.picked_method === 'KO/TKO' || pick.picked_method === 'SUB') && // Must be a finish
-            pick.points_awarded === 3 // Perfect picks get 3 points
-        ).length;
-    }, [picks]);
+    // Perfect picks: usar el valor calculado por el backend (método + round correctos)
+    const perfectPicks = stats?.perfect_picks || 0;
 
-    // Current streak
+    // Racha actual: picks correctos consecutivos desde el más reciente evaluado.
+    // Ordena por fecha de evento (fallback a created_at) y salta los pendientes.
     const currentStreak = React.useMemo(() => {
         if (!picks) return 0;
-        const sortedPicks = [...picks].sort((a, b) =>
-            new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
-        );
+        const ts = (p: typeof picks[number]) =>
+            new Date(p.event_date || p.created_at || 0).getTime();
+        const sortedPicks = [...picks].sort((a, b) => ts(b) - ts(a));
 
         let streak = 0;
         for (const pick of sortedPicks) {
-            if (pick.is_correct === null) continue; // Skip pending
+            if (pick.is_correct === null || pick.is_correct === undefined) continue; // pendiente
             if (pick.is_correct) streak++;
             else break;
         }
         return streak;
     }, [picks]);
+
+    // Agrupar los picks del usuario por evento (para las tarjetas con imagen)
+    const picksByEvent = React.useMemo(() => {
+        const grouped = new Map<number, Array<{ pick: any; event: any }>>();
+        if (!picks) return grouped;
+        picks.forEach((pick) => {
+            const realEvent = events.find((e) => e.id === pick.event_id);
+            // Evento sintético si no está en la lista reciente (para nombre/fecha)
+            const event = realEvent || {
+                id: pick.event_id,
+                name: pick.event_name || 'Unknown Event',
+                date: pick.event_date,
+                status: 'completed',
+            };
+            const existing = grouped.get(pick.event_id) || [];
+            existing.push({ pick, event });
+            grouped.set(pick.event_id, existing);
+        });
+        return grouped;
+    }, [picks, events]);
+
+    // Eventos con picks, más reciente primero
+    const eventsWithPicks = React.useMemo(() => {
+        return Array.from(picksByEvent.values())
+            .map((arr) => arr[0].event)
+            .sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+    }, [picksByEvent]);
+
+    const selectedEvent = selectedEventId != null
+        ? eventsWithPicks.find((e) => e.id === selectedEventId)
+        : null;
 
     if (profileLoading) {
         return (
@@ -217,66 +248,54 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                         </div>
                     </div>
 
-                    {/* Recent Picks */}
+                    {/* Picks por evento - tarjetas con imagen; al click se ven los picks */}
                     <div className="recent-picks-section">
                         <div className="recent-picks-header">
-                            <div className="recent-picks-header__title">RECENT PICKS</div>
-                            <div className="recent-picks-header__count">{picks?.length || 0} TOTAL</div>
+                            <div className="recent-picks-header__title">
+                                {selectedEvent ? selectedEvent.name.toUpperCase() : 'PICKS BY EVENT'}
+                            </div>
+                            {selectedEvent ? (
+                                <button className="recent-picks-header__back" onClick={() => setSelectedEventId(null)}>
+                                    <ArrowLeft size={14} /> ALL EVENTS
+                                </button>
+                            ) : (
+                                <div className="recent-picks-header__count">{eventsWithPicks.length} EVENTS</div>
+                            )}
                         </div>
 
-                        {(!picks || picks.length === 0) ? (
+                        {eventsWithPicks.length === 0 ? (
                             <div className="picks-empty">
                                 <p className="picks-empty__text">NO PICKS YET</p>
                                 <Link href="/events" className="picks-empty__cta">
                                     VIEW UPCOMING EVENTS →
                                 </Link>
                             </div>
+                        ) : selectedEvent ? (
+                            <EventPicksSection
+                                event={selectedEvent}
+                                picks={picksByEvent.get(selectedEvent.id) || []}
+                            />
                         ) : (
-                            <div className="picks-grid">
-                                {picks.slice(0, 12).map((pick) => {
-                                    const pickedFighter = pick.picked_fighter_name;
-                                    const isPickedRed = pick.picked_fighter_name?.toLowerCase() === pick.fighter_red?.toLowerCase();
-                                    const otherFighter = isPickedRed ? pick.fighter_blue : pick.fighter_red;
-                                    const pickedCornerClass = isPickedRed ? 'red' : 'blue';
-                                    const statusClass = pick.is_correct === null ? 'pending' : pick.is_correct ? 'correct' : 'incorrect';
-                                    const isPerfect = pick.points_awarded === 3;
-
-                                    return (
-                                        <div key={pick.id} className={`pick-card pick-card--${statusClass} ${isPerfect ? 'pick-card--perfect' : ''}`}>
-                                            {/* Status Badge */}
-                                            <div className="pick-card__status">
-                                                {pick.is_correct === null ? '⏱️' : pick.is_correct ? (isPerfect ? '🎯' : '✓') : '✗'}
-                                            </div>
-
-                                            {/* Event Name */}
-                                            <div className="pick-card__event">
-                                                {pick.event_name || 'Unknown Event'}
-                                            </div>
-
-                                            {/* Fight */}
-                                            <div className="pick-card__fight">
-                                                <div className={`pick-card__fighter pick-card__fighter--picked pick-card__fighter--${pickedCornerClass}`}>
-                                                    {pickedFighter || 'Unknown'}
-                                                </div>
-                                                <div className="pick-card__vs">VS</div>
-                                                <div className="pick-card__fighter pick-card__fighter--faded">
-                                                    {otherFighter || 'Unknown'}
-                                                </div>
-                                            </div>
-
-                                            {/* Pick Info */}
-                                            <div className="pick-card__info">
-                                                <div className="pick-card__method">
-                                                    <span className="pick-card__badge">{pick.picked_method}</span>
-                                                    {pick.picked_round && <span className="pick-card__badge">R{pick.picked_round}</span>}
-                                                </div>
-                                                <div className={`pick-card__points pick-card__points--${statusClass}`}>
-                                                    {pick.is_correct ? `+${pick.points_awarded || 1}` : '0'} PT{(pick.points_awarded !== 1 || !pick.is_correct) ? 'S' : ''}
-                                                </div>
-                                            </div>
+                            <div className="browse-grid">
+                                {eventsWithPicks.map((event) => (
+                                    <button
+                                        key={event.id}
+                                        className={`browse-card ${event.is_title_fight ? 'event-card--title' : ''}`}
+                                        onClick={() => setSelectedEventId(event.id)}
+                                    >
+                                        <div
+                                            className="browse-card__image"
+                                            style={{
+                                                backgroundImage: `url(${getEventPosterUrl(event)})`,
+                                                backgroundSize: 'cover',
+                                                backgroundPosition: 'center'
+                                            }}
+                                        >
+                                            {event.is_title_fight && <span className="event-card__title-flag">★</span>}
                                         </div>
-                                    );
-                                })}
+                                        <div className="browse-card__name">{event.name}</div>
+                                    </button>
+                                ))}
                             </div>
                         )}
                     </div>

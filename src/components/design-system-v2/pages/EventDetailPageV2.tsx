@@ -141,10 +141,10 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
             <Link
                 key={bout.id}
                 href={`/events/${eventId}/fights/${bout.id}`}
-                className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''} ${hasResult ? 'fight-card--completed' : ''}`}
+                className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''} ${bout.is_title_fight ? 'fight-card--title' : ''} ${hasResult ? 'fight-card--completed' : ''}`}
             >
                 <div className="fight-card__header">
-                    <span className="fight-card__weight">{bout.weight_class} BOUT</span>
+                    <span className="fight-card__weight">{bout.is_title_fight && '★ '}{bout.weight_class} {bout.is_title_fight ? 'TITLE' : 'BOUT'}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         {hasResult && (
                             <span className="fight-card__result-badge">
