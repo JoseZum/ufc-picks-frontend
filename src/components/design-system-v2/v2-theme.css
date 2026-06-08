@@ -5608,11 +5608,8 @@
 }
 
 /* Hero del homepage dorado */
-.hero__event--title {
-    border-color: var(--gold);
-    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(251, 191, 36, 0.25);
-}
-/* El badge "OPEN FOR PICKS" se mantiene rojo aunque el evento sea de título */
+/* El hero del homepage NO lleva tratamiento dorado: se mantiene en su color
+   original aunque el evento sea de título. */
 
 /* Main event VS card dorado */
 .main-event--title {
@@ -5632,6 +5629,11 @@
 .main-event--title .main-event__fighter--red,
 .main-event--title .main-event__fighter--blue {
     background: linear-gradient(135deg, rgba(251, 191, 36, 0.14) 0%, var(--bg-panel) 100%);
+}
+
+/* El "VS" del main event de título también va en dorado */
+.main-event--title .main-event__vs-text {
+    color: var(--gold);
 }
 
 /* Tarjeta de pelea (event detail) por título: mismo rectángulo que el main

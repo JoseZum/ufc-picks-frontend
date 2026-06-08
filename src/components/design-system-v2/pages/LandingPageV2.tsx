@@ -66,7 +66,7 @@ export const LandingPageV2 = () => {
             <main className="main">
                 {/* HERO SECTION - BROKEN GRID */}
                 <section className="hero">
-                    <div className={`hero__event ${nextEvent?.is_title_fight ? 'hero__event--title' : ''}`}>
+                    <div className="hero__event">
                         <div className="hero__event-image" style={{
                             backgroundImage: nextEvent ? `url(${getEventImageUrl(nextEvent)})` : 'none',
                             backgroundSize: 'cover',
