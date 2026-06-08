@@ -5568,26 +5568,19 @@
    Eventos cuya pelea principal es por título
    ============================================ */
 
-/* Tarjeta de evento dorada (events page + browse) */
-.event-card--title {
-    border-color: var(--gold);
-}
-
-.event-card--title:hover {
-    border-color: var(--gold);
-    box-shadow: 4px 4px 0 var(--gold);
-}
-
-.event-card--title .event-card__image {
-    border-bottom-color: var(--gold);
-}
-
+/* Tarjeta de evento de título (events page): SIN contorno ni tag dorada.
+   Sólo la fecha y el bloque "MAKE YOUR PICKS" (borde + texto) van en dorado. */
 .event-card--title .event-card__date {
     color: var(--gold);
 }
 
 .event-card--title .event-card__main-event {
     border-left-color: var(--gold);
+}
+
+.event-card--title .event-card__main-event-fighters,
+.event-card--title .event-card__main-event-fighters span {
+    color: var(--gold);
 }
 
 /* Badge dorado "★ TITLE" en la esquina superior derecha del poster */
@@ -5659,6 +5652,15 @@
 
 .fight-card--title .fight-card__rounds {
     color: rgba(26, 18, 0, 0.7);
+}
+
+/* En fight cards de título, el VS y el "CLICK TO MAKE PICK" también en dorado */
+.fight-card--title .fight-card__vs-text {
+    color: var(--gold);
+}
+
+.fight-card--title .fight-card__click-hint {
+    color: var(--gold);
 }
 
 /* ============================================
