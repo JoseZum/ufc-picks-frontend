@@ -7,12 +7,82 @@ import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCountdown } from '../hooks/useCountdown';
 import { useEvents, useGlobalLeaderboard, useEventBouts, useCurrentUser, useMyLeaderboardPosition } from '@/lib/hooks';
-import { getFighterDisplayName, getEventImageUrl, getEventDateTime } from '@/lib/api';
+import { getFighterDisplayName, getEventImageUrl, getEventDateTime, type Bout } from '@/lib/api';
 import { FighterImage } from '@/components/FighterImage';
 import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import { isEventStillVisible, getDaysUntilEvent } from '@/lib/dateUtils';
+
+// Tarjeta VS estilo "main event". Reutilizada para el main event y el co-main
+// (este último sólo se muestra en la home cuando es pelea de título).
+const EventVsCard = ({ bout, label }: { bout: Bout; label: string }) => {
+    const red = bout.fighters.red;
+    const blue = bout.fighters.blue;
+    const redName = getFighterDisplayName(red);
+    const blueName = getFighterDisplayName(blue);
+
+    return (
+        <div className={`main-event ${bout.is_title_fight ? 'main-event--title' : ''}`}>
+            <div className="main-event__header">
+                {bout.is_title_fight && '★ '}{label} // {bout.weight_class} {bout.is_title_fight ? 'Title' : 'Bout'}
+            </div>
+            <div className="main-event__content">
+                <div className="main-event__fighter main-event__fighter--red">
+                    <div className="main-event__photo">
+                        <FighterImage
+                            fighter={red}
+                            alt={redName}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    </div>
+                    <div className="main-event__name">{redName}</div>
+                    <div className="main-event__record">
+                        {red.record_at_fight ?
+                            `${red.record_at_fight.wins}-${red.record_at_fight.losses}-${red.record_at_fight.draws}`
+                            : 'Record N/A'}
+                    </div>
+                    <div className="main-event__country">
+                        <FlagBadge
+                            country={red.nationality || 'Unknown'}
+                            countryCode={getFlagCode(red.nationality)}
+                            size="S"
+                            showCountryName={true}
+                        />
+                    </div>
+                </div>
+
+                <div className="main-event__vs">
+                    <div className="main-event__vs-text">VS</div>
+                </div>
+
+                <div className="main-event__fighter main-event__fighter--blue">
+                    <div className="main-event__photo">
+                        <FighterImage
+                            fighter={blue}
+                            alt={blueName}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                    </div>
+                    <div className="main-event__name">{blueName}</div>
+                    <div className="main-event__record">
+                        {blue.record_at_fight ?
+                            `${blue.record_at_fight.wins}-${blue.record_at_fight.losses}-${blue.record_at_fight.draws}`
+                            : 'Record N/A'}
+                    </div>
+                    <div className="main-event__country">
+                        <FlagBadge
+                            country={blue.nationality || 'Unknown'}
+                            countryCode={getFlagCode(blue.nationality)}
+                            size="S"
+                            showCountryName={true}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export const LandingPageV2 = () => {
     const router = useRouter();
@@ -29,11 +99,10 @@ export const LandingPageV2 = () => {
         return true;
     });
 
-    // 2. Get Main Event Bout
+    // 2. Get Main Event Bout (y el co-main, que va ordenado en el índice 1)
     const { data: bouts } = useEventBouts(nextEvent?.id || 0);
     const mainEventBout = bouts?.[0];
-    const redMainEventName = getFighterDisplayName(mainEventBout?.fighters?.red);
-    const blueMainEventName = getFighterDisplayName(mainEventBout?.fighters?.blue);
+    const coMainBout = bouts?.[1];
 
     // 3. Get Leaderboard
     const { data: leaderboard, isLoading: leaderboardLoading } = useGlobalLeaderboard({
@@ -129,67 +198,10 @@ export const LandingPageV2 = () => {
                 </section>
 
                 {/* MAIN EVENT - BRUTAL VS CARD */}
-                {mainEventBout && (
-                    <div className={`main-event ${mainEventBout.is_title_fight ? 'main-event--title' : ''}`}>
-                        <div className="main-event__header">
-                            {mainEventBout.is_title_fight && '★ '}Main Event // {mainEventBout.weight_class} {mainEventBout.is_title_fight ? 'Title' : 'Bout'}
-                        </div>
-                        <div className="main-event__content">
-                            <div className="main-event__fighter main-event__fighter--red">
-                                <div className="main-event__photo">
-                                    <FighterImage
-                                        fighter={mainEventBout.fighters.red}
-                                        alt={redMainEventName}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                    {/* Fallback placeholder styled via CSS if img fails/missing */}
-                                </div>
-                                <div className="main-event__name">{redMainEventName}</div>
-                                <div className="main-event__record">
-                                    {mainEventBout.fighters.red.record_at_fight ?
-                                        `${mainEventBout.fighters.red.record_at_fight.wins}-${mainEventBout.fighters.red.record_at_fight.losses}-${mainEventBout.fighters.red.record_at_fight.draws}`
-                                        : 'Record N/A'}
-                                </div>
-                                <div className="main-event__country">
-                                    <FlagBadge
-                                        country={mainEventBout.fighters.red.nationality || 'Unknown'}
-                                        countryCode={getFlagCode(mainEventBout.fighters.red.nationality)}
-                                        size="S"
-                                        showCountryName={true}
-                                    />
-                                </div>
-                            </div>
+                {mainEventBout && <EventVsCard bout={mainEventBout} label="Main Event" />}
 
-                            <div className="main-event__vs">
-                                <div className="main-event__vs-text">VS</div>
-                            </div>
-
-                            <div className="main-event__fighter main-event__fighter--blue">
-                                <div className="main-event__photo">
-                                    <FighterImage
-                                        fighter={mainEventBout.fighters.blue}
-                                        alt={blueMainEventName}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                </div>
-                                <div className="main-event__name">{blueMainEventName}</div>
-                                <div className="main-event__record">
-                                    {mainEventBout.fighters.blue.record_at_fight ?
-                                        `${mainEventBout.fighters.blue.record_at_fight.wins}-${mainEventBout.fighters.blue.record_at_fight.losses}-${mainEventBout.fighters.blue.record_at_fight.draws}`
-                                        : 'Record N/A'}
-                                </div>
-                                <div className="main-event__country">
-                                    <FlagBadge
-                                        country={mainEventBout.fighters.blue.nationality || 'Unknown'}
-                                        countryCode={getFlagCode(mainEventBout.fighters.blue.nationality)}
-                                        size="S"
-                                        showCountryName={true}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
+                {/* CO-MAIN: sólo se muestra en la home si es pelea de título */}
+                {coMainBout?.is_title_fight && <EventVsCard bout={coMainBout} label="Co-Main Event" />}
 
                 {/* USER STATS - BRUTALIST CARDS */}
                 <section className="stats-section">
