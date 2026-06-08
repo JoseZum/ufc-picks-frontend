@@ -22,10 +22,15 @@ const EventVsCard = ({ bout, label }: { bout: Bout; label: string }) => {
     const redName = getFighterDisplayName(red);
     const blueName = getFighterDisplayName(blue);
 
+    // BMF (plateado) tiene prioridad sobre título normal (dorado)
+    const variant = bout.is_bmf_title_fight ? 'bmf' : bout.is_title_fight ? 'title' : null;
+    const variantClass = variant === 'bmf' ? 'main-event--bmf' : variant === 'title' ? 'main-event--title' : '';
+    const fightLabel = variant === 'bmf' ? 'BMF Title' : variant === 'title' ? 'Title' : 'Bout';
+
     return (
-        <div className={`main-event ${bout.is_title_fight ? 'main-event--title' : ''}`}>
+        <div className={`main-event ${variantClass}`}>
             <div className="main-event__header">
-                {bout.is_title_fight && '★ '}{label} // {bout.weight_class} {bout.is_title_fight ? 'Title' : 'Bout'}
+                {variant && '★ '}{label} // {bout.weight_class} {fightLabel}
             </div>
             <div className="main-event__content">
                 <div className="main-event__fighter main-event__fighter--red">
@@ -200,8 +205,9 @@ export const LandingPageV2 = () => {
                 {/* MAIN EVENT - BRUTAL VS CARD */}
                 {mainEventBout && <EventVsCard bout={mainEventBout} label="Main Event" />}
 
-                {/* CO-MAIN: sólo se muestra en la home si es pelea de título */}
-                {coMainBout?.is_title_fight && <EventVsCard bout={coMainBout} label="Co-Main Event" />}
+                {/* CO-MAIN: sólo se muestra en la home si es pelea de título (normal o BMF) */}
+                {(coMainBout?.is_title_fight || coMainBout?.is_bmf_title_fight) &&
+                    <EventVsCard bout={coMainBout} label="Co-Main Event" />}
 
                 {/* USER STATS - BRUTALIST CARDS */}
                 <section className="stats-section">

@@ -1082,6 +1082,7 @@ function BoutManageCard({
     const [roundsScheduled, setRoundsScheduled] = useState(String(bout.rounds_scheduled || 3));
     const [weightClass, setWeightClass] = useState(bout.weight_class || '');
     const [isTitleFight, setIsTitleFight] = useState(bout.is_title_fight || false);
+    const [isBmfTitleFight, setIsBmfTitleFight] = useState(bout.is_bmf_title_fight || false);
 
     // Campos de card_slots (no disponibles en el objeto bout, se llenan manualmente)
     const [cardSection, setCardSection] = useState('');
@@ -1110,6 +1111,9 @@ function BoutManageCard({
             }
             if (isTitleFight !== (bout.is_title_fight || false)) {
                 payload.is_title_fight = isTitleFight;
+            }
+            if (isBmfTitleFight !== (bout.is_bmf_title_fight || false)) {
+                payload.is_bmf_title_fight = isBmfTitleFight;
             }
 
             // Campos de card_slots (se envian si tienen valor)
@@ -1205,6 +1209,7 @@ function BoutManageCard({
                         <div className="bout-result-card__meta-item">WEIGHT: <span>{bout.weight_class}</span></div>
                         <div className="bout-result-card__meta-item">ROUNDS: <span>{bout.rounds_scheduled}</span></div>
                         <div className="bout-result-card__meta-item">TITLE: <span>{bout.is_title_fight ? 'YES' : 'NO'}</span></div>
+                        <div className="bout-result-card__meta-item">BMF: <span>{bout.is_bmf_title_fight ? 'YES' : 'NO'}</span></div>
                         <div className="bout-result-card__meta-item">STATUS: <span>{bout.status?.toUpperCase()}</span></div>
                     </div>
 
@@ -1275,6 +1280,14 @@ function BoutManageCard({
                                 onChange={(e) => setIsTitleFight(e.target.checked)}
                             />
                             TITLE FIGHT
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ccc', cursor: 'pointer' }}>
+                            <input
+                                type="checkbox"
+                                checked={isBmfTitleFight}
+                                onChange={(e) => setIsBmfTitleFight(e.target.checked)}
+                            />
+                            BMF TITLE FIGHT
                         </label>
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ccc', cursor: 'pointer' }}>
                             <input

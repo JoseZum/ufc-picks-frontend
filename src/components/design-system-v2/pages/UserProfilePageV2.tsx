@@ -280,7 +280,7 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                                 {eventsWithPicks.map((event) => (
                                     <button
                                         key={event.id}
-                                        className={`browse-card ${event.is_title_fight ? 'event-card--title' : ''}`}
+                                        className={`browse-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}
                                         onClick={() => setSelectedEventId(event.id)}
                                     >
                                         <div
@@ -291,7 +291,7 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                                                 backgroundPosition: 'center'
                                             }}
                                         >
-                                            {event.is_title_fight && <span className="event-card__title-flag">★</span>}
+                                            {(event.is_title_fight || event.is_bmf_title_fight) && <span className="event-card__title-flag">★</span>}
                                         </div>
                                         <div className="browse-card__name">{event.name}</div>
                                     </button>

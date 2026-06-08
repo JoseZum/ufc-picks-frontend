@@ -5664,6 +5664,87 @@
 }
 
 /* ============================================
+   BMF TITLE FIGHT - SILVER TREATMENT
+   Misma idea que el dorado pero plateado (#cbd5e1)
+   ============================================ */
+
+/* Tarjeta de evento (events page): sólo fecha + bloque MAKE YOUR PICKS en plateado */
+.event-card--bmf .event-card__date {
+    color: #cbd5e1;
+}
+
+.event-card--bmf .event-card__main-event {
+    border-left-color: #cbd5e1;
+}
+
+.event-card--bmf .event-card__main-event-fighters,
+.event-card--bmf .event-card__main-event-fighters span {
+    color: #cbd5e1;
+}
+
+/* Tarjetas-póster (browse / perfil): ★ y subrayado plateados */
+.event-card--bmf .event-card__title-flag {
+    background: #cbd5e1;
+    color: #15171a;
+}
+
+.browse-card.event-card--bmf .browse-card__image {
+    border-bottom-color: #cbd5e1;
+}
+
+/* Main event / co-main VS card (homepage) en plateado */
+.main-event--bmf {
+    border-color: #cbd5e1;
+    box-shadow: calc(var(--shadow-offset) * 1.5) calc(var(--shadow-offset) * 1.5) 0 rgba(203, 213, 225, 0.3);
+}
+
+.main-event--bmf .main-event__header {
+    background: #cbd5e1;
+    color: #15171a;
+    font-weight: 700;
+}
+
+.main-event--bmf .main-event__fighter--red,
+.main-event--bmf .main-event__fighter--blue {
+    background: linear-gradient(135deg, rgba(203, 213, 225, 0.16) 0%, var(--bg-panel) 100%);
+}
+
+.main-event--bmf .main-event__vs-text {
+    color: #cbd5e1;
+}
+
+/* Fight card del detalle del evento en plateado */
+.fight-card--bmf {
+    border-color: #cbd5e1;
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(203, 213, 225, 0.3);
+}
+
+.fight-card--bmf:hover {
+    border-color: #cbd5e1;
+}
+
+.fight-card--bmf .fight-card__header {
+    background: #cbd5e1;
+}
+
+.fight-card--bmf .fight-card__weight {
+    color: #15171a;
+    font-weight: 700;
+}
+
+.fight-card--bmf .fight-card__rounds {
+    color: rgba(21, 23, 26, 0.7);
+}
+
+.fight-card--bmf .fight-card__vs-text {
+    color: #cbd5e1;
+}
+
+.fight-card--bmf .fight-card__click-hint {
+    color: #cbd5e1;
+}
+
+/* ============================================
    MY PICKS - CONTROLS + BROWSE EVENTS MODAL
    ============================================ */
 

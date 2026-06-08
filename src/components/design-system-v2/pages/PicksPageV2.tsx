@@ -235,7 +235,7 @@ export const PicksPageV2 = () => {
                             {browseEvents.map(event => (
                                 <button
                                     key={event.id}
-                                    className={`browse-card ${event.is_title_fight ? 'event-card--title' : ''}`}
+                                    className={`browse-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}
                                     onClick={() => selectEvent(event.id)}
                                 >
                                     <div
@@ -246,7 +246,7 @@ export const PicksPageV2 = () => {
                                             backgroundPosition: 'center'
                                         }}
                                     >
-                                        {event.is_title_fight && <span className="event-card__title-flag">★</span>}
+                                        {(event.is_title_fight || event.is_bmf_title_fight) && <span className="event-card__title-flag">★</span>}
                                         {event.status === 'scheduled' && <span className="browse-card__pending">PENDING</span>}
                                     </div>
                                     <div className="browse-card__name">{event.name}</div>

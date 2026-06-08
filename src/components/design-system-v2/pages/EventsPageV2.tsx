@@ -87,7 +87,7 @@ export const EventsPageV2 = () => {
                         <div className="events-grid">
                             {/* FEATURED EVENT */}
                             {showUpcoming && featuredEvent && (
-                                <a href={`/events/${featuredEvent.id}`} className={`event-card event-card--featured ${featuredEvent.is_title_fight ? 'event-card--title' : ''}`}>
+                                <a href={`/events/${featuredEvent.id}`} className={`event-card event-card--featured ${featuredEvent.is_bmf_title_fight ? 'event-card--bmf' : featuredEvent.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(featuredEvent)})`,
                                         backgroundSize: 'cover',
@@ -126,7 +126,7 @@ export const EventsPageV2 = () => {
 
                             {/* UPCOMING EVENTS */}
                             {showUpcoming && otherUpcomingEvents.map(event => (
-                                <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_title_fight ? 'event-card--title' : ''}`}>
+                                <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(event)})`,
                                         backgroundSize: 'cover',
@@ -169,7 +169,7 @@ export const EventsPageV2 = () => {
 
                                 <div className="events-grid">
                                     {completedEventsAll.map(event => (
-                                        <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_title_fight ? 'event-card--title' : ''}`}>
+                                        <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}>
                                             <div className="event-card__image" style={{
                                                 backgroundImage: `url(${getEventPosterUrl(event)})`,
                                                 backgroundSize: 'cover',
