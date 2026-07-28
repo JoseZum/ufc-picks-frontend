@@ -335,6 +335,23 @@ export interface Fighter {
     other: string[];
   };
 
+  // ESPN enrichment
+  espn_id?: string;
+  espn_url?: string;
+  espn_headshot_url?: string;
+  date_of_birth?: string;
+  stance?: string;
+  weight_class?: string;
+  career_stats?: {
+    wins_by_ko_tko?: number;
+    losses_by_ko_tko?: number;
+    wins_by_submission?: number;
+    losses_by_submission?: number;
+    title_wins?: number;
+    title_losses?: number;
+  };
+  image_source?: string;
+
   // Tapology data
   tapology_id?: string;
   tapology_url?: string;
