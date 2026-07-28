@@ -197,6 +197,7 @@ export interface Event {
   total_bouts: number;
   promotion: string;
   poster_image_url?: string;
+  hero_image_url?: string;
   event_art_url?: string;
   picks_locked?: boolean;
   is_title_fight?: boolean;  // True si la pelea principal es por título
@@ -443,7 +444,7 @@ export function getFighterImageCandidates(
 }
 /**
  * Helper to get event poster URL
- * Handles both CloudFront URLs (absolute) and proxy URLs (relative)
+ * Uses the Wikipedia-credited original source when available.
  */
 export function getEventPosterUrl(event: Event): string {
   // Use the poster_image_url from the backend if available
@@ -451,7 +452,7 @@ export function getEventPosterUrl(event: Event): string {
     return '/placeholder-event.svg';
   }
 
-  // If it's an absolute URL (CloudFront), use it directly
+  // Source-resolved posters are absolute URLs and are served remotely.
   if (event.poster_image_url.startsWith('https://') || event.poster_image_url.startsWith('http://')) {
     return event.poster_image_url;
   }
@@ -473,15 +474,18 @@ export function getEventArtUrl(event: Event): string | null {
 }
 
 /**
- * Helper to get the best image URL for an event
- * Prefers event_art (admin-uploaded) over poster (scraped from Tapology)
+ * Resolve the wide, high-resolution art for landing/detail heroes.
+ * The official UFC background_image_xl_2x URL is always preferred. The
+ * vertical source poster is the migration fallback until UFC publishes art.
  */
 export function getEventImageUrl(event: Event): string {
-  const eventArt = getEventArtUrl(event);
-  
-  if (eventArt) {
-    return eventArt;
+  if (event.hero_image_url) {
+    if (event.hero_image_url.startsWith('https://') || event.hero_image_url.startsWith('http://')) {
+      return event.hero_image_url;
+    }
+    return `${API_URL}${event.hero_image_url}`;
   }
+
   return getEventPosterUrl(event);
 }
 
