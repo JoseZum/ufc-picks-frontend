@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['lucide-react'],
+  turbopack: {
+    root: process.cwd(),
+  },
 
   // Para Docker usa 'standalone', para Vercel no necesita output
   // output: 'standalone',
