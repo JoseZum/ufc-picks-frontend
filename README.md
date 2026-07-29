@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="./public/ufcfrontend-logo.png" alt="UFC Picks Web App" width="600">
+<img src="./public/ufcfrontend-logo.png" alt="UFC Picks Web App" width="400">
 
-# UFC Picks — Web App
+# UFC Picks - Frontend
 
 ### A fight-night prediction experience built around UFC events, picks and competition.
 
