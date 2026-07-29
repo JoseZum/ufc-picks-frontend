@@ -287,7 +287,7 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                                             className="browse-card__image"
                                             style={{
                                                 backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                                backgroundSize: 'contain',
+                                                backgroundSize: 'cover',
                                                 backgroundPosition: 'center',
                                                 backgroundRepeat: 'no-repeat'
                                             }}

@@ -242,7 +242,7 @@ export const PicksPageV2 = () => {
                                         className="browse-card__image"
                                         style={{
                                             backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                            backgroundSize: 'contain',
+                                            backgroundSize: 'cover',
                                             backgroundPosition: 'center',
                                             backgroundRepeat: 'no-repeat'
                                         }}

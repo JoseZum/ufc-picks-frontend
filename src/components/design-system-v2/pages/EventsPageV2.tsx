@@ -90,7 +90,7 @@ export const EventsPageV2 = () => {
                                 <a href={`/events/${featuredEvent.id}`} className={`event-card event-card--featured ${featuredEvent.is_bmf_title_fight ? 'event-card--bmf' : featuredEvent.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(featuredEvent)})`,
-                                        backgroundSize: 'contain',
+                                        backgroundSize: 'cover',
                                         backgroundPosition: 'center',
                                         backgroundRepeat: 'no-repeat'
                                     }}>
@@ -130,7 +130,7 @@ export const EventsPageV2 = () => {
                                 <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                        backgroundSize: 'contain',
+                                        backgroundSize: 'cover',
                                         backgroundPosition: 'center',
                                         backgroundRepeat: 'no-repeat'
                                     }}>
@@ -174,7 +174,7 @@ export const EventsPageV2 = () => {
                                         <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}>
                                             <div className="event-card__image" style={{
                                                 backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                                backgroundSize: 'contain',
+                                                backgroundSize: 'cover',
                                                 backgroundPosition: 'center',
                                                 backgroundRepeat: 'no-repeat'
                                             }}>
