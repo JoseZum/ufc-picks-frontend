@@ -15,7 +15,8 @@ import {
     getEventImageUrl,
     getFighterDisplayName,
     hasBoutResult,
-    getNormalizedFighterName
+    getNormalizedFighterName,
+    normalizeWeightClassLabel
 } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { FighterImage } from '@/components/FighterImage';
@@ -136,6 +137,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         const hasWinningCorner = isRedWinner || isBlueWinner;
         const resultMethod = hasResult ? (bout.result?.method ?? '') : '';
         const resultRound = hasResult ? bout.result?.round : null;
+        const weightClass = normalizeWeightClassLabel(bout.weight_class);
 
         return (
             <Link
@@ -144,7 +146,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                 className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''} ${bout.is_bmf_title_fight ? 'fight-card--bmf' : bout.is_title_fight ? 'fight-card--title' : ''} ${hasResult ? 'fight-card--completed' : ''}`}
             >
                 <div className="fight-card__header">
-                    <span className="fight-card__weight">{(bout.is_title_fight || bout.is_bmf_title_fight) && '★ '}{bout.weight_class} {bout.is_bmf_title_fight ? 'BMF TITLE' : bout.is_title_fight ? 'TITLE' : 'BOUT'}</span>
+                    <span className="fight-card__weight">{(bout.is_title_fight || bout.is_bmf_title_fight) && '★ '}{weightClass} {bout.is_bmf_title_fight ? 'BMF TITLE' : bout.is_title_fight ? 'TITLE' : 'BOUT'}</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                         {hasResult && (
                             <span className="fight-card__result-badge">

@@ -242,8 +242,9 @@ export const PicksPageV2 = () => {
                                         className="browse-card__image"
                                         style={{
                                             backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                            backgroundSize: 'cover',
-                                            backgroundPosition: 'center'
+                                            backgroundSize: 'contain',
+                                            backgroundPosition: 'center',
+                                            backgroundRepeat: 'no-repeat'
                                         }}
                                     >
                                         {(event.is_title_fight || event.is_bmf_title_fight) && <span className="event-card__title-flag">★</span>}

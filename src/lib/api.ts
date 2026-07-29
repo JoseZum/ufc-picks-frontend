@@ -372,6 +372,21 @@ export function getNormalizedFighterName(fighter?: Partial<Fighter> | null): str
   return getFighterDisplayName(fighter).toLowerCase().trim();
 }
 
+export function normalizeWeightClassLabel(value?: string | null): string {
+  let words = String(value || 'Unknown')
+    .trim()
+    .split(/\s+/)
+    .filter((word) => !['bout', 'match'].includes(word.toLowerCase().replace(/[.:-]/g, '')));
+
+  if (words.length > 0 && words.length % 2 === 0) {
+    const midpoint = words.length / 2;
+    const left = words.slice(0, midpoint).join(' ').toLowerCase();
+    const right = words.slice(midpoint).join(' ').toLowerCase();
+    if (left === right) words = words.slice(0, midpoint);
+  }
+  return words.join(' ') || 'Unknown';
+}
+
 export function getFighterShortName(fighter?: Partial<Fighter> | null): string {
   const name = getFighterDisplayName(fighter);
   const nameParts = name.split(/\s+/).filter(Boolean);

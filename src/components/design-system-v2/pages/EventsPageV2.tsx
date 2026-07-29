@@ -90,8 +90,9 @@ export const EventsPageV2 = () => {
                                 <a href={`/events/${featuredEvent.id}`} className={`event-card event-card--featured ${featuredEvent.is_bmf_title_fight ? 'event-card--bmf' : featuredEvent.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(featuredEvent)})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
+                                        backgroundSize: 'contain',
+                                        backgroundPosition: 'center',
+                                        backgroundRepeat: 'no-repeat'
                                     }}>
                                         {!getEventPosterUrl(featuredEvent) && <span className="event-card__image-text">UFC<br />{featuredEvent.id}</span>}
                                         <span className={`event-card__badge ${isEventLive(featuredEvent) ? 'event-card__badge--live' : featuredEvent.picks_locked ? 'event-card__badge--completed' : 'event-card__badge--open'}`}>
@@ -129,8 +130,9 @@ export const EventsPageV2 = () => {
                                 <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}>
                                     <div className="event-card__image" style={{
                                         backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center'
+                                        backgroundSize: 'contain',
+                                        backgroundPosition: 'center',
+                                        backgroundRepeat: 'no-repeat'
                                     }}>
                                         {!getEventPosterUrl(event) && <span className="event-card__image-text">EVENT</span>}
                                         <span className={`event-card__badge ${isEventLive(event) ? 'event-card__badge--live' : event.picks_locked ? 'event-card__badge--completed' : ''}`}>
@@ -172,8 +174,9 @@ export const EventsPageV2 = () => {
                                         <a key={event.id} href={`/events/${event.id}`} className={`event-card ${event.is_bmf_title_fight ? 'event-card--bmf' : event.is_title_fight ? 'event-card--title' : ''}`}>
                                             <div className="event-card__image" style={{
                                                 backgroundImage: `url(${getEventPosterUrl(event)})`,
-                                                backgroundSize: 'cover',
-                                                backgroundPosition: 'center'
+                                                backgroundSize: 'contain',
+                                                backgroundPosition: 'center',
+                                                backgroundRepeat: 'no-repeat'
                                             }}>
                                                 {!getEventPosterUrl(event) && <span className="event-card__image-text">UFC</span>}
                                                 <span className="event-card__badge event-card__badge--completed">COMPLETED</span>
