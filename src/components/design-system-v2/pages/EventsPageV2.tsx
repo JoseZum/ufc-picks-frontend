@@ -62,7 +62,7 @@ export const EventsPageV2 = () => {
                 <header className="page-header">
                     <div>
                         <h1 className="page-header__title">EVENTS</h1>
-                        <p className="page-header__subtitle">UFC Fight Calendar // Make Your Predictions</p>
+                        <p className="page-header__subtitle">UFC Fight Calendar</p>
                     </div>
                     <div className="page-header__filters">
                         <button

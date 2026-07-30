@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UFC PICKS — Mockups de la Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-base: #050505; --bg-panel: #0f0f0f; --bg-elevated: #1a1a1a;
+    --accent: #e10600; --text-primary: #fff; --text-secondary: #9ca3af;
+    --text-muted: #6b7280; --border-strong: rgba(255,255,255,0.15);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 24px;
+}
+h1 { font-family: 'Bebas Neue', sans-serif; font-size: 3rem; letter-spacing: 4px; }
+h1 span { color: var(--accent); }
+p.sub { color: var(--text-secondary); font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; margin: 0.6rem 0 2.5rem; }
+.cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; max-width: 1100px; width: 100%; }
+a.card--star { border-color: var(--accent); }
+.card__badge { display: inline-block; background: var(--accent); color: #fff; font-size: 0.55rem; letter-spacing: 2px; padding: 0.2rem 0.6rem; margin-bottom: 0.6rem; text-transform: uppercase; }
+a.card {
+    background: var(--bg-panel);
+    border: 3px solid var(--border-strong);
+    padding: 2rem 1.6rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    box-shadow: 8px 8px 0 rgba(0,0,0,0.6);
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+a.card:hover { transform: translate(-3px, -3px); border-color: var(--accent); box-shadow: 12px 12px 0 rgba(225,6,0,0.35); }
+.card__num { font-family: 'Bebas Neue', sans-serif; font-size: 3.4rem; color: var(--accent); line-height: 1; }
+.card__title { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 2px; margin: 0.4rem 0 0.7rem; }
+.card__desc { font-size: 0.7rem; color: var(--text-secondary); line-height: 1.6; }
+@media (max-width: 800px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+    <h1>UFC <span>PICKS</span> — HOME CONCEPTS</h1>
+    <p class="sub">3 direcciones creativas · misma paleta brutalist · elige tu favorita</p>
+    <div class="cards">
+        <a class="card card--star" href="home-v4-original-poster.html">
+            <div class="card__badge">Basada en el original</div>
+            <div class="card__num">V4</div>
+            <div class="card__title">ORIGINAL + PÓSTER 3:2</div>
+            <div class="card__desc">Copia fiel del diseño actual, pero el póster oficial (formato 3:2 con las caras enfrentadas) se muestra COMPLETO como protagonista del hero, con título superpuesto, ticker, barras de picks de la comunidad y fotos de la tarjeta VS extraídas del propio póster.</div>
+        </a>
+        <a class="card" href="home-v1-broadcast.html">
+            <div class="card__num">V1</div>
+            <div class="card__title">BROADCAST CINEMATIC</div>
+            <div class="card__desc">Hero full-bleed con siluetas enfrentadas, texto gigante de fondo, cortes diagonales, ticker en vivo, countdown lower-third, tale of the tape con barras y podio en el leaderboard.</div>
+        </a>
+        <a class="card" href="home-v2-fight-poster.html">
+            <div class="card__num">V2</div>
+            <div class="card__title">FIGHT POSTER</div>
+            <div class="card__desc">Cartel de pelea: tipografía monumental apilada, split diagonal rojo/azul, halftone, sello de tinta "OPEN FOR PICKS", tickets de taquilla como stats y cartelera como leaderboard.</div>
+        </a>
+        <a class="card" href="home-v3-hud.html">
+            <div class="card__num">V3</div>
+            <div class="card__title">NEO-BRUTAL HUD</div>
+            <div class="card__desc">Sala de control del octágono: grid táctico, scanlines CRT, brackets en esquinas, glitch al hover, matchup scanner, gauges circulares y leaderboard estilo terminal.</div>
+        </a>
+    </div>
+</body>
+</html>

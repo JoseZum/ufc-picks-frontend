@@ -49,7 +49,7 @@ export const AdminPageV2 = () => {
                         <div className="admin-header__icon">⚙</div>
                         <div className="admin-header__text">
                             <h1>ADMIN PANEL</h1>
-                            <p>Event Management // Result Registration // Image Uploads // Manage Bouts // Photo Uploader</p>
+                            <p>Event Management</p>
                         </div>
                     </div>
                     <div className="admin-header__badge">ADMINISTRATOR</div>

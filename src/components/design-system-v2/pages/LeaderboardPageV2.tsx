@@ -52,8 +52,8 @@ export const LeaderboardPageV2 = () => {
                         <h1 className="page-header__title">LEADERBOARDS</h1>
                         <p className="page-header__subtitle">
                             {selectedEventId
-                                ? `${allEvents.find(e => e.id === selectedEventId)?.name || 'Event'} // Points By Card`
-                                : 'Global Rankings // Top Predictors'}
+                                ? `${allEvents.find(e => e.id === selectedEventId)?.name || 'Event'}`
+                                : 'Global Rankings'}
                         </p>
                     </div>
                     <div className="page-header__filters">

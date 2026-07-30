@@ -170,15 +170,14 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             </div>
                         ) : isRedWinner && (
                             <div className="fight-card__winner-badge">
-                                <span className="fight-card__winner-icon">👑</span>
-                                <span className="fight-card__winner-text">WINNER</span>
+                                <span className="fight-card__winner-text">W</span>
                             </div>
                         )}
                         <div className="fight-card__photo">
                             <FighterImage
                                 fighter={bout.fighters.red}
                                 alt={redFighterName}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center' }}
                             />
                         </div>
                         <div className="fight-card__info">
@@ -213,15 +212,14 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                             </div>
                         ) : isBlueWinner && (
                             <div className="fight-card__winner-badge">
-                                <span className="fight-card__winner-icon">👑</span>
-                                <span className="fight-card__winner-text">WINNER</span>
+                                <span className="fight-card__winner-text">W</span>
                             </div>
                         )}
                         <div className="fight-card__photo">
                             <FighterImage
                                 fighter={bout.fighters.blue}
                                 alt={blueFighterName}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center' }}
                             />
                         </div>
                         <div className="fight-card__info">

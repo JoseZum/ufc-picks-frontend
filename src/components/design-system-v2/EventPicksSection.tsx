@@ -96,6 +96,28 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                 const pts = isCorrect && bout ? computePoints(pick, bout) : 0;
                 const isPerfect = isCorrect && pts === 3;
 
+                // Mi pick: método (DEC / KO/TKO / SUB) + round, y qué pasó realmente
+                const normalizeMethod = (m: string | undefined) => {
+                    if (!m) return '';
+                    const u = m.toUpperCase();
+                    if (['KO', 'TKO', 'KO/TKO'].includes(u)) return 'KO/TKO';
+                    if (['SUB', 'SUBMISSION'].includes(u)) return 'SUB';
+                    if (['DEC', 'DECISION'].includes(u)) return 'DEC';
+                    return u;
+                };
+                const pickedMethod = normalizeMethod(pick.picked_method);
+                const resultMethod = bout.result ? normalizeMethod(bout.result.method) : '';
+                const pickedRound = pick.picked_round;
+                const resultRound = bout.result?.round;
+                const roundApplies = pickedMethod !== '' && pickedMethod !== 'DEC';
+                const hasResult = !isPendingPick && !!bout.result;
+                const methodHit = hasResult && isCorrect && !!resultMethod && pickedMethod === resultMethod;
+                const roundHit = methodHit && roundApplies && !!pickedRound && !!resultRound && pickedRound === resultRound;
+                // Flecha al resultado real sólo si mi call no fue exacto
+                const showActual = hasResult && !!resultMethod &&
+                    (!methodHit || (roundApplies && !!resultRound && pickedRound !== resultRound));
+                const actualText = `${resultMethod}${resultMethod !== 'DEC' && resultRound ? ` RD${resultRound}` : ''}`;
+
                 const rowClass = isPendingPick
                     ? 'pick-row pick-row--pending'
                     : isPerfect
@@ -109,7 +131,9 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                 return (
                     <div key={pick.id} className={rowClass}>
                         <div className={`pick-row__fighter pick-row__fighter--red ${isPicked1 ? 'pick-row__fighter--selected' : ''}`}>
-                            <FighterPhoto className="pick-row__photo" fighter={bout.fighters.red} />
+                            {bout.fighters.red.profile_image_url && (
+                                <FighterPhoto className="pick-row__photo" fighter={bout.fighters.red} />
+                            )}
                             <div className="pick-row__info">
                                 <div className="pick-row__name">{redFighterName.toUpperCase()}</div>
                                 <div className="pick-row__record">
@@ -122,7 +146,9 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                         </div>
                         <div className="pick-row__vs">VS</div>
                         <div className={`pick-row__fighter pick-row__fighter--blue ${isPicked2 ? 'pick-row__fighter--selected' : ''}`}>
-                            <FighterPhoto className="pick-row__photo" fighter={bout.fighters.blue} />
+                            {bout.fighters.blue.profile_image_url && (
+                                <FighterPhoto className="pick-row__photo" fighter={bout.fighters.blue} />
+                            )}
                             <div className="pick-row__info">
                                 <div className="pick-row__name">{blueFighterName.toUpperCase()}</div>
                                 <div className="pick-row__record">
@@ -132,6 +158,20 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                                 </div>
                                 {isPicked2 && <div className="pick-row__your-pick">YOUR PICK</div>}
                             </div>
+                        </div>
+                        {/* MI CALL: round arriba, método en grande, flecha a lo que pasó */}
+                        <div className="pick-row__call">
+                            {roundApplies && pickedRound ? (
+                                <div className={`pick-row__call-round ${roundHit ? 'pick-row__call-round--hit' : ''}`}>
+                                    RD {pickedRound}
+                                </div>
+                            ) : null}
+                            <div className={`pick-row__call-method ${methodHit ? 'pick-row__call-method--hit' : ''}`}>
+                                {pickedMethod || '—'}
+                            </div>
+                            {showActual && (
+                                <div className="pick-row__call-actual">→ {actualText}</div>
+                            )}
                         </div>
                         <div className="pick-row__result">
                             {isPendingPick && (

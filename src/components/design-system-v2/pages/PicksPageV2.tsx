@@ -102,7 +102,7 @@ export const PicksPageV2 = () => {
                 <header className="page-header">
                     <div>
                         <h1 className="page-header__title">MY PICKS</h1>
-                        <p className="page-header__subtitle">Your Prediction History // Track Your Performance</p>
+                        <p className="page-header__subtitle">Your Prediction History</p>
                     </div>
                 </header>
 

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UFC PICKS — Home V1 · Broadcast Cinematic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   UFC PICKS — HOME V1 "BROADCAST CINEMATIC"
+   Misma paleta brutalist, pero con profundidad: duotono,
+   texto gigante de fondo, cortes diagonales, glow y grain.
+   ============================================================ */
+:root {
+    --bg-base: #050505;
+    --bg-panel: #0f0f0f;
+    --bg-elevated: #1a1a1a;
+    --accent: #e10600;
+    --accent-dim: rgba(225, 6, 0, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    --success: #22c55e;
+    --fighter-red: #dc2626;
+    --fighter-blue: #2563eb;
+    --gold: #fbbf24;
+    --border-thick: 3px;
+    --shadow-offset: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.4;
+    overflow-x: hidden;
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+/* GRAIN OVERLAY — textura de película en toda la página */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+}
+
+/* ============ TICKER SUPERIOR ============ */
+.ticker {
+    background: var(--accent);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1001;
+}
+.ticker__track {
+    display: flex;
+    gap: 3rem;
+    white-space: nowrap;
+    animation: ticker 28s linear infinite;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.ticker__item::before { content: '▮ '; opacity: 0.5; }
+@keyframes ticker { to { transform: translateX(-50%); } }
+
+/* ============ NAV ============ */
+.nav {
+    position: fixed;
+    top: 32px; left: 0; right: 0;
+    z-index: 1000;
+    background: rgba(15, 15, 15, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: var(--border-thick) solid var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    height: 64px;
+}
+.nav__logo {
+    display: flex;
+    align-items: center;
+    background: var(--accent);
+    padding: 0 1.2rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 3px;
+    text-decoration: none;
+    color: #fff;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+    padding-right: 2rem;
+}
+.nav__items { display: flex; flex: 1; }
+.nav__item {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    position: relative;
+    transition: color 0.15s;
+}
+.nav__item::after {
+    content: '';
+    position: absolute;
+    left: 1.5rem; right: 1.5rem; bottom: 0;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.2s;
+}
+.nav__item:hover, .nav__item--active { color: var(--text-primary); }
+.nav__item:hover::after, .nav__item--active::after { transform: scaleX(1); }
+.nav__user {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 1.5rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    border-left: 1px solid var(--border);
+}
+.nav__avatar {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #7a0300);
+    border: 2px solid var(--border-strong);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+}
+
+/* ============ HERO FULL-BLEED ============ */
+.hero {
+    position: relative;
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow: hidden;
+    /* corte diagonal inferior */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5vw), 0 100%);
+    background:
+        radial-gradient(ellipse 60% 55% at 22% 45%, rgba(220, 38, 38, 0.28) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 55% at 78% 45%, rgba(37, 99, 235, 0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 70% at 50% 100%, rgba(225, 6, 0, 0.12) 0%, transparent 55%),
+        var(--bg-base);
+    padding-top: 96px;
+}
+
+/* texto gigante de fondo */
+.hero__bigtext {
+    position: absolute;
+    top: 44%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(9rem, 26vw, 26rem);
+    letter-spacing: 1vw;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(255, 255, 255, 0.07);
+    user-select: none;
+    white-space: nowrap;
+    z-index: 0;
+}
+
+/* siluetas de peleadores enfrentados (aquí van las fotos reales recortadas) */
+.hero__fighters {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+.hero__fighter {
+    position: absolute;
+    bottom: 10vh;
+    width: 46%;
+    max-width: 620px;
+    height: 78%;
+    opacity: 0.95;
+}
+.hero__fighter svg { width: 100%; height: 100%; }
+.hero__fighter--red {
+    left: -4%;
+    filter: drop-shadow(0 0 60px rgba(220, 38, 38, 0.35));
+    animation: enterLeft 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.hero__fighter--blue {
+    right: -4%;
+    transform: scaleX(-1);
+    filter: drop-shadow(0 0 60px rgba(37, 99, 235, 0.3));
+    animation: enterRight 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+@keyframes enterLeft  { from { transform: translateX(-8%); opacity: 0; } }
+@keyframes enterRight { from { transform: scaleX(-1) translateX(-8%); opacity: 0; } }
+
+/* franja de contenido del hero */
+.hero__content {
+    position: relative;
+    z-index: 2;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 24px 9vw;
+    text-align: center;
+}
+.hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid var(--success);
+    color: var(--success);
+    padding: 0.45rem 1.2rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+.hero__badge-dot {
+    width: 8px; height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse { 50% { opacity: 0.25; } }
+
+.hero__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.4rem, 9vw, 8.5rem);
+    line-height: 0.92;
+    letter-spacing: 4px;
+    text-shadow: 0 18px 60px rgba(0, 0, 0, 0.8);
+}
+.hero__title em {
+    font-style: normal;
+    color: var(--accent);
+    text-shadow: 0 0 45px rgba(225, 6, 0, 0.55);
+}
+.hero__meta {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+    margin: 1.1rem 0 2rem;
+}
+.hero__meta strong { color: var(--text-primary); }
+
+/* lower-third de countdown, estilo transmisión */
+.lower-third {
+    display: inline-flex;
+    align-items: stretch;
+    background: rgba(10, 10, 10, 0.82);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-strong);
+    border-left: var(--border-thick) solid var(--accent);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+    transform: skewX(-6deg);
+    margin-bottom: 2rem;
+}
+.lower-third > * { transform: skewX(6deg); }
+.lower-third__label {
+    display: flex;
+    align-items: center;
+    padding: 0 1.4rem;
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border-right: 1px solid var(--border);
+}
+.lower-third__cell {
+    padding: 0.8rem 1.3rem;
+    text-align: center;
+    border-right: 1px solid var(--border);
+    min-width: 84px;
+}
+.lower-third__cell:last-child { border-right: none; }
+.lower-third__value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.lower-third__unit {
+    font-size: 0.58rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.hero__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 4px;
+    padding: 1.1rem 3.2rem;
+    text-decoration: none;
+    clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+    box-shadow: 0 0 0 rgba(225, 6, 0, 0.4);
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+.hero__cta::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -80%;
+    width: 50%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent);
+    transition: left 0.45s;
+}
+.hero__cta:hover { transform: translateY(-3px); box-shadow: 0 14px 45px rgba(225, 6, 0, 0.45); }
+.hero__cta:hover::before { left: 120%; }
+.hero__cta-arrow { font-family: 'Space Mono', monospace; font-size: 1.3rem; }
+
+/* ============ SECCIONES ============ */
+.section {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 3.5rem 24px 0;
+}
+.section__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.6rem;
+}
+.section__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 4px;
+    position: relative;
+    padding-left: 1.1rem;
+}
+.section__title::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8%;
+    width: 5px; height: 84%;
+    background: var(--accent);
+    transform: skewY(-14deg);
+}
+.section__link {
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1.1rem;
+    transition: background 0.15s, color 0.15s;
+}
+.section__link:hover { background: var(--accent); color: #fff; }
+
+/* ============ MAIN EVENT — TALE OF THE TAPE ============ */
+.tape {
+    background: linear-gradient(180deg, var(--bg-panel) 0%, #0a0a0a 100%);
+    border: var(--border-thick) solid var(--border-strong);
+    box-shadow: 10px 10px 0 rgba(225, 6, 0, 0.22), 0 30px 80px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+}
+.tape::before {
+    content: 'MAIN EVENT';
+    position: absolute;
+    right: -1.4rem;
+    bottom: 0.4rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 7rem;
+    color: rgba(255, 255, 255, 0.035);
+    letter-spacing: 8px;
+    pointer-events: none;
+}
+.tape__ribbon {
+    background: linear-gradient(90deg, var(--fighter-red) 0%, #340404 48%, #05070f 52%, var(--fighter-blue) 100%);
+    padding: 0.7rem 1.5rem;
+    font-size: 0.68rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+}
+.tape__grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 2.2rem 2rem 1.4rem;
+    gap: 1rem;
+}
+.tape__side { text-align: center; }
+.tape__photo {
+    width: 168px; height: 168px;
+    margin: 0 auto 1rem;
+    position: relative;
+    background: var(--bg-elevated);
+    border: var(--border-thick) solid var(--border-strong);
+    overflow: hidden;
+    transform: rotate(-2deg);
+    transition: transform 0.25s;
+}
+.tape__side--blue .tape__photo { transform: rotate(2deg); }
+.tape__side:hover .tape__photo { transform: rotate(0) scale(1.04); }
+.tape__photo svg { width: 100%; height: 100%; }
+.tape__photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(220,38,38,0.35));
+    mix-blend-mode: screen;
+}
+.tape__side--blue .tape__photo::after {
+    background: linear-gradient(180deg, transparent 55%, rgba(37,99,235,0.35));
+}
+.tape__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+.tape__record { font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.3rem; }
+.tape__country { font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-top: 0.4rem; }
+
+.tape__vs {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4.2rem;
+    color: var(--accent);
+    text-shadow: 0 0 35px rgba(225, 6, 0, 0.5);
+    padding: 0 1.4rem;
+    animation: vsPulse 2.4s ease-in-out infinite;
+}
+@keyframes vsPulse { 50% { text-shadow: 0 0 60px rgba(225, 6, 0, 0.85); } }
+
+/* barras comparativas */
+.tape__stats { padding: 0 2rem 2rem; }
+.tape__stat { margin-bottom: 0.9rem; }
+.tape__stat-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+}
+.tape__stat-labels b { color: var(--text-primary); }
+.tape__bar {
+    display: flex;
+    height: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+}
+.tape__bar-red { background: linear-gradient(90deg, #7f1d1d, var(--fighter-red)); }
+.tape__bar-blue { background: linear-gradient(90deg, var(--fighter-blue), #1e3a8a); margin-left: auto; }
+
+/* ============ STATS PERSONALES ============ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+}
+.stat-card {
+    position: relative;
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 60%);
+    border: 1px solid var(--border-strong);
+    padding: 1.9rem 1.6rem 1.6rem;
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+}
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent 65%);
+}
+.stat-card::after {
+    content: attr(data-num);
+    position: absolute;
+    right: 0.6rem; bottom: -1.4rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6.5rem;
+    color: rgba(255,255,255,0.04);
+}
+.stat-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+.stat-card__label {
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.7rem;
+}
+.stat-card__value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4.2rem;
+    line-height: 1;
+    text-shadow: 0 6px 30px rgba(0,0,0,0.6);
+}
+.stat-card--accent .stat-card__value { color: var(--accent); text-shadow: 0 0 35px rgba(225,6,0,0.4); }
+.stat-card__suffix { font-size: 2rem; }
+
+/* ============ LEADERBOARD — PODIO + FILAS ============ */
+.podium {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 1rem;
+    align-items: end;
+    margin-bottom: 1.6rem;
+}
+.podium__card {
+    background: linear-gradient(180deg, var(--bg-elevated), var(--bg-panel));
+    border: 1px solid var(--border-strong);
+    text-align: center;
+    padding: 1.6rem 1rem 1.2rem;
+    position: relative;
+    transition: transform 0.2s;
+}
+.podium__card:hover { transform: translateY(-6px); }
+.podium__card--1 {
+    border-color: var(--gold);
+    box-shadow: 0 0 45px rgba(251, 191, 36, 0.12), 8px 8px 0 rgba(225, 6, 0, 0.25);
+    padding-top: 2.4rem;
+}
+.podium__card--1::before {
+    content: 'CHAMP';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: #050505;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 0.25rem 1rem;
+    clip-path: polygon(6px 0, calc(100% - 6px) 0, 100% 100%, 0 100%);
+}
+.podium__rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    line-height: 1;
+    color: var(--text-muted);
+}
+.podium__card--1 .podium__rank { color: var(--gold); }
+.podium__card--2 .podium__rank { color: var(--text-secondary); }
+.podium__card--3 .podium__rank { color: #b45309; }
+.podium__avatar {
+    width: 62px; height: 62px;
+    margin: 0.6rem auto;
+    border: 2px solid var(--border-strong);
+    background: linear-gradient(135deg, #2a2a2a, #101010);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+}
+.podium__card--1 .podium__avatar { border-color: var(--gold); width: 74px; height: 74px; }
+.podium__name { font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+.podium__points {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    color: var(--accent);
+    margin-top: 0.2rem;
+}
+.podium__acc { font-size: 0.62rem; color: var(--text-muted); letter-spacing: 1px; }
+
+.lb-rows { border: 1px solid var(--border-strong); background: var(--bg-panel); }
+.lb-row {
+    display: grid;
+    grid-template-columns: 56px 1fr auto auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.3rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s, transform 0.15s;
+    cursor: pointer;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: var(--bg-elevated); transform: translateX(4px); }
+.lb-row__rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--text-muted); }
+.lb-row__name { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.lb-row__points { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; }
+.lb-row__acc { font-size: 0.72rem; color: var(--text-secondary); min-width: 48px; text-align: right; }
+
+/* ============ FOOTER ============ */
+.footer {
+    margin-top: 4.5rem;
+    border-top: var(--border-thick) solid var(--border-strong);
+    background:
+        linear-gradient(180deg, var(--bg-panel), var(--bg-base)),
+        var(--bg-panel);
+    padding: 2.5rem 24px 5rem;
+    position: relative;
+    overflow: hidden;
+}
+.footer::after {
+    content: 'UFC PICKS';
+    position: absolute;
+    left: 50%; bottom: -3.2rem;
+    transform: translateX(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11rem;
+    letter-spacing: 12px;
+    color: rgba(255,255,255,0.025);
+    white-space: nowrap;
+    pointer-events: none;
+}
+.footer__grid {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+}
+.footer__block { background: var(--bg-panel); padding: 1.5rem; }
+.footer__label {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+.footer__text { font-size: 0.78rem; color: var(--text-secondary); }
+
+/* reveal on scroll */
+.reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.7s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px) {
+    .nav__items, .nav__user { display: none; }
+    .hero { min-height: 78vh; }
+    .hero__fighter { width: 60%; bottom: 16vh; opacity: 0.5; }
+    .lower-third { transform: none; flex-wrap: wrap; }
+    .lower-third > * { transform: none; }
+    .lower-third__label { width: 100%; justify-content: center; padding: 0.5rem; border-bottom: 1px solid var(--border); }
+    .stats-grid { grid-template-columns: 1fr; }
+    .podium { grid-template-columns: 1fr; }
+    .tape__grid { grid-template-columns: 1fr; }
+    .tape__vs { padding: 0.6rem 0; }
+    .footer__grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+        <span class="ticker__item">UFC 326 · Jul 25 2026 · T-Mobile Arena, Las Vegas</span>
+        <span class="ticker__item">Picks close at fight start</span>
+        <span class="ticker__item">14,203 picks already in</span>
+        <span class="ticker__item">Top predictor this month: IRONFIST_88 — 91% accuracy</span>
+        <span class="ticker__item">2 title fights on the card</span>
+        <span class="ticker__item">UFC 326 · Jul 25 2026 · T-Mobile Arena, Las Vegas</span>
+        <span class="ticker__item">Picks close at fight start</span>
+        <span class="ticker__item">14,203 picks already in</span>
+        <span class="ticker__item">Top predictor this month: IRONFIST_88 — 91% accuracy</span>
+        <span class="ticker__item">2 title fights on the card</span>
+    </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+    <a href="#" class="nav__logo">UFC PICKS</a>
+    <div class="nav__items">
+        <a href="#" class="nav__item nav__item--active">Home</a>
+        <a href="#" class="nav__item">Events</a>
+        <a href="#" class="nav__item">Leaderboards</a>
+        <a href="#" class="nav__item">My Picks</a>
+        <a href="#" class="nav__item">Profile</a>
+    </div>
+    <div class="nav__user">
+        <div class="nav__avatar">J</div>
+        <span>JOSE_Z</span>
+    </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+    <div class="hero__bigtext" aria-hidden="true">UFC 326</div>
+
+    <div class="hero__fighters" aria-hidden="true">
+        <!-- Silueta esquina roja — sustituir por foto real recortada del peleador -->
+        <div class="hero__fighter hero__fighter--red">
+            <svg viewBox="0 0 300 460" preserveAspectRatio="xMidYMax meet">
+                <defs>
+                    <linearGradient id="redDuo" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#3a0a0a"/>
+                        <stop offset="0.65" stop-color="#180404"/>
+                        <stop offset="1" stop-color="#0a0202"/>
+                    </linearGradient>
+                </defs>
+                <path fill="url(#redDuo)" d="M150 18c-26 0-45 21-45 47 0 12 4 24 10 32-8 4-26 12-34 22-12 15-16 34-18 52l-8 78c-2 16 10 22 18 14l16-38 6 60-14 175h44l16-130 9-1 9 1 16 130h44l-14-175 6-60 16 38c8 8 20 2 18-14l-8-78c-2-18-6-37-18-52-8-10-26-18-34-22 6-8 10-20 10-32 0-26-19-47-45-47z"/>
+            </svg>
+        </div>
+        <!-- Silueta esquina azul -->
+        <div class="hero__fighter hero__fighter--blue">
+            <svg viewBox="0 0 300 460" preserveAspectRatio="xMidYMax meet">
+                <defs>
+                    <linearGradient id="blueDuo" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#0a1a3a"/>
+                        <stop offset="0.65" stop-color="#040a18"/>
+                        <stop offset="1" stop-color="#02050a"/>
+                    </linearGradient>
+                </defs>
+                <path fill="url(#blueDuo)" d="M150 18c-26 0-45 21-45 47 0 12 4 24 10 32-8 4-26 12-34 22-12 15-16 34-18 52l-8 78c-2 16 10 22 18 14l16-38 6 60-14 175h44l16-130 9-1 9 1 16 130h44l-14-175 6-60 16 38c8 8 20 2 18-14l-8-78c-2-18-6-37-18-52-8-10-26-18-34-22 6-8 10-20 10-32 0-26-19-47-45-47z"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="hero__content">
+        <span class="hero__badge"><span class="hero__badge-dot"></span> Open for picks</span>
+        <h1 class="hero__title">UFC 326<br><em>TOPURIA</em> VS MAKHACHEV</h1>
+        <p class="hero__meta"><strong>SAT, JUL 25 2026</strong> // T-MOBILE ARENA — LAS VEGAS, NV</p>
+
+        <div class="lower-third" role="timer" aria-label="Cuenta regresiva al evento">
+            <div class="lower-third__label">Time<br>until<br>event</div>
+            <div class="lower-third__cell"><div class="lower-third__value" id="cd-d">03</div><div class="lower-third__unit">Days</div></div>
+            <div class="lower-third__cell"><div class="lower-third__value" id="cd-h">11</div><div class="lower-third__unit">Hours</div></div>
+            <div class="lower-third__cell"><div class="lower-third__value" id="cd-m">42</div><div class="lower-third__unit">Min</div></div>
+            <div class="lower-third__cell"><div class="lower-third__value" id="cd-s">08</div><div class="lower-third__unit">Sec</div></div>
+        </div>
+
+        <br>
+        <a href="#" class="hero__cta">Make your picks <span class="hero__cta-arrow">→</span></a>
+    </div>
+</header>
+
+<!-- MAIN EVENT / TALE OF THE TAPE -->
+<section class="section reveal">
+    <div class="section__header">
+        <h2 class="section__title">Main Event</h2>
+        <a href="#" class="section__link">Full card →</a>
+    </div>
+
+    <div class="tape">
+        <div class="tape__ribbon">
+            <span>★ Lightweight Title Fight</span>
+            <span>5 Rounds</span>
+        </div>
+        <div class="tape__grid">
+            <div class="tape__side tape__side--red">
+                <div class="tape__photo">
+                    <svg viewBox="0 0 100 100"><rect fill="#1c0808" width="100" height="100"/><circle cx="50" cy="36" r="16" fill="#3a1010"/><path d="M50 54c-18 0-28 12-30 46h60c-2-34-12-46-30-46z" fill="#3a1010"/></svg>
+                </div>
+                <div class="tape__name">Ilia Topuria</div>
+                <div class="tape__record">16-0-0</div>
+                <div class="tape__country">🇪🇸 Spain</div>
+            </div>
+            <div class="tape__vs">VS</div>
+            <div class="tape__side tape__side--blue">
+                <div class="tape__photo">
+                    <svg viewBox="0 0 100 100"><rect fill="#081020" width="100" height="100"/><circle cx="50" cy="36" r="16" fill="#102040"/><path d="M50 54c-18 0-28 12-30 46h60c-2-34-12-46-30-46z" fill="#102040"/></svg>
+                </div>
+                <div class="tape__name">Islam Makhachev</div>
+                <div class="tape__record">27-1-0</div>
+                <div class="tape__country">🇷🇺 Russia</div>
+            </div>
+        </div>
+        <div class="tape__stats">
+            <div class="tape__stat">
+                <div class="tape__stat-labels"><b>68%</b><span>Community picks</span><b>32%</b></div>
+                <div class="tape__bar"><div class="tape__bar-red" style="width:68%"></div><div class="tape__bar-blue" style="width:32%"></div></div>
+            </div>
+            <div class="tape__stat">
+                <div class="tape__stat-labels"><b>15</b><span>KO / TKO</span><b>5</b></div>
+                <div class="tape__bar"><div class="tape__bar-red" style="width:75%"></div><div class="tape__bar-blue" style="width:25%"></div></div>
+            </div>
+            <div class="tape__stat">
+                <div class="tape__stat-labels"><b>1</b><span>Submissions</span><b>12</b></div>
+                <div class="tape__bar"><div class="tape__bar-red" style="width:8%"></div><div class="tape__bar-blue" style="width:92%"></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- YOUR STATS -->
+<section class="section reveal">
+    <div class="section__header">
+        <h2 class="section__title">Your Stats</h2>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card" data-num="01">
+            <div class="stat-card__label">Picks Made</div>
+            <div class="stat-card__value" data-count="147">0</div>
+        </div>
+        <div class="stat-card stat-card--accent" data-num="02">
+            <div class="stat-card__label">Global Rank</div>
+            <div class="stat-card__value">#<span data-count="23">0</span></div>
+        </div>
+        <div class="stat-card" data-num="03">
+            <div class="stat-card__label">Accuracy</div>
+            <div class="stat-card__value"><span data-count="71">0</span><span class="stat-card__suffix">%</span></div>
+        </div>
+    </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section class="section reveal">
+    <div class="section__header">
+        <h2 class="section__title">Top Predictors</h2>
+        <a href="#" class="section__link">View all →</a>
+    </div>
+
+    <div class="podium">
+        <div class="podium__card podium__card--2">
+            <div class="podium__rank">02</div>
+            <div class="podium__avatar">K</div>
+            <div class="podium__name">KO_QUEEN</div>
+            <div class="podium__points">1,204</div>
+            <div class="podium__acc">84% ACCURACY</div>
+        </div>
+        <div class="podium__card podium__card--1">
+            <div class="podium__rank">01</div>
+            <div class="podium__avatar">I</div>
+            <div class="podium__name">IRONFIST_88</div>
+            <div class="podium__points">1,381</div>
+            <div class="podium__acc">91% ACCURACY</div>
+        </div>
+        <div class="podium__card podium__card--3">
+            <div class="podium__rank">03</div>
+            <div class="podium__avatar">S</div>
+            <div class="podium__name">SUBHUNTER</div>
+            <div class="podium__points">1,158</div>
+            <div class="podium__acc">79% ACCURACY</div>
+        </div>
+    </div>
+
+    <div class="lb-rows">
+        <div class="lb-row">
+            <div class="lb-row__rank">04</div>
+            <div class="lb-row__name">GROUND_GAME</div>
+            <div class="lb-row__points">1,092</div>
+            <div class="lb-row__acc">77%</div>
+        </div>
+        <div class="lb-row">
+            <div class="lb-row__rank">05</div>
+            <div class="lb-row__name">JOSE_Z</div>
+            <div class="lb-row__points">1,047</div>
+            <div class="lb-row__acc">71%</div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer__grid">
+        <div class="footer__block">
+            <div class="footer__label">System Status</div>
+            <div class="footer__text">ALL SYSTEMS OPERATIONAL</div>
+        </div>
+        <div class="footer__block">
+            <div class="footer__label">Version</div>
+            <div class="footer__text">V2.1.0 [CONCEPT]</div>
+        </div>
+        <div class="footer__block">
+            <div class="footer__label">Legal</div>
+            <div class="footer__text">TERMS // PRIVACY</div>
+        </div>
+        <div class="footer__block">
+            <div class="footer__label">Contact</div>
+            <div class="footer__text">JOSEZUMBRU@GMAIL.COM</div>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Countdown a fecha futura ficticia (para que el mockup se sienta vivo)
+(function () {
+    var target = new Date(Date.now() + (3 * 24 * 3600 + 11 * 3600 + 42 * 60) * 1000);
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function tick() {
+        var diff = Math.max(0, target - Date.now()) / 1000;
+        document.getElementById('cd-d').textContent = pad(Math.floor(diff / 86400));
+        document.getElementById('cd-h').textContent = pad(Math.floor(diff / 3600) % 24);
+        document.getElementById('cd-m').textContent = pad(Math.floor(diff / 60) % 60);
+        document.getElementById('cd-s').textContent = pad(Math.floor(diff) % 60);
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
+
+// Reveal on scroll
+(function () {
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+        });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+})();
+
+// Count-up de los stats al entrar en viewport
+(function () {
+    var done = false;
+    var io = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting || done) return;
+        done = true;
+        document.querySelectorAll('[data-count]').forEach(function (el) {
+            var end = parseInt(el.getAttribute('data-count'), 10);
+            var t0 = performance.now();
+            function step(t) {
+                var p = Math.min(1, (t - t0) / 900);
+                el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }, { threshold: 0.4 });
+    var grid = document.querySelector('.stats-grid');
+    if (grid) io.observe(grid);
+})();
+</script>
+</body>
+</html>

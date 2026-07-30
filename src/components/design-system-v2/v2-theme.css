@@ -48,6 +48,8 @@
     line-height: 1.4;
     overflow-x: hidden;
     /* Prevent horizontal scroll from layout shifts */
+    /* Escala global: equivalente a un zoom de navegador al 90% */
+    zoom: 0.9;
 }
 
 /* ============================================
@@ -71,10 +73,11 @@
 .nav__logo {
     display: flex;
     align-items: center;
-    border-right: var(--border-thick) solid var(--border-strong);
     text-decoration: none;
     background: var(--accent);
-    padding: 0 0.6rem;
+    padding: 0 1.8rem 0 0.6rem;
+    /* corte diagonal estilo broadcast */
+    clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
 }
 
 .nav__logo-img {
@@ -205,13 +208,14 @@
 .hero {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
+    /* stats + clock + acción: la acción estira para calzar con la foto */
+    grid-template-rows: auto auto 1fr;
     gap: var(--grid-gap);
     margin-bottom: 2rem;
 }
 
 .hero__event {
-    grid-row: span 2;
+    grid-row: span 3;
     background: var(--bg-panel);
     border: var(--border-thick) solid var(--border-strong);
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(225, 6, 0, 0.3);
@@ -219,15 +223,62 @@
     overflow: hidden;
 }
 
+/* El póster oficial SIEMPRE es 3:2 (2000×1333) con las caras arriba —
+   se muestra completo con aspect-ratio, jamás recortado */
 .hero__event-image {
     width: 100%;
-    height: 300px;
+    aspect-ratio: 3 / 2;
     background: linear-gradient(135deg, var(--bg-base) 0%, var(--bg-elevated) 100%);
     border-bottom: var(--border-thick) solid var(--accent);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+}
+
+/* con póster cargado: se oculta la marca de agua y entra el
+   gradiente inferior para el título superpuesto */
+.hero__event-image--loaded::before {
+    content: none;
+}
+
+.hero__event-image--loaded::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.22) 0%, transparent 22%, transparent 55%, rgba(5, 5, 5, 0.94) 100%);
+}
+
+/* título del evento SOBRE el póster, como en UFC.com */
+.hero__event-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1.4rem 2rem 1.2rem;
+    z-index: 2;
+}
+
+.hero__event-kicker {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    font-weight: 700;
+    color: var(--accent);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    margin-bottom: 0.35rem;
+}
+
+.hero__event-overlay .hero__event-title {
+    font-size: clamp(2.2rem, 4.6vw, 4.2rem);
+    line-height: 0.95;
+    margin-bottom: 0;
+    text-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+.hero__event-title em {
+    font-style: normal;
+    color: var(--accent);
 }
 
 .hero__event-image::before {
@@ -240,6 +291,7 @@
 
 .hero__event-badge {
     position: absolute;
+    z-index: 2;
     top: 20px;
     left: 0;
     background: var(--success);
@@ -352,7 +404,7 @@
     border: var(--border-thick) solid var(--accent);
     box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(225, 6, 0, 0.4);
     color: var(--text-primary);
-    padding: 2rem;
+    padding: 1.2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -371,13 +423,13 @@
 
 .hero__action-text {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
+    font-size: 1.5rem;
     letter-spacing: 3px;
 }
 
 .hero__action-arrow {
-    font-size: 2rem;
-    margin-top: 0.5rem;
+    font-size: 1.4rem;
+    margin-top: 0.25rem;
     color: var(--accent);
 }
 
@@ -1405,6 +1457,11 @@
     gap: 2rem;
 }
 
+/* cada cifra centrada sobre su etiqueta, como en la home */
+.event-hero__stats > div {
+    text-align: center;
+}
+
 .event-hero__stat-value {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2rem;
@@ -1890,32 +1947,9 @@
     border-color: var(--border-strong);
 }
 
-.fight-card__fighter:hover::after {
-    content: 'CLICK TO PICK';
-    position: absolute;
-    bottom: 0.5rem;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    color: var(--accent);
-    opacity: 0.8;
-}
-
-.fight-card__fighter--red:hover::after {
-    left: 2rem;
-}
-
-.fight-card__fighter--blue:hover::after {
-    right: 2rem;
-}
-
 .fight-card__fighter--selected {
     background: var(--accent-dim);
     border-color: var(--accent);
-}
-
-.fight-card__fighter--selected:hover::after {
-    content: 'YOUR PICK ✓';
-    color: var(--success);
 }
 
 .fight-card__fighter--selected::before {
@@ -1929,6 +1963,8 @@
 
 .fight-card__fighter--red {
     justify-content: flex-start;
+    /* línea del corner en la base: el busto queda parado sobre ella */
+    box-shadow: inset 0 -3px 0 0 var(--fighter-red);
 }
 
 .fight-card__fighter--red.fight-card__fighter--selected::before {
@@ -1938,6 +1974,7 @@
 .fight-card__fighter--blue {
     justify-content: flex-start;
     flex-direction: row-reverse;
+    box-shadow: inset 0 -3px 0 0 var(--fighter-blue);
 }
 
 .fight-card__fighter--blue.fight-card__fighter--selected::before {
@@ -1954,81 +1991,64 @@
     background: var(--fighter-blue);
 }
 
-/* WINNER/LOSER STATES */
-.fight-card__fighter--winner {
+/* WINNER / LOSER / DRAW
+   Sin bordes laterales ni superior: sólo la línea inferior cambia de color
+   (verde ganador, gris perdedor, ámbar empate) sobre el tinte de fondo. */
+.fight-card__fighter--red.fight-card__fighter--winner,
+.fight-card__fighter--blue.fight-card__fighter--winner {
     background: rgba(34, 197, 94, 0.1);
-    border-color: var(--success) !important;
+    border-color: transparent !important;
+    box-shadow: inset 0 -3px 0 0 var(--success);
 }
 
-.fight-card__fighter--winner::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--success);
-}
-
-.fight-card__fighter--red.fight-card__fighter--winner::before {
-    left: 0;
-}
-
-.fight-card__fighter--blue.fight-card__fighter--winner::before {
-    right: 0;
-}
-
-.fight-card__fighter--draw {
+.fight-card__fighter--red.fight-card__fighter--draw,
+.fight-card__fighter--blue.fight-card__fighter--draw {
     background: rgba(245, 158, 11, 0.12);
-    border-color: #f59e0b !important;
-}
-
-.fight-card__fighter--draw::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #f59e0b;
-}
-
-.fight-card__fighter--red.fight-card__fighter--draw::before {
-    left: 0;
-}
-
-.fight-card__fighter--blue.fight-card__fighter--draw::before {
-    right: 0;
+    border-color: transparent !important;
+    box-shadow: inset 0 -3px 0 0 #f59e0b;
 }
 
 .fight-card__fighter--draw.fight-card__fighter--selected {
     background: rgba(245, 158, 11, 0.16);
-    border-color: #f59e0b !important;
+    border-color: transparent !important;
 }
 
-.fight-card__fighter--draw.fight-card__fighter--selected::before {
-    background: #f59e0b;
+.fight-card__fighter--red.fight-card__fighter--loser,
+.fight-card__fighter--blue.fight-card__fighter--loser {
+    opacity: 0.75;
+    background: rgba(255, 255, 255, 0.02);
+    border-color: transparent !important;
+    box-shadow: inset 0 -3px 0 0 var(--text-muted);
 }
 
-.fight-card__fighter--loser {
-    opacity: 0.6;
-    filter: grayscale(0.3);
+/* la foto del perdedor va en escala de grises */
+.fight-card__fighter--loser .fight-card__photo {
+    filter: grayscale(1) drop-shadow(0 10px 24px rgba(0, 0, 0, 0.65));
 }
 
+.fight-card__fighter--loser .fight-card__name {
+    color: var(--text-secondary);
+}
+
+/* Badge: una "W" blanca en su cuadradito verde */
 .fight-card__winner-badge {
     position: absolute;
     top: 0.75rem;
     right: 0.75rem;
+    width: 28px;
+    height: 28px;
     background: var(--success);
-    color: var(--bg-base);
-    padding: 0.375rem 0.75rem;
-    border-radius: 2px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    color: var(--text-primary);
+    padding: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1;
     display: flex;
     align-items: center;
-    gap: 0.375rem;
-    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.35);
     z-index: 10;
 }
 
@@ -2038,14 +2058,13 @@
 }
 
 .fight-card__winner-badge--draw {
+    width: auto;
+    padding: 0 0.6rem;
     background: #f59e0b;
     color: var(--bg-base);
+    font-size: 1.1rem;
+    letter-spacing: 2px;
     box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
-}
-
-.fight-card__winner-icon {
-    font-size: 1rem;
-    line-height: 1;
 }
 
 .fight-card__winner-text {
@@ -2063,34 +2082,31 @@
     border: 1px solid var(--border-strong);
 }
 
+/* PNG transparente sin caja, con la proporción real del archivo (599×436):
+   grande, imponente y sentado sobre la línea inferior de la tarjeta */
 .fight-card__photo {
-    width: 80px;
-    height: 80px;
-    background: var(--bg-elevated);
-    border: 2px solid var(--border-strong);
+    height: 170px;
+    aspect-ratio: 599 / 436;
+    width: auto;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     font-size: 2rem;
     color: var(--text-muted);
     position: relative;
+    z-index: 2;
+    align-self: flex-end;
+    /* el busto queda parado justo encima de la línea del corner (3px) */
+    margin-bottom: calc(-1.5rem + 3px);
+    /* el margen transparente del PNG cuelga hacia el borde externo */
+    margin-left: -1.5rem;
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.65));
+    pointer-events: none;
 }
 
-.fight-card__photo::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-}
-
-.fight-card__fighter--red .fight-card__photo::after {
-    background: var(--fighter-red);
-}
-
-.fight-card__fighter--blue .fight-card__photo::after {
-    background: var(--fighter-blue);
+.fight-card__fighter--blue .fight-card__photo {
+    margin-left: 0;
+    margin-right: -1.5rem;
 }
 
 .fight-card__info {}
@@ -2101,39 +2117,50 @@
 
 .fight-card__name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.9rem;
+    line-height: 1.05;
     letter-spacing: 1px;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
 }
 
 .fight-card__record {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
     letter-spacing: 1px;
+    margin-bottom: 0.35rem;
 }
 
 .fight-card__country {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--text-muted);
     margin-top: 0.25rem;
 }
 
+/* la bandera va alineada al lado del peleador */
+.fight-card__fighter--blue .fight-card__country > div {
+    justify-content: flex-end;
+}
+
 .fight-card__vs {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 1rem;
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
-    background: var(--bg-elevated);
+    padding: 0 1.25rem;
+    background: transparent;
 }
 
+/* sello rojo con sombra dura, igual al del main event (sin rotar) */
 .fight-card__vs-text {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    color: var(--accent);
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    background: var(--accent);
+    padding: 0.35rem 0.8rem 0.15rem;
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.75);
 }
 
 /* SECTION DIVIDERS */
@@ -2299,8 +2326,14 @@
     }
 
     .fight-card__photo {
-        width: 60px;
-        height: 60px;
+        height: 110px;
+        margin-bottom: -1rem;
+        margin-left: -1rem;
+    }
+
+    .fight-card__fighter--blue .fight-card__photo {
+        margin-left: 0;
+        margin-right: -1rem;
     }
 
     .fight-card__name {
@@ -2476,7 +2509,7 @@
 /* PICK ROW */
 .pick-row {
     display: grid;
-    grid-template-columns: 1fr auto 1fr auto;
+    grid-template-columns: 1fr auto 1fr auto auto;
     align-items: center;
     border-bottom: 1px solid var(--border);
     transition: all 0.1s;
@@ -2559,6 +2592,52 @@
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1rem;
     color: var(--text-muted);
+}
+
+/* MI CALL: división | con round arriba, método en grande (rojo; verde si
+   acerté) y flecha a lo que realmente pasó cuando el call no fue exacto */
+.pick-row__call {
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 110px;
+    align-self: stretch;
+    border-left: 1px solid var(--border);
+    box-sizing: border-box;
+}
+
+.pick-row__call-round {
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.pick-row__call-round--hit {
+    color: var(--success);
+}
+
+.pick-row__call-method {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: var(--accent);
+}
+
+.pick-row__call-method--hit {
+    color: var(--success);
+}
+
+.pick-row__call-actual {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+    white-space: nowrap;
 }
 
 .pick-row__result {
@@ -2671,11 +2750,23 @@
         text-align: left;
     }
 
+    .pick-row__call {
+        border-left: none;
+        border-top: 1px solid var(--border);
+        flex-direction: row;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0.8rem;
+        min-width: 0;
+    }
+
     .pick-row__result {
         border-left: none;
         border-top: 1px solid var(--border);
         flex-direction: row;
         gap: 1rem;
+        width: auto;
+        min-width: 0;
     }
 }
 
@@ -5656,7 +5747,8 @@
 
 /* En fight cards de título, el VS y el "CLICK TO MAKE PICK" también en dorado */
 .fight-card--title .fight-card__vs-text {
-    color: var(--gold);
+    background: var(--gold);
+    color: #1a1200;
 }
 
 .fight-card--title .fight-card__click-hint {
@@ -5737,7 +5829,8 @@
 }
 
 .fight-card--bmf .fight-card__vs-text {
-    color: #cbd5e1;
+    background: #cbd5e1;
+    color: #15171a;
 }
 
 .fight-card--bmf .fight-card__click-hint {
@@ -5995,4 +6088,577 @@
     letter-spacing: 2px;
     text-transform: uppercase;
     color: var(--text-muted);
+}
+
+/* ============================================
+   TEXTURA DE FONDO - GRAIN SUTIL
+   Grano de película sobre toda la app V2
+   ============================================ */
+
+.v2-root::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.2;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   YOUR STATS - VARIANTE CINEMATIC (V1)
+   Esquina recortada, gradiente, número fantasma
+   ============================================ */
+
+.stats-grid--cine {
+    gap: 1.4rem;
+}
+
+.stat-card--cine,
+.stat-card--cine:nth-child(1),
+.stat-card--cine:nth-child(2),
+.stat-card--cine:nth-child(3) {
+    transform: none;
+    box-shadow: none;
+    border: 1px solid var(--border-strong);
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 60%);
+    padding: 1.9rem 1.6rem 1.6rem;
+    text-align: left;
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    overflow: hidden;
+}
+
+.stat-card--cine::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent 65%);
+}
+
+/* número fantasma gigante en la esquina */
+.stat-card--cine::after {
+    content: attr(data-num);
+    position: absolute;
+    right: 0.6rem;
+    bottom: -1.4rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6.5rem;
+    color: rgba(255, 255, 255, 0.04);
+    pointer-events: none;
+}
+
+.stat-card--cine:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    z-index: 2;
+}
+
+.stat-card--cine .stat-card__value {
+    font-size: 4.2rem;
+    text-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+}
+
+.stat-card--cine:nth-child(2) .stat-card__value {
+    color: var(--accent);
+    text-shadow: 0 0 35px rgba(225, 6, 0, 0.4);
+}
+
+/* ============================================
+   MAIN EVENT - SPLIT DIAGONAL (V2 Fight Poster)
+   Tipografía enfrentada con diagonal y VS estampado
+   ============================================ */
+
+.split-block {
+    margin-bottom: 2rem;
+}
+
+.split-block__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.2rem;
+}
+
+.split-block__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+    background: var(--accent);
+    color: var(--text-primary);
+    padding: 0.1rem 1.2rem 0;
+    transform: rotate(-1deg);
+    display: inline-block;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+.split-block__link {
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 2px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.split-block__link:hover {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
+.split {
+    position: relative;
+    border: var(--border-thick) solid var(--border-strong);
+    box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    background: var(--bg-panel);
+}
+
+/* El cuerpo agrupa sólo a los dos peleadores: así la diagonal y el VS
+   se centran respecto a ellos, sin que el ribbon inferior los desplace */
+.split__body {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 280px;
+    background:
+        linear-gradient(102deg, rgba(220, 38, 38, 0.16) 0%, rgba(220, 38, 38, 0.05) 49.7%, rgba(37, 99, 235, 0.05) 50.3%, rgba(37, 99, 235, 0.14) 100%),
+        var(--bg-panel);
+}
+
+/* línea diagonal central (margin -2px: centra la línea de 4px de ancho) */
+.split__line {
+    position: absolute;
+    top: -12%;
+    bottom: -12%;
+    left: 50%;
+    margin-left: -2px;
+    width: 4px;
+    background: var(--accent);
+    transform: rotate(12deg);
+    box-shadow: 0 0 30px rgba(225, 6, 0, 0.7);
+    pointer-events: none;
+}
+
+/* el -3px compensa la sombra dura (6px 6px) que desplaza el peso visual
+   del sello hacia abajo/derecha */
+.split__vs {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-50% - 3px), calc(-50% - 3px)) rotate(-6deg);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4.6rem;
+    color: var(--text-primary);
+    background: var(--accent);
+    line-height: 1;
+    padding: 0.4rem 1rem 0.1rem;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.75);
+    z-index: 2;
+}
+
+/* cada lado es un grid de dos columnas: foto + texto (o texto + foto),
+   por lo que nunca pueden superponerse */
+.split__side {
+    padding: 1.6rem 2rem 0;
+    display: grid;
+    align-items: center;
+    gap: 1.6rem;
+    position: relative;
+    z-index: 1;
+}
+
+.split__side--red {
+    grid-template-columns: auto 1fr;
+    text-align: left;
+}
+
+.split__side--blue {
+    grid-template-columns: 1fr auto;
+    text-align: right;
+}
+
+/* en el lado azul la foto va a la derecha (el DOM la trae primero) */
+.split__side--blue .split__photo {
+    order: 2;
+}
+
+.split__side--blue .split__info {
+    order: 1;
+}
+
+.split__info {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 0 1.6rem;
+}
+
+.split__side--red .split__info {
+    align-items: flex-start;
+}
+
+.split__side--blue .split__info {
+    align-items: flex-end;
+}
+
+/* headshot PNG SIN recortar (object-fit contain): se muestra el archivo
+   completo, anclado al borde inferior. El margen transparente externo del
+   PNG cuelga hacia el borde de la tarjeta con margen negativo. */
+.split__photo {
+    position: relative;
+    align-self: end;
+    height: clamp(190px, 17vw, 235px);
+    aspect-ratio: 599 / 436;
+    pointer-events: none;
+}
+
+.split__side--red .split__photo {
+    margin-left: clamp(-70px, -5vw, -28px);
+}
+
+.split__side--blue .split__photo {
+    margin-right: clamp(-70px, -5vw, -28px);
+}
+
+.split__photo::before {
+    content: '';
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    bottom: -14%;
+    height: 72%;
+    border-radius: 50%;
+    filter: blur(42px);
+}
+
+.split__side--red .split__photo::before {
+    background: rgba(220, 38, 38, 0.28);
+}
+
+.split__side--blue .split__photo::before {
+    background: rgba(37, 99, 235, 0.24);
+}
+
+.split__photo img {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom center;
+    filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.75));
+}
+
+.split__tag {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 0.3rem 0.9rem;
+    margin-bottom: 0.9rem;
+    color: var(--text-primary);
+}
+
+.split__side--red .split__tag {
+    background: var(--fighter-red);
+}
+
+.split__side--blue .split__tag {
+    background: var(--fighter-blue);
+}
+
+.split__name {
+    font-family: 'Bebas Neue', sans-serif;
+    /* dos líneas apiladas (nombre / apellido): cabe más grande */
+    font-size: clamp(2.4rem, 4vw, 4.2rem);
+    line-height: 0.95;
+    letter-spacing: 2px;
+}
+
+/* Línea de apodo SIEMPRE reservada (aunque no haya apodo) para que ambos
+   nombres queden al mismo nivel, con aire para tildes/diacríticos */
+.split__nick {
+    display: block;
+    font-size: 0.34em;
+    line-height: 1.2;
+    min-height: 1.2em;
+    color: var(--text-secondary);
+    letter-spacing: 6px;
+    margin-bottom: 0.45rem;
+}
+
+.split__record {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.7rem;
+    letter-spacing: 2px;
+}
+
+.split__country {
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.split__ribbon {
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border-strong);
+    padding: 0.65rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 1;
+}
+
+/* Variante pelea de título: diagonal, VS y ribbon en dorado */
+.split--title {
+    border-color: var(--gold);
+    box-shadow: 12px 12px 0 rgba(251, 191, 36, 0.25);
+}
+
+.split--title .split__line {
+    background: var(--gold);
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.6);
+}
+
+.split--title .split__vs {
+    background: var(--gold);
+    color: #1a1200;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.75);
+}
+
+.split--title .split__ribbon b {
+    color: var(--gold);
+}
+
+/* Variante BMF: plateado */
+.split--bmf {
+    border-color: #cbd5e1;
+    box-shadow: 12px 12px 0 rgba(203, 213, 225, 0.25);
+}
+
+.split--bmf .split__line {
+    background: #cbd5e1;
+    box-shadow: 0 0 30px rgba(203, 213, 225, 0.55);
+}
+
+.split--bmf .split__vs {
+    background: #cbd5e1;
+    color: #15171a;
+}
+
+.split--bmf .split__ribbon b {
+    color: #cbd5e1;
+}
+
+/* fondo del cuerpo teñido de dorado/plateado en ambos corners */
+.split--title .split__body {
+    background:
+        linear-gradient(102deg, rgba(251, 191, 36, 0.14) 0%, rgba(251, 191, 36, 0.04) 49.7%, rgba(251, 191, 36, 0.04) 50.3%, rgba(251, 191, 36, 0.14) 100%),
+        var(--bg-panel);
+}
+
+.split--bmf .split__body {
+    background:
+        linear-gradient(102deg, rgba(203, 213, 225, 0.14) 0%, rgba(203, 213, 225, 0.04) 49.7%, rgba(203, 213, 225, 0.04) 50.3%, rgba(203, 213, 225, 0.14) 100%),
+        var(--bg-panel);
+}
+
+/* chip del header (MAIN EVENT / CO-MAIN EVENT) en dorado/plateado */
+.split-block--title .split-block__title {
+    background: var(--gold);
+    color: #1a1200;
+}
+
+.split-block--bmf .split-block__title {
+    background: #cbd5e1;
+    color: #15171a;
+}
+
+@media (max-width: 900px) {
+    /* partición horizontal: rojo arriba, azul abajo, ambos a mitades
+       iguales, con gradiente vertical en vez de diagonal */
+    .split__body {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 1fr;
+        background:
+            linear-gradient(180deg, rgba(220, 38, 38, 0.16) 0%, rgba(220, 38, 38, 0.05) 49.7%, rgba(37, 99, 235, 0.05) 50.3%, rgba(37, 99, 235, 0.14) 100%),
+            var(--bg-panel);
+    }
+
+    /* la diagonal se vuelve línea horizontal recta entre ambos corners */
+    .split__line {
+        top: 50%;
+        bottom: auto;
+        left: -5%;
+        right: -5%;
+        width: auto;
+        height: 3px;
+        margin-left: 0;
+        margin-top: -1.5px;
+        transform: none;
+    }
+
+    .split__vs {
+        font-size: 3.2rem;
+    }
+
+    .split__side {
+        padding: 1.2rem 1.4rem 0;
+        gap: 0.4rem;
+    }
+
+    /* despeja el tag BLUE CORNER del sello VS que cruza la división */
+    .split__side--blue {
+        padding-top: 3rem;
+    }
+
+    /* variantes en vertical: el gradiente dorado/plateado también gira */
+    .split--title .split__body {
+        background:
+            linear-gradient(180deg, rgba(251, 191, 36, 0.14) 0%, rgba(251, 191, 36, 0.04) 49.7%, rgba(251, 191, 36, 0.04) 50.3%, rgba(251, 191, 36, 0.14) 100%),
+            var(--bg-panel);
+    }
+
+    .split--bmf .split__body {
+        background:
+            linear-gradient(180deg, rgba(203, 213, 225, 0.14) 0%, rgba(203, 213, 225, 0.04) 49.7%, rgba(203, 213, 225, 0.04) 50.3%, rgba(203, 213, 225, 0.14) 100%),
+            var(--bg-panel);
+    }
+
+    /* stack centrado: nombre (info) arriba, foto abajo tocando el borde */
+    .split__side--red,
+    .split__side--blue {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .split__side--red .split__info,
+    .split__side--blue .split__info {
+        order: 1;
+        align-items: center;
+        padding: 0;
+    }
+
+    .split__side--red .split__photo,
+    .split__side--blue .split__photo {
+        order: 2;
+        margin: 0 auto;
+        height: clamp(140px, 38vw, 185px);
+        align-self: end;
+    }
+
+    .split__ribbon {
+        flex-direction: column;
+        gap: 0.3rem;
+        align-items: center;
+        text-align: center;
+    }
+}
+
+/* ============================================
+   HERO - SUBTÍTULO SOBRE EL PÓSTER
+   Fecha y venue integrados en el overlay
+   ============================================ */
+
+.hero__event-sub {
+    margin-top: 0.55rem;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+/* en mobile la fecha/venue sobre el póster estorba: fuera */
+@media (max-width: 768px) {
+    .hero__event-sub {
+        display: none;
+    }
+}
+
+/* ============================================
+   HERO - FLIP CLOCK (V3 HUD)
+   Countdown de dígitos grandes bajo EVENT STATS
+   ============================================ */
+
+.hero__clock {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    border-left: var(--border-thick) solid var(--accent);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.5);
+    padding: 1.1rem 1.2rem;
+}
+
+.clock {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.clock__cell {
+    background: linear-gradient(180deg, #171717 0%, #0a0a0a 55%, #111111 100%);
+    border: 1px solid var(--border-strong);
+    text-align: center;
+    padding: 0.8rem 0.2rem 0.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* línea central: efecto de placa dividida tipo flip clock */
+.clock__cell::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.clock__value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    text-shadow: 0 0 25px rgba(225, 6, 0, 0.35);
+    animation: clockFlip 0.3s;
+}
+
+@keyframes clockFlip {
+    0% {
+        transform: rotateX(70deg);
+        opacity: 0.3;
+    }
+
+    100% {
+        transform: none;
+        opacity: 1;
+    }
+}
+
+.clock__unit {
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .clock__value {
+        animation: none;
+    }
 }

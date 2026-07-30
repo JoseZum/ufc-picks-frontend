@@ -217,7 +217,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                 <header className="fight-header">
                     <div className="fight-header__info">
                         <div className="fight-header__event">
-                            {event.name} // {bout.is_title_fight ? 'TITLE FIGHT' : 'BOUT'}
+                            {event.name}
                         </div>
                         <div className="fight-header__meta">
                             {bout.weight_class && bout.weight_class !== 'Unknown' && (
