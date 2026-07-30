@@ -42,7 +42,6 @@
 
 .v2-root {
     font-family: 'Space Mono', monospace;
-    background: var(--bg-base);
     color: var(--text-primary);
     min-height: 100vh;
     line-height: 1.4;
@@ -50,6 +49,16 @@
     /* Prevent horizontal scroll from layout shifts */
     /* Escala global: equivalente a un zoom de navegador al 90% */
     zoom: 0.9;
+
+    /* Fondo con textura: ruido fino + degradado que se abre a gris claro.
+       Fijo al viewport para que se mantenga estable al hacer scroll. */
+    background-color: var(--bg-base);
+    background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)' opacity='0.05'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #030303 0%, #040404 62%, #070708 82%, #0b0b0d 93%, #101013 100%);
+    background-attachment: fixed, fixed;
+    background-repeat: repeat, no-repeat;
+    background-size: 190px 190px, cover;
 }
 
 /* ============================================
