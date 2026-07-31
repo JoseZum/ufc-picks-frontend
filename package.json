@@ -9,6 +9,7 @@
     "start": "next start -p 12000",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types tests/*.test.mjs",
     "check-backend": "node check-connection.js",
     "check-backend:prod": "node check-connection.js $NEXT_PUBLIC_API_URL",
     "postinstall": "react-flagpack"

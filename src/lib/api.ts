@@ -200,6 +200,12 @@ export interface Event {
   hero_image_url?: string;
   event_art_url?: string;
   picks_locked?: boolean;
+  card_start_time_utc?: string;
+  picks_lock_time_utc?: string;
+  section_start_times_utc?: Partial<Record<CardSection, string>>;
+  section_lock_times_utc?: Partial<Record<CardSection, string>>;
+  timing_source?: string;
+  picks_lock_override?: 'locked' | 'unlocked' | null;
   is_title_fight?: boolean;  // True si la pelea principal es por título
   is_bmf_title_fight?: boolean;  // True si la pelea principal es por el cinturón BMF
 }
@@ -247,13 +253,18 @@ export async function completeEvent(eventId: number): Promise<void> {
 /**
  * Construye un Date object para un evento con su hora ET
  *
- * Convierte ET a UTC correctamente: ET = UTC-5, entonces UTC = ET + 5 horas
- * Esto permite que el countdown timer funcione correctamente sin problemas de timezone.
+ * Prefiere el timestamp UTC canónico. El fallback legado convierte la hora de
+ * New York respetando EST/EDT en la fecha del evento.
  *
  * @param event - Evento con date y start_time_et
  * @returns Date object en UTC con la hora correcta del evento
  */
 export function getEventDateTime(event: Event): Date {
+  if (event.card_start_time_utc) {
+    const cardStart = new Date(event.card_start_time_utc);
+    if (!Number.isNaN(cardStart.getTime())) return cardStart;
+  }
+
   const [year, month, day] = event.date.split('-').map(Number);
 
   if (!event.start_time_et) {
@@ -261,10 +272,41 @@ export function getEventDateTime(event: Event): Date {
     return new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
   }
 
-  // Parsear hora ET y convertir a UTC
+  // Parsear la hora ET de documentos legacy.
   const [hours, minutes] = event.start_time_et.split(':').map(Number);
-  // ET es UTC-5, entonces para convertir a UTC: UTC_hour = ET_hour + 5
-  return new Date(Date.UTC(year, month - 1, day, hours + 5, minutes, 0));
+  const desiredWallTime = Date.UTC(year, month - 1, day, hours, minutes, 0);
+  let utcGuess = desiredWallTime;
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  });
+
+  // Converge the UTC guess until its New York wall-clock parts match the
+  // scraped local parts. Event cards never use DST's ambiguous 2 a.m. edge.
+  for (let iteration = 0; iteration < 3; iteration += 1) {
+    const parts = Object.fromEntries(
+      formatter
+        .formatToParts(new Date(utcGuess))
+        .filter((part) => part.type !== 'literal')
+        .map((part) => [part.type, Number(part.value)])
+    );
+    const observedWallTime = Date.UTC(
+      parts.year,
+      parts.month - 1,
+      parts.day,
+      parts.hour,
+      parts.minute,
+      parts.second
+    );
+    utcGuess += desiredWallTime - observedWallTime;
+  }
+  return new Date(utcGuess);
 }
 
 // ============================================
@@ -371,6 +413,8 @@ export function getFighterDisplayName(fighter?: Partial<Fighter> | null): string
 export function getNormalizedFighterName(fighter?: Partial<Fighter> | null): string {
   return getFighterDisplayName(fighter).toLowerCase().trim();
 }
+
+export type CardSection = 'main' | 'prelim' | 'early_prelim';
 
 export function normalizeWeightClassLabel(value?: string | null): string {
   let words = String(value || 'Unknown')
@@ -537,6 +581,11 @@ export interface Bout {
   };
   result?: BoutResult;
   picks_locked?: boolean;
+  picks_lock_override?: 'locked' | 'unlocked' | null;
+  card_section?: CardSection;
+  automatic_lock_time_utc?: string;
+  effective_picks_locked?: boolean;
+  picks_lock_reason?: 'result' | 'admin_event' | 'admin_bout' | 'section_time' | null;
 }
 
 export type BoutResultOutcome = 'red' | 'blue' | 'draw' | 'nc';
@@ -811,6 +860,21 @@ export async function unlockBoutPicks(boutId: number): Promise<{ success: boolea
   });
 }
 
+export interface UpdateEventTimingRequest {
+  card_start_time_utc: string;
+  picks_lock_time_utc: string;
+}
+
+export async function updateEventTiming(
+  eventId: number,
+  timing: UpdateEventTimingRequest
+): Promise<{ success: boolean; message: string; updated_fields: string[] }> {
+  return apiRequest(`/admin/events/${eventId}/timing`, {
+    method: 'PUT',
+    body: JSON.stringify(timing),
+  });
+}
+
 // ============================================
 // PUBLIC USER PROFILES
 // ============================================
@@ -937,6 +1001,7 @@ const api = {
   unlockEventPicks,
   lockBoutPicks,
   unlockBoutPicks,
+  updateEventTiming,
 
   // Health
   checkHealth,

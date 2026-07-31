@@ -20,6 +20,7 @@ import { Loader2 } from 'lucide-react';
 import { FighterPhoto } from '@/components/FighterImage';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
+import { CARD_SECTION_LABELS, formatSectionTime, isBoutEffectivelyLocked, normalizeCardSection } from '@/lib/eventTiming';
 
 interface FightPickPageV2Props {
     params: {
@@ -77,7 +78,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     }, [existingPick, bout]);
 
     const handleSelectFighter = (corner: 'red' | 'blue') => {
-        if (event?.status !== 'scheduled' || hasFightResult) return;
+        if (!event || !bout || isBoutEffectivelyLocked(event, bout) || hasFightResult) return;
         setSelectedFighter(corner);
         setCurrentStep(1);
         setShowSuccess(false);
@@ -103,6 +104,7 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
             if (!currentUser) router.push('/auth');
             return;
         }
+        if (!event || !bout || isBoutEffectivelyLocked(event, bout)) return;
 
         setSaving(true);
         try {
@@ -167,7 +169,8 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
     const blueFighter = bout.fighters.blue;
     const redFighterName = getFighterDisplayName(redFighter);
     const blueFighterName = getFighterDisplayName(blueFighter);
-    const isLocked = event.status !== 'scheduled';
+    const isLocked = isBoutEffectivelyLocked(event, bout);
+    const cardSection = normalizeCardSection(bout.card_section);
     const resultOutcome = getBoutResultOutcome(bout.result);
     const hasFightResult = hasBoutResult(bout.result);
     const hasWinningCorner = resultOutcome === 'red' || resultOutcome === 'blue';
@@ -555,7 +558,13 @@ export const FightPickPageV2 = ({ params }: FightPickPageV2Props) => {
                     <div className="pick-panel pick-panel--active" style={{ background: 'var(--bg-elevated)' }}>
                         <div className="pick-panel__content" style={{ textAlign: 'center', padding: '1rem' }}>
                             <div style={{ fontSize: '1.2rem', fontFamily: 'Bebas Neue, sans-serif', letterSpacing: '2px' }}>
-                                PICKS LOCKED - EVENT {event.status.toUpperCase()}
+                                PICKS LOCKED
+                                {bout.picks_lock_reason
+                                    ? ` · ${bout.picks_lock_reason.replace(/_/g, ' ').toUpperCase()}`
+                                    : ''}
+                                {bout.automatic_lock_time_utc
+                                    ? ` · ${CARD_SECTION_LABELS[cardSection]} ${formatSectionTime(bout.automatic_lock_time_utc)}`
+                                    : ''}
                             </div>
                         </div>
                     </div>

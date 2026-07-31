@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
-import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
+import { useCurrentUser, useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import {
+    type Bout,
     getApiUrl,
     getAuthToken,
     getBoutResultLabel,
@@ -16,14 +17,34 @@ import {
     getFighterDisplayName,
     hasBoutResult,
     getNormalizedFighterName,
-    normalizeWeightClassLabel
+    normalizeWeightClassLabel,
+    lockBoutPicks,
+    lockEventPicks,
+    unlockBoutPicks,
+    unlockEventPicks,
+    updateEventTiming,
 } from '@/lib/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, LockKeyhole, Save, Settings2, UnlockKeyhole } from 'lucide-react';
 import { FighterImage } from '@/components/FighterImage';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import { useCountdown } from '../hooks/useCountdown';
 import { FastPicksPanel } from '../FastPicksPanel';
+import { toast } from 'sonner';
+import {
+    CARD_SECTION_LABELS,
+    CARD_SECTION_ORDER,
+    formatSectionTime,
+    getMostRecentlyLockedSection,
+    getNextSectionLock,
+    getSectionLockIso,
+    getSectionStartIso,
+    groupBoutsBySection,
+    isoToLocalDateTimeInput,
+    isBoutEffectivelyLocked,
+    localDateTimeInputToUtcIso,
+    shiftLocalDateTime,
+} from '@/lib/eventTiming';
 
 interface EventDetailPageV2Props {
     params: {
@@ -34,14 +55,37 @@ interface EventDetailPageV2Props {
 export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
     const eventId = parseInt(params.id, 10);
 
-    const { data: event, isLoading: eventLoading } = useEvent(eventId);
-    const { data: bouts, isLoading: boutsLoading } = useEventBouts(eventId);
+    const { data: event, isLoading: eventLoading, refetch: refetchEvent } = useEvent(eventId);
+    const { data: bouts, isLoading: boutsLoading, refetch: refetchBouts } = useEventBouts(eventId);
     const { data: userPicks, refetch: refetchUserPicks } = useMyPicks(eventId);
+    const { data: currentUser } = useCurrentUser();
     const [isFastPicksOpen, setIsFastPicksOpen] = React.useState(false);
+    const [adminView, setAdminView] = React.useState(false);
+    const [cardStartLocal, setCardStartLocal] = React.useState('');
+    const [picksLockLocal, setPicksLockLocal] = React.useState('');
+    const [adminBusy, setAdminBusy] = React.useState<string | null>(null);
 
-    // Countdown timer
     const eventDateTime = event ? getEventDateTime(event) : null;
-    const { formatted, isExpired } = useCountdown(eventDateTime);
+    const nextSectionLock = event && bouts ? getNextSectionLock(event, bouts) : null;
+    const mostRecentlyLockedSection =
+        event && bouts ? getMostRecentlyLockedSection(event, bouts) : null;
+    const { formatted } = useCountdown(nextSectionLock?.at ?? null);
+
+    React.useEffect(() => {
+        if (!event) return;
+        const earliestSectionStart = Object.values(event.section_start_times_utc ?? {})
+            .filter((value): value is string => !!value)
+            .sort()[0];
+        const earliestSectionLock = Object.values(event.section_lock_times_utc ?? {})
+            .filter((value): value is string => !!value)
+            .sort()[0];
+        setCardStartLocal(
+            isoToLocalDateTimeInput(event.card_start_time_utc ?? earliestSectionStart)
+        );
+        setPicksLockLocal(
+            isoToLocalDateTimeInput(event.picks_lock_time_utc ?? earliestSectionLock)
+        );
+    }, [event]);
 
     // Create a map of picks by bout_id for quick lookup
     const picksByBout = React.useMemo(() => {
@@ -72,15 +116,81 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
     if (!event || !bouts) return <V2Layout><div className="text-white text-center pt-40">Event not found</div><MobileNav activePage="events" />
         </V2Layout>;
 
-    // logic for categorizing bouts
-    const mainEvent = bouts[0];
-    const coMain = bouts[1];
-    const mainCardRest = bouts.slice(2, 5);
-    const prelims = bouts.slice(5);
+    const boutsBySection = groupBoutsBySection(bouts);
 
     const totalFights = bouts.length;
     const titleBouts = bouts.filter(b => b.is_title_fight).length;
     const picksMadeCount = userPicks?.length || 0;
+
+    const refreshEventData = async () => {
+        await Promise.all([refetchEvent(), refetchBouts()]);
+    };
+
+    const handleCardStartChange = (value: string) => {
+        if (cardStartLocal && picksLockLocal) {
+            const previous = new Date(cardStartLocal).getTime();
+            const next = new Date(value).getTime();
+            if (!Number.isNaN(previous) && !Number.isNaN(next)) {
+                setPicksLockLocal(shiftLocalDateTime(picksLockLocal, next - previous));
+            }
+        }
+        setCardStartLocal(value);
+    };
+
+    const handleSaveTiming = async () => {
+        const cardStartUtc = localDateTimeInputToUtcIso(cardStartLocal);
+        const picksLockUtc = localDateTimeInputToUtcIso(picksLockLocal);
+        if (!cardStartUtc || !picksLockUtc) {
+            toast.error('Choose valid card start and picks lock times.');
+            return;
+        }
+
+        setAdminBusy('timing');
+        try {
+            await updateEventTiming(eventId, {
+                card_start_time_utc: cardStartUtc,
+                picks_lock_time_utc: picksLockUtc,
+            });
+            await refreshEventData();
+            toast.success('Event timing updated.');
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Could not update event timing.');
+        } finally {
+            setAdminBusy(null);
+        }
+    };
+
+    const handleToggleEventLock = async () => {
+        const shouldUnlock =
+            event.picks_lock_override === 'locked' ||
+            bouts.every((bout) => isBoutEffectivelyLocked(event, bout));
+        setAdminBusy('event');
+        try {
+            if (shouldUnlock) await unlockEventPicks(eventId);
+            else await lockEventPicks(eventId);
+            await refreshEventData();
+            toast.success(shouldUnlock ? 'Full event unlocked.' : 'Full event locked.');
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Could not update event lock.');
+        } finally {
+            setAdminBusy(null);
+        }
+    };
+
+    const handleToggleBoutLock = async (bout: Bout) => {
+        const shouldUnlock = isBoutEffectivelyLocked(event, bout) && !hasBoutResult(bout.result);
+        setAdminBusy(`bout-${bout.id}`);
+        try {
+            if (shouldUnlock) await unlockBoutPicks(bout.id);
+            else await lockBoutPicks(bout.id);
+            await refreshEventData();
+            toast.success(shouldUnlock ? 'Fight picks unlocked.' : 'Fight picks locked.');
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Could not update fight lock.');
+        } finally {
+            setAdminBusy(null);
+        }
+    };
 
     const handleExportPicks = async () => {
         const token = getAuthToken();
@@ -107,7 +217,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         }
     };
 
-    const renderBout = (bout: any, type: 'main' | 'co-main' | 'standard') => {
+    const renderBout = (bout: Bout, type: 'main' | 'co-main' | 'standard') => {
         const pick = picksByBout[bout.id];
         const redFighterName = getFighterDisplayName(bout.fighters.red);
         const blueFighterName = getFighterDisplayName(bout.fighters.blue);
@@ -138,12 +248,13 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         const resultMethod = hasResult ? (bout.result?.method ?? '') : '';
         const resultRound = hasResult ? bout.result?.round : null;
         const weightClass = normalizeWeightClassLabel(bout.weight_class);
+        const isPicksLocked = isBoutEffectivelyLocked(event, bout);
 
         return (
+            <div key={bout.id} className="fight-card-admin-wrap">
             <Link
-                key={bout.id}
                 href={`/events/${eventId}/fights/${bout.id}`}
-                className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''} ${bout.is_bmf_title_fight ? 'fight-card--bmf' : bout.is_title_fight ? 'fight-card--title' : ''} ${hasResult ? 'fight-card--completed' : ''}`}
+                className={`fight-card fight-card--clickable ${type === 'main' ? 'fight-card--main' : ''} ${bout.is_bmf_title_fight ? 'fight-card--bmf' : bout.is_title_fight ? 'fight-card--title' : ''} ${hasResult ? 'fight-card--completed' : ''} ${isPicksLocked ? 'fight-card--picks-locked' : ''}`}
             >
                 <div className="fight-card__header">
                     <span className="fight-card__weight">{(bout.is_title_fight || bout.is_bmf_title_fight) && '★ '}{weightClass} {bout.is_bmf_title_fight ? 'BMF TITLE' : bout.is_title_fight ? 'TITLE' : 'BOUT'}</span>
@@ -243,9 +354,34 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     </div>
                 </div>
                 <div className="fight-card__click-hint">
-                    CLICK TO {hasPick ? 'EDIT PICK' : 'MAKE PICK'} →
+                    {isPicksLocked && !hasResult
+                        ? 'PICKS LOCKED'
+                        : `CLICK TO ${hasPick ? 'EDIT PICK' : 'MAKE PICK'} →`}
                 </div>
             </Link>
+            {adminView && currentUser?.is_admin && (
+                <div className="bout-admin-control">
+                    <div>
+                        <strong>{isPicksLocked ? 'LOCKED' : 'OPEN'}</strong>
+                        <span>{bout.picks_lock_reason?.replace(/_/g, ' ') || 'No active lock'}</span>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => handleToggleBoutLock(bout)}
+                        disabled={hasResult || adminBusy === `bout-${bout.id}`}
+                    >
+                        {adminBusy === `bout-${bout.id}` ? (
+                            <Loader2 className="animate-spin" />
+                        ) : isPicksLocked ? (
+                            <UnlockKeyhole />
+                        ) : (
+                            <LockKeyhole />
+                        )}
+                        {hasResult ? 'RESULT FINAL' : isPicksLocked ? 'UNLOCK PICKS' : 'LOCK PICKS'}
+                    </button>
+                </div>
+            )}
+            </div>
         );
     };
 
@@ -256,12 +392,49 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         if (name.toLowerCase().includes('fight night')) return 'FN';
         return 'UFC';
     };
+    const displayEventDateTime = event.card_start_time_utc
+        ? new Date(event.card_start_time_utc)
+        : eventDateTime;
+    const hasOpenPicks = bouts.some((bout) => !isBoutEffectivelyLocked(event, bout));
+    const isCardStarted =
+        !!event.card_start_time_utc &&
+        new Date(event.card_start_time_utc).getTime() <= Date.now();
+    const eventIsFullyLocked =
+        event.picks_lock_override === 'locked' ||
+        bouts.every((bout) => isBoutEffectivelyLocked(event, bout));
+    const cardStartEt = formatSectionTime(
+        localDateTimeInputToUtcIso(cardStartLocal),
+        'en-US',
+        'America/New_York'
+    );
+    const picksLockEt = formatSectionTime(
+        localDateTimeInputToUtcIso(picksLockLocal),
+        'en-US',
+        'America/New_York'
+    );
 
     return (
         <V2Layout>
             <NavBarV2 activePage="events" />
 
             <div className="main" style={{ paddingTop: '70px', paddingBottom: '100px' }}>
+                {currentUser?.is_admin && (
+                    <div className="admin-view-bar">
+                        <div>
+                            <Settings2 />
+                            <span>ADMIN VIEW</span>
+                            <small>{adminView ? 'Management controls visible' : 'Viewing exactly what users see'}</small>
+                        </div>
+                        <button
+                            type="button"
+                            className={adminView ? 'admin-view-toggle admin-view-toggle--on' : 'admin-view-toggle'}
+                            onClick={() => setAdminView((current) => !current)}
+                            aria-pressed={adminView}
+                        >
+                            {adminView ? 'ON' : 'OFF'}
+                        </button>
+                    </div>
+                )}
                 {/* EVENT HERO - 2 COLUMN GRID MATCHING DESIGN-LAB */}
                 <section className="event-hero">
                     {/* LEFT SIDE - Image with number watermark */}
@@ -274,11 +447,11 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         }}
                     >
                         <span className="event-hero__image-text">{getEventNumber(event.name)}</span>
-                        <span className={`event-hero__badge ${isExpired && event.status === 'scheduled' ? 'event-hero__badge--live' : event.picks_locked ? 'event-hero__badge--locked' : ''}`}
-                            style={isExpired && event.status === 'scheduled' ? { background: '#dc2626', color: '#fff' } : undefined}>
-                            {isExpired && event.status === 'scheduled'
+                        <span className={`event-hero__badge ${isCardStarted && event.status === 'scheduled' ? 'event-hero__badge--live' : !hasOpenPicks ? 'event-hero__badge--locked' : ''}`}
+                            style={isCardStarted && event.status === 'scheduled' ? { background: '#dc2626', color: '#fff' } : undefined}>
+                            {isCardStarted && event.status === 'scheduled'
                                 ? 'LIVE NOW'
-                                : event.picks_locked
+                                : !hasOpenPicks
                                     ? 'LOCKED'
                                     : event.status === 'scheduled'
                                         ? 'OPEN FOR PICKS'
@@ -289,13 +462,13 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     {/* RIGHT SIDE - Content */}
                     <div className="event-hero__content">
                         <div className="event-hero__date">
-                            {eventDateTime ? eventDateTime.toLocaleDateString('en-US', {
+                            {displayEventDateTime ? displayEventDateTime.toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',
                                 day: 'numeric'
                             }).toUpperCase() : ''}
-                            {event.start_time_et && ` // ${event.start_time_et} ET`}
+                            {event.card_start_time_utc && ` // ${formatSectionTime(event.card_start_time_utc)}`}
                         </div>
                         <h1 className="event-hero__title">{event.name}</h1>
                         <p className="event-hero__location">
@@ -304,16 +477,22 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
                         {event.status === 'scheduled' && (
                             <div className="event-hero__countdown">
-                                {isExpired ? (
+                                {!nextSectionLock ? (
                                     <>
-                                        <div className="event-hero__countdown-label">EVENT IN PROGRESS</div>
+                                        <div className="event-hero__countdown-label">
+                                            {mostRecentlyLockedSection
+                                                ? `${CARD_SECTION_LABELS[mostRecentlyLockedSection]} PICKS LOCKED`
+                                                : 'PICKS LOCKED'}
+                                        </div>
                                         <div className="event-hero__countdown-time" style={{ color: '#dc2626' }}>
-                                            LIVE NOW
+                                            {hasOpenPicks ? 'MANUAL OVERRIDE ACTIVE' : 'LOCKED'}
                                         </div>
                                     </>
                                 ) : (
                                     <>
-                                        <div className="event-hero__countdown-label">TIME UNTIL EVENT</div>
+                                        <div className="event-hero__countdown-label">
+                                            {CARD_SECTION_LABELS[nextSectionLock.section]} PICKS LOCK IN
+                                        </div>
                                         <div className="event-hero__countdown-time">
                                             {formatted.days}D : {formatted.hours}H : {formatted.minutes}M : {formatted.seconds}S
                                         </div>
@@ -334,6 +513,70 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         </div>
                     </div>
                 </section>
+
+                {adminView && currentUser?.is_admin && (
+                    <section className="event-admin-panel" aria-label="Event administration">
+                        <div className="event-admin-panel__heading">
+                            <div>
+                                <span className="event-admin-panel__eyebrow">ADMIN CONTROLS</span>
+                                <h2>EVENT TIMING &amp; PICK LOCKS</h2>
+                                <p>
+                                    Times below use your browser timezone (
+                                    {Intl.DateTimeFormat().resolvedOptions().timeZone}).
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                className={eventIsFullyLocked ? 'admin-lock-btn admin-lock-btn--unlock' : 'admin-lock-btn'}
+                                onClick={handleToggleEventLock}
+                                disabled={adminBusy === 'event'}
+                            >
+                                {adminBusy === 'event' ? (
+                                    <Loader2 className="animate-spin" />
+                                ) : eventIsFullyLocked ? (
+                                    <UnlockKeyhole />
+                                ) : (
+                                    <LockKeyhole />
+                                )}
+                                {eventIsFullyLocked ? 'UNLOCK FULL EVENT' : 'LOCK FULL EVENT'}
+                            </button>
+                        </div>
+
+                        <div className="event-admin-panel__form">
+                            <label>
+                                <span>CARD STARTS AT</span>
+                                <input
+                                    type="datetime-local"
+                                    value={cardStartLocal}
+                                    onChange={(inputEvent) => handleCardStartChange(inputEvent.target.value)}
+                                />
+                                <small>ET reference: {cardStartEt}</small>
+                            </label>
+                            <label>
+                                <span>PICKS LOCK BASE TIME</span>
+                                <input
+                                    type="datetime-local"
+                                    value={picksLockLocal}
+                                    onChange={(inputEvent) => setPicksLockLocal(inputEvent.target.value)}
+                                />
+                                <small>ET reference: {picksLockEt}</small>
+                            </label>
+                            <button
+                                type="button"
+                                className="event-admin-panel__save"
+                                onClick={handleSaveTiming}
+                                disabled={adminBusy === 'timing'}
+                            >
+                                {adminBusy === 'timing' ? <Loader2 className="animate-spin" /> : <Save />}
+                                SAVE TIMES
+                            </button>
+                        </div>
+                        <p className="event-admin-panel__hint">
+                            Moving card start shifts all section starts and locks. Moving the picks lock base
+                            shifts lock times only. Scraped values remain protected after a manual edit.
+                        </p>
+                    </section>
+                )}
 
                 <section className="fights-section">
                     <div className="fights-header">
@@ -371,30 +614,60 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         />
                     )}
 
-                    {renderBout(mainEvent, 'main')}
-                    {coMain && renderBout(coMain, 'co-main')}
+                    {CARD_SECTION_ORDER.map((section) => {
+                        const sectionBouts = boutsBySection[section];
+                        if (sectionBouts.length === 0) return null;
+                        const startIso = getSectionStartIso(event, section);
+                        const lockIso = getSectionLockIso(event, section);
+                        const lockDiffers = !!startIso && !!lockIso && startIso !== lockIso;
+                        const sectionIsLocked = sectionBouts.every((bout) =>
+                            isBoutEffectivelyLocked(event, bout)
+                        );
 
-                    {mainCardRest.length > 0 && (
-                        <>
-                            <div className="card-divider">
-                                <div className="card-divider__line"></div>
-                                <span className="card-divider__text">MAIN CARD</span>
-                                <div className="card-divider__line"></div>
+                        return (
+                            <div key={section} className={`fight-card-section fight-card-section--${section}`}>
+                                <div className="card-divider">
+                                    <div className="card-divider__line"></div>
+                                    <div className="card-divider__identity">
+                                        <span className="card-divider__text">
+                                            {CARD_SECTION_LABELS[section]}
+                                        </span>
+                                        <span className="card-divider__time">
+                                            START {formatSectionTime(startIso)}
+                                            {' / '}
+                                            {formatSectionTime(startIso, 'en-US', 'America/New_York')}
+                                            {lockDiffers &&
+                                                ` · PICKS LOCK ${formatSectionTime(lockIso)} / ${formatSectionTime(
+                                                    lockIso,
+                                                    'en-US',
+                                                    'America/New_York'
+                                                )}`}
+                                        </span>
+                                    </div>
+                                    <span
+                                        className={
+                                            sectionIsLocked
+                                                ? 'card-divider__status card-divider__status--locked'
+                                                : 'card-divider__status'
+                                        }
+                                    >
+                                        {sectionIsLocked ? 'PICKS LOCKED' : 'PICKS OPEN'}
+                                    </span>
+                                    <div className="card-divider__line"></div>
+                                </div>
+                                {sectionBouts.map((bout, index) =>
+                                    renderBout(
+                                        bout,
+                                        section === 'main' && index === 0
+                                            ? 'main'
+                                            : section === 'main' && index === 1
+                                              ? 'co-main'
+                                              : 'standard'
+                                    )
+                                )}
                             </div>
-                            {mainCardRest.map(b => renderBout(b, 'standard'))}
-                        </>
-                    )}
-
-                    {prelims.length > 0 && (
-                        <>
-                            <div className="card-divider">
-                                <div className="card-divider__line"></div>
-                                <span className="card-divider__text">PRELIMS</span>
-                                <div className="card-divider__line"></div>
-                            </div>
-                            {prelims.map(b => renderBout(b, 'standard'))}
-                        </>
-                    )}
+                        );
+                    })}
 
                 </section>
             </div>

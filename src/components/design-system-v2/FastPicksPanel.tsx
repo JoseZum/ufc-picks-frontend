@@ -14,6 +14,11 @@ import {
     type Pick,
 } from '@/lib/api';
 import { toast } from 'sonner';
+import {
+    CARD_SECTION_LABELS,
+    isBoutEffectivelyLocked,
+    normalizeCardSection,
+} from '@/lib/eventTiming';
 
 type PickMethod = Pick['picked_method'];
 
@@ -54,11 +59,9 @@ function isDraftComplete(draft: FastPickDraft): boolean {
     return draft.round !== null;
 }
 
-function getBoutSlotLabel(index: number): string {
-    if (index === 0) return 'MAIN EVENT';
-    if (index === 1) return 'CO-MAIN';
-    if (index < 5) return 'MAIN CARD';
-    return 'PRELIMS';
+function getBoutSlotLabel(bout: Bout): string {
+    if (bout.is_main_event) return 'MAIN EVENT';
+    return CARD_SECTION_LABELS[normalizeCardSection(bout.card_section)];
 }
 
 function getDraftSummary(draft: FastPickDraft): string | null {
@@ -68,16 +71,6 @@ function getDraftSummary(draft: FastPickDraft): string | null {
 
     const roundLabel = draft.method !== 'DEC' && draft.round ? ` R${draft.round}` : '';
     return `${draft.fighterName} BY ${draft.method}${roundLabel}`;
-}
-
-function isBoutLocked(event: Event, bout: Bout): boolean {
-    return (
-        event.status !== 'scheduled' ||
-        !!event.picks_locked ||
-        bout.status !== 'scheduled' ||
-        !!bout.picks_locked ||
-        hasBoutResult(bout.result)
-    );
 }
 
 function buildSavedDrafts(bouts: Bout[], userPicks?: Pick[]): Record<number, FastPickDraft> {
@@ -216,7 +209,7 @@ export const FastPicksPanel = ({
                 return;
             }
 
-            if (isBoutLocked(event, bout)) {
+            if (isBoutEffectivelyLocked(event, bout)) {
                 validationErrors[boutId] = 'Picks are locked for this fight.';
                 return;
             }
@@ -339,7 +332,7 @@ export const FastPicksPanel = ({
                 </div>
             )}
 
-            {event.picks_locked && (
+            {event.picks_lock_override === 'locked' && (
                 <div className="fast-picks-notice fast-picks-notice--muted">
                     Event picks are locked by admin. Fast Picks is in read-only mode.
                 </div>
@@ -360,11 +353,11 @@ export const FastPicksPanel = ({
                         </tr>
                     </thead>
                     <tbody>
-                        {bouts.map((bout, index) => {
+                        {bouts.map((bout) => {
                             const savedDraft = savedDrafts[bout.id] ?? EMPTY_DRAFT;
                             const draft = draftOverrides[bout.id] ?? savedDraft;
                             const isDirty = Object.prototype.hasOwnProperty.call(draftOverrides, bout.id);
-                            const isLocked = isBoutLocked(event, bout);
+                            const isLocked = isBoutEffectivelyLocked(event, bout);
                             const rowError = rowErrors[bout.id];
                             const redName = getFighterDisplayName(bout.fighters.red);
                             const blueName = getFighterDisplayName(bout.fighters.blue);
@@ -393,7 +386,7 @@ export const FastPicksPanel = ({
                                     className={rowError ? 'fast-picks-row fast-picks-row--error' : 'fast-picks-row'}
                                 >
                                     <td className="fast-picks-fight">
-                                        <div className="fast-picks-fight__slot">{getBoutSlotLabel(index)}</div>
+                                        <div className="fast-picks-fight__slot">{getBoutSlotLabel(bout)}</div>
                                         <div className="fast-picks-fight__names">
                                             <span>{redName}</span>
                                             <span className="fast-picks-fight__vs">VS</span>

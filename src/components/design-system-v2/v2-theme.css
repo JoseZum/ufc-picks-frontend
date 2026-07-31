@@ -2196,6 +2196,271 @@
     border: 1px solid var(--border);
 }
 
+.fight-card-section {
+    margin-top: 2.5rem;
+}
+
+.fight-card-section--main {
+    border-top: 3px solid var(--accent);
+}
+
+.fight-card-section--prelim {
+    border-top: 3px solid #3b82f6;
+}
+
+.fight-card-section--early_prelim {
+    border-top: 3px solid #737373;
+}
+
+.card-divider__identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.card-divider__time {
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.card-divider__status {
+    padding: 0.3rem 0.55rem;
+    border: 1px solid #16a34a;
+    color: #4ade80;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.card-divider__status--locked {
+    border-color: #dc2626;
+    color: #f87171;
+}
+
+.fight-card-admin-wrap {
+    margin-bottom: 1rem;
+}
+
+.fight-card-admin-wrap .fight-card {
+    margin-bottom: 0;
+}
+
+.fight-card--picks-locked:not(.fight-card--completed) {
+    border-color: #4b5563;
+}
+
+.bout-admin-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid #3f3f46;
+    border-top: 0;
+    background: #111114;
+}
+
+.bout-admin-control > div {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.bout-admin-control strong {
+    color: #f5f5f5;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+}
+
+.bout-admin-control span {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+}
+
+.bout-admin-control button,
+.admin-lock-btn,
+.event-admin-panel__save {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 1px solid #dc2626;
+    background: #dc2626;
+    color: white;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.bout-admin-control button svg,
+.admin-lock-btn svg,
+.event-admin-panel__save svg,
+.admin-view-bar svg {
+    width: 15px;
+    height: 15px;
+}
+
+.bout-admin-control button:disabled,
+.admin-lock-btn:disabled,
+.event-admin-panel__save:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.admin-view-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #3f3f46;
+    background: #0d0d10;
+}
+
+.admin-view-bar > div {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.admin-view-bar span {
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.admin-view-bar small {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+}
+
+.admin-view-toggle {
+    min-width: 62px;
+    border: 1px solid #52525b;
+    background: #27272a;
+    color: #a1a1aa;
+    padding: 0.5rem 0.85rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.admin-view-toggle--on {
+    border-color: #dc2626;
+    background: #dc2626;
+    color: white;
+}
+
+.event-admin-panel {
+    margin: 1.5rem 0 2rem;
+    padding: 1.2rem;
+    border: 1px solid #dc2626;
+    border-top-width: 4px;
+    background: #0d0d10;
+}
+
+.event-admin-panel__heading,
+.event-admin-panel__form {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.event-admin-panel__eyebrow {
+    color: #f87171;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+}
+
+.event-admin-panel h2 {
+    margin: 0.25rem 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.65rem;
+    letter-spacing: 1.5px;
+}
+
+.event-admin-panel p {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
+.admin-lock-btn--unlock {
+    border-color: #16a34a;
+    background: #166534;
+}
+
+.event-admin-panel__form {
+    justify-content: flex-start;
+    margin-top: 1.1rem;
+}
+
+.event-admin-panel__form label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-width: 310px;
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.event-admin-panel__form input {
+    min-height: 42px;
+    border: 1px solid #3f3f46;
+    background: #18181b;
+    color: white;
+    padding: 0.55rem 0.7rem;
+    color-scheme: dark;
+}
+
+.event-admin-panel__save {
+    min-height: 42px;
+}
+
+.event-admin-panel .event-admin-panel__hint {
+    margin-top: 0.8rem;
+}
+
+@media (max-width: 720px) {
+    .admin-view-bar small {
+        display: none;
+    }
+
+    .event-admin-panel__heading,
+    .event-admin-panel__form,
+    .bout-admin-control,
+    .card-divider {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .event-admin-panel__form label {
+        max-width: none;
+        width: 100%;
+    }
+
+    .card-divider__line {
+        display: none;
+    }
+
+    .card-divider__status,
+    .card-divider__identity {
+        text-align: center;
+    }
+}
+
 /* SUBMIT BAR */
 .submit-bar {
     position: fixed;

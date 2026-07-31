@@ -15,14 +15,17 @@ interface CountdownResult {
 
 export const useCountdown = (targetDate: Date | null): CountdownResult => {
     const [timeLeft, setTimeLeft] = useState<number>(0);
+    const targetTime = targetDate?.getTime() ?? null;
 
     useEffect(() => {
-        if (!targetDate) return;
+        if (targetTime === null) {
+            setTimeLeft(0);
+            return;
+        }
 
         const calculateTimeLeft = () => {
             const now = new Date().getTime();
-            const target = targetDate.getTime();
-            const difference = target - now;
+            const difference = targetTime - now;
             return Math.max(0, Math.floor(difference / 1000));
         };
 
@@ -33,7 +36,7 @@ export const useCountdown = (targetDate: Date | null): CountdownResult => {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [targetDate]);
+    }, [targetTime]);
 
     const days = Math.floor(timeLeft / (60 * 60 * 24));
     const hours = Math.floor((timeLeft % (60 * 60 * 24)) / (60 * 60));
