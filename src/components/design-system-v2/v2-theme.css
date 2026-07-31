@@ -5965,6 +5965,15 @@
     color: var(--gold);
 }
 
+.event-card--title:hover {
+    border-color: var(--gold);
+    box-shadow: 4px 4px 0 var(--gold);
+}
+
+.event-card--title .event-card__image {
+    border-bottom-color: var(--gold);
+}
+
 .event-card--title .event-card__main-event {
     border-left-color: var(--gold);
 }
@@ -6065,6 +6074,15 @@
     color: #cbd5e1;
 }
 
+.event-card--bmf:hover {
+    border-color: #cbd5e1;
+    box-shadow: 4px 4px 0 #cbd5e1;
+}
+
+.event-card--bmf .event-card__image {
+    border-bottom-color: #cbd5e1;
+}
+
 .event-card--bmf .event-card__main-event {
     border-left-color: #cbd5e1;
 }
@@ -6135,6 +6153,32 @@
 
 .fight-card--bmf .fight-card__click-hint {
     color: #cbd5e1;
+}
+
+/* Hero del detalle: los acentos decorativos siguen el tipo de cinturón.
+   Los estados semánticos (por ejemplo LIVE NOW) mantienen su color propio. */
+.event-hero--title .event-hero__image {
+    border-color: var(--gold);
+}
+
+.event-hero--title .event-hero__date {
+    color: var(--gold);
+}
+
+.event-hero--title .event-hero__countdown {
+    border-left-color: var(--gold);
+}
+
+.event-hero--bmf .event-hero__image {
+    border-color: #cbd5e1;
+}
+
+.event-hero--bmf .event-hero__date {
+    color: #cbd5e1;
+}
+
+.event-hero--bmf .event-hero__countdown {
+    border-left-color: #cbd5e1;
 }
 
 /* ============================================

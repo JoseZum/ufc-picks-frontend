@@ -120,6 +120,11 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
 
     const totalFights = bouts.length;
     const titleBouts = bouts.filter(b => b.is_title_fight).length;
+    const eventHeroVariant = event.is_bmf_title_fight
+        ? 'event-hero--bmf'
+        : event.is_title_fight
+            ? 'event-hero--title'
+            : '';
     const picksMadeCount = userPicks?.length || 0;
 
     const refreshEventData = async () => {
@@ -436,7 +441,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                     </div>
                 )}
                 {/* EVENT HERO - 2 COLUMN GRID MATCHING DESIGN-LAB */}
-                <section className="event-hero">
+                <section className={`event-hero ${eventHeroVariant}`}>
                     {/* LEFT SIDE - Image with number watermark */}
                     <div 
                         className="event-hero__image"
