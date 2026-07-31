@@ -2186,14 +2186,28 @@
     background: var(--border);
 }
 
+/* mismo sello que el VS de las fight cards: caja sólida con sombra dura */
 .card-divider__text {
-    font-size: 0.65rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
     text-transform: uppercase;
-    letter-spacing: 4px;
-    color: var(--text-muted);
-    padding: 0.5rem 1rem;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
+    letter-spacing: 3px;
+    color: var(--text-primary);
+    background: var(--accent);
+    border: none;
+    padding: 0.4rem 1.3rem 0.2rem;
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.75);
+    white-space: nowrap;
+}
+
+/* cada sección conserva su color: rojo main, azul prelims, gris early */
+.fight-card-section--prelim .card-divider__text {
+    background: #3b82f6;
+}
+
+.fight-card-section--early_prelim .card-divider__text {
+    background: #737373;
 }
 
 .fight-card-section {
