@@ -618,42 +618,22 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
                         const sectionBouts = boutsBySection[section];
                         if (sectionBouts.length === 0) return null;
                         const startIso = getSectionStartIso(event, section);
-                        const lockIso = getSectionLockIso(event, section);
-                        const lockDiffers = !!startIso && !!lockIso && startIso !== lockIso;
-                        const sectionIsLocked = sectionBouts.every((bout) =>
-                            isBoutEffectivelyLocked(event, bout)
-                        );
 
                         return (
                             <div key={section} className={`fight-card-section fight-card-section--${section}`}>
-                                <div className="card-divider">
-                                    <div className="card-divider__line"></div>
-                                    <div className="card-divider__identity">
+                                <div className="card-section-head">
+                                    <div className="card-divider">
+                                        <div className="card-divider__line"></div>
                                         <span className="card-divider__text">
                                             {CARD_SECTION_LABELS[section]}
                                         </span>
-                                        <span className="card-divider__time">
-                                            START {formatSectionTime(startIso)}
-                                            {' / '}
-                                            {formatSectionTime(startIso, 'en-US', 'America/New_York')}
-                                            {lockDiffers &&
-                                                ` · PICKS LOCK ${formatSectionTime(lockIso)} / ${formatSectionTime(
-                                                    lockIso,
-                                                    'en-US',
-                                                    'America/New_York'
-                                                )}`}
-                                        </span>
+                                        <div className="card-divider__line"></div>
                                     </div>
-                                    <span
-                                        className={
-                                            sectionIsLocked
-                                                ? 'card-divider__status card-divider__status--locked'
-                                                : 'card-divider__status'
-                                        }
-                                    >
-                                        {sectionIsLocked ? 'PICKS LOCKED' : 'PICKS OPEN'}
-                                    </span>
-                                    <div className="card-divider__line"></div>
+                                    <div className="card-divider__time">
+                                        START {formatSectionTime(startIso)}
+                                        {' / '}
+                                        {formatSectionTime(startIso, 'en-US', 'America/New_York')}
+                                    </div>
                                 </div>
                                 {sectionBouts.map((bout, index) =>
                                     renderBout(

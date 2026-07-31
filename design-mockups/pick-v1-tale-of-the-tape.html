@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fight Pick — V1 · Tale of the Tape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   FIGHT PICK — V1 "TALE OF THE TAPE"
+   Comparación cara a cara: los stats de ambos peleadores se
+   enfrentan en barras centrales, y el pick se arma en línea
+   (sin panel flotante abajo).
+   ============================================================ */
+:root {
+    --bg-base: #050505; --bg-panel: #0f0f0f; --bg-elevated: #1a1a1a;
+    --accent: #e10600; --accent-dim: rgba(225,6,0,.15);
+    --text-primary: #fff; --text-secondary: #9ca3af; --text-muted: #6b7280;
+    --border: rgba(255,255,255,.08); --border-strong: rgba(255,255,255,.15);
+    --success: #22c55e; --fighter-red: #dc2626; --fighter-blue: #2563eb;
+    --gold: #fbbf24; --error: #ef4444;
+    --border-thick: 3px; --shadow-offset: 6px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Space Mono', monospace;
+    color: var(--text-primary);
+    line-height: 1.4;
+    min-height: 100vh;
+    background-color: var(--bg-base);
+    background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)' opacity='.05'/%3E%3C/svg%3E"),
+        linear-gradient(180deg,#030303 0%,#040404 62%,#070708 82%,#0b0b0d 93%,#101013 100%);
+    background-attachment: fixed, fixed;
+    background-size: 190px 190px, cover;
+}
+::selection { background: var(--accent); color: #fff; }
+
+/* NAV */
+.nav { position: sticky; top: 0; z-index: 50; height: 60px; display: flex; align-items: stretch;
+       background: rgba(10,10,10,.92); backdrop-filter: blur(8px);
+       border-bottom: var(--border-thick) solid var(--border-strong); }
+.nav__logo { display: flex; align-items: center; background: var(--accent); color: #fff;
+             font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 3px;
+             padding: 0 1.8rem 0 1rem; text-decoration: none;
+             clip-path: polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%); }
+.nav__back { margin-left: auto; display: flex; align-items: center; padding: 0 1.5rem;
+             font-size: .68rem; letter-spacing: 2px; color: var(--text-secondary); text-decoration: none; }
+.nav__back:hover { color: var(--accent); }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 2rem 20px 4rem; }
+
+/* HEADER DE LA PELEA */
+.fh { text-align: center; margin-bottom: 2rem; }
+.fh__event { font-size: .68rem; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; }
+.fh__title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2rem,4.5vw,3.4rem);
+             letter-spacing: 3px; line-height: 1; margin: .4rem 0 .6rem; }
+.fh__meta { display: flex; justify-content: center; gap: 0; flex-wrap: wrap; }
+.fh__meta span { font-size: .62rem; letter-spacing: 2px; text-transform: uppercase;
+                 color: var(--text-muted); padding: 0 .9rem; border-right: 1px solid var(--border); }
+.fh__meta span:last-child { border-right: none; }
+
+/* TAPE: peleador | comparativa | peleador */
+.tape { display: grid; grid-template-columns: 1fr minmax(260px,.85fr) 1fr; gap: 2px;
+        border: var(--border-thick) solid var(--border-strong);
+        box-shadow: 10px 10px 0 rgba(0,0,0,.6); background: var(--border); }
+
+.side { background: var(--bg-panel); padding: 1.6rem 1.4rem 0; display: flex; flex-direction: column;
+        cursor: pointer; transition: background .15s; position: relative; }
+.side--red  { background: linear-gradient(160deg, rgba(220,38,38,.10), var(--bg-panel) 60%); }
+.side--blue { background: linear-gradient(200deg, rgba(37,99,235,.10), var(--bg-panel) 60%); }
+.side:hover { background: var(--bg-elevated); }
+.side--picked { box-shadow: inset 0 0 0 2px var(--accent); }
+.side--picked.side--blue { box-shadow: inset 0 0 0 2px var(--fighter-blue); }
+
+.side__corner { align-self: flex-start; font-size: .58rem; letter-spacing: 3px; text-transform: uppercase;
+                color: #fff; padding: .28rem .8rem; }
+.side--red .side__corner  { background: var(--fighter-red); }
+.side--blue .side__corner { background: var(--fighter-blue); }
+
+.side__name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(1.8rem,3vw,2.6rem);
+              line-height: .98; letter-spacing: 2px; margin: .8rem 0 .2rem; }
+.side__nick { display: block; font-size: .34em; color: var(--text-secondary); letter-spacing: 5px; min-height: 1.2em; }
+.side__rec { font-size: .78rem; color: var(--text-secondary); letter-spacing: 2px; }
+.side__country { font-size: .62rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-top: .3rem; }
+.side__last5 { display: flex; gap: .3rem; margin-top: .9rem; }
+.side__last5 b { width: 22px; height: 22px; display: grid; place-items: center; font-size: .62rem;
+                 font-family: 'Bebas Neue', sans-serif; border: 1px solid var(--border-strong); }
+.side__last5 .w { background: rgba(34,197,94,.18); color: var(--success); border-color: var(--success); }
+.side__last5 .l { background: rgba(239,68,68,.14); color: var(--error); border-color: rgba(239,68,68,.5); }
+
+.side__photo { margin-top: auto; height: 210px; align-self: center; }
+.side__photo img { height: 100%; width: auto; object-fit: contain; object-position: bottom center;
+                   filter: drop-shadow(0 12px 28px rgba(0,0,0,.7)); display: block; }
+.side--red  { box-shadow: inset 0 -3px 0 var(--fighter-red); }
+.side--blue { box-shadow: inset 0 -3px 0 var(--fighter-blue); }
+
+/* COLUMNA CENTRAL: barras comparativas */
+.mid { background: var(--bg-panel); padding: 1.6rem 1.2rem; display: flex; flex-direction: column; }
+.mid__vs { font-family: 'Bebas Neue', sans-serif; font-size: 3.4rem; line-height: 1; text-align: center;
+           color: #fff; background: var(--accent); padding: .35rem 0 .1rem;
+           box-shadow: 5px 5px 0 rgba(0,0,0,.75); margin-bottom: 1.4rem; }
+.cmp { margin-bottom: 1rem; }
+.cmp__head { display: flex; justify-content: space-between; align-items: baseline;
+             font-size: .58rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: .3rem; }
+.cmp__head b { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; color: var(--text-primary); }
+.cmp__bar { display: flex; height: 7px; background: var(--bg-elevated); border: 1px solid var(--border); }
+.cmp__r { background: linear-gradient(90deg,#7f1d1d,var(--fighter-red)); }
+.cmp__b { background: linear-gradient(90deg,var(--fighter-blue),#1e3a8a); margin-left: auto; }
+.cmp--tie .cmp__head b { color: var(--text-secondary); }
+
+/* PICK BUILDER en línea */
+.builder { margin-top: 2rem; border: var(--border-thick) solid var(--border-strong);
+           background: var(--bg-panel); box-shadow: 8px 8px 0 rgba(0,0,0,.6); }
+.builder__head { background: var(--bg-elevated); padding: .8rem 1.3rem; display: flex;
+                 justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.builder__title { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; letter-spacing: 3px; }
+.steps { display: flex; gap: .3rem; }
+.steps i { width: 42px; height: 3px; background: var(--border-strong); display: block; }
+.steps i.on { background: var(--accent); }
+.steps i.done { background: var(--success); }
+
+.builder__body { padding: 1.4rem; display: grid; grid-template-columns: repeat(3,1fr); gap: 1.4rem; }
+.field__label { font-size: .58rem; letter-spacing: 3px; text-transform: uppercase;
+                color: var(--text-secondary); margin-bottom: .6rem; }
+.chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+.chip { flex: 1; min-width: 62px; background: var(--bg-elevated); border: 2px solid var(--border-strong);
+        padding: .7rem .4rem; text-align: center; cursor: pointer; transition: all .12s; }
+.chip:hover { border-color: var(--text-secondary); transform: translateY(-2px); }
+.chip--on { border-color: var(--accent); background: var(--accent-dim); }
+.chip__abbr { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 1px; }
+.chip__sub { font-size: .5rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+.chip--rd { min-width: 0; flex: 0 0 46px; padding: .55rem 0; }
+.chip--dis { opacity: .35; pointer-events: none; }
+
+.summary { border-top: 1px solid var(--border); padding: 1rem 1.4rem; display: flex;
+           align-items: center; gap: 1rem; flex-wrap: wrap; background: rgba(0,0,0,.35); }
+.summary__txt { font-size: .7rem; letter-spacing: 1px; color: var(--text-secondary); }
+.summary__txt b { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: #fff; letter-spacing: 2px; }
+.summary__pts { margin-left: auto; display: flex; align-items: center; gap: .5rem;
+                border: 1px solid var(--gold); padding: .35rem .8rem; }
+.summary__pts b { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--gold); }
+.summary__pts span { font-size: .52rem; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; }
+.btn { font-family: 'Bebas Neue', sans-serif; font-size: 1.15rem; letter-spacing: 3px;
+       padding: .7rem 2rem; border: 2px solid var(--accent); background: var(--accent); color: #fff;
+       cursor: pointer; box-shadow: 4px 4px 0 rgba(0,0,0,.7); transition: all .1s; }
+.btn:hover { transform: translate(2px,2px); box-shadow: none; }
+.btn--ghost { background: transparent; border-color: var(--border-strong); color: var(--text-secondary); box-shadow: none; }
+
+@media (max-width: 920px) {
+    .tape { grid-template-columns: 1fr; }
+    .mid { order: 2; }
+    .side--blue { order: 3; }
+    .side__photo { height: 165px; }
+    .builder__body { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+    <a href="#" class="nav__logo">UFC PICKS</a>
+    <a href="#" class="nav__back">← BACK TO CARD</a>
+</nav>
+
+<div class="wrap">
+    <header class="fh">
+        <div class="fh__event">UFC Fight Night: Medić vs Rodriguez</div>
+        <h1 class="fh__title">MEDIĆ <span style="color:var(--text-muted)">VS</span> RODRIGUEZ</h1>
+        <div class="fh__meta">
+            <span>Welterweight</span><span>5 Rounds</span><span>Aug 1, 2026</span><span>Main Event</span>
+        </div>
+    </header>
+
+    <div class="tape">
+        <!-- RED -->
+        <div class="side side--red side--picked">
+            <span class="side__corner">Red Corner</span>
+            <div class="side__name"><small class="side__nick">"THE DOCTOR"</small>UROŠ<br>MEDIĆ</div>
+            <div class="side__rec">13 – 3 – 0</div>
+            <div class="side__country">🇷🇸 Serbia</div>
+            <div class="side__last5"><b class="w">W</b><b class="w">W</b><b class="l">L</b><b class="w">W</b><b class="w">W</b></div>
+            <div class="side__photo"><img src="https://a.espncdn.com/i/headshots/mma/players/full/4685870.png" alt="Uroš Medić"></div>
+        </div>
+
+        <!-- COMPARATIVA -->
+        <div class="mid">
+            <div class="mid__vs">VS</div>
+            <div class="cmp">
+                <div class="cmp__head"><b>6'1"</b><span>Height</span><b>5'11"</b></div>
+                <div class="cmp__bar"><div class="cmp__r" style="width:56%"></div><div class="cmp__b" style="width:44%"></div></div>
+            </div>
+            <div class="cmp">
+                <div class="cmp__head"><b>76"</b><span>Reach</span><b>72"</b></div>
+                <div class="cmp__bar"><div class="cmp__r" style="width:58%"></div><div class="cmp__b" style="width:42%"></div></div>
+            </div>
+            <div class="cmp">
+                <div class="cmp__head"><b>32</b><span>Age</span><b>38</b></div>
+                <div class="cmp__bar"><div class="cmp__r" style="width:46%"></div><div class="cmp__b" style="width:54%"></div></div>
+            </div>
+            <div class="cmp">
+                <div class="cmp__head"><b>10</b><span>KO / TKO</span><b>7</b></div>
+                <div class="cmp__bar"><div class="cmp__r" style="width:59%"></div><div class="cmp__b" style="width:41%"></div></div>
+            </div>
+            <div class="cmp">
+                <div class="cmp__head"><b>2</b><span>Submissions</span><b>3</b></div>
+                <div class="cmp__bar"><div class="cmp__r" style="width:40%"></div><div class="cmp__b" style="width:60%"></div></div>
+            </div>
+            <div class="cmp">
+                <div class="cmp__head"><b>61%</b><span>Community</span><b>39%</b></div>
+                <div class="cmp__bar"><div class="cmp__r" style="width:61%"></div><div class="cmp__b" style="width:39%"></div></div>
+            </div>
+        </div>
+
+        <!-- BLUE -->
+        <div class="side side--blue">
+            <span class="side__corner">Blue Corner</span>
+            <div class="side__name"><small class="side__nick">"D-ROD"</small>DANIEL<br>RODRIGUEZ</div>
+            <div class="side__rec">20 – 5 – 0</div>
+            <div class="side__country">🇺🇸 United States</div>
+            <div class="side__last5"><b class="l">L</b><b class="w">W</b><b class="w">W</b><b class="l">L</b><b class="w">W</b></div>
+            <div class="side__photo"><img src="https://a.espncdn.com/i/headshots/mma/players/full/4426312.png" alt="Daniel Rodriguez"></div>
+        </div>
+    </div>
+
+    <!-- PICK BUILDER -->
+    <section class="builder">
+        <div class="builder__head">
+            <h2 class="builder__title">BUILD YOUR PICK</h2>
+            <div class="steps"><i class="done"></i><i class="on"></i><i></i></div>
+        </div>
+        <div class="builder__body">
+            <div class="field">
+                <div class="field__label">1 · Winner</div>
+                <div class="chips">
+                    <div class="chip chip--on"><div class="chip__abbr">MEDIĆ</div><div class="chip__sub">Red</div></div>
+                    <div class="chip"><div class="chip__abbr">RODRIGUEZ</div><div class="chip__sub">Blue</div></div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="field__label">2 · Method</div>
+                <div class="chips">
+                    <div class="chip chip--on"><div class="chip__abbr">KO/TKO</div><div class="chip__sub">Knockout</div></div>
+                    <div class="chip"><div class="chip__abbr">SUB</div><div class="chip__sub">Submission</div></div>
+                    <div class="chip"><div class="chip__abbr">DEC</div><div class="chip__sub">Decision</div></div>
+                </div>
+            </div>
+            <div class="field">
+                <div class="field__label">3 · Round</div>
+                <div class="chips">
+                    <div class="chip chip--rd chip--on"><div class="chip__abbr">1</div></div>
+                    <div class="chip chip--rd"><div class="chip__abbr">2</div></div>
+                    <div class="chip chip--rd"><div class="chip__abbr">3</div></div>
+                    <div class="chip chip--rd"><div class="chip__abbr">4</div></div>
+                    <div class="chip chip--rd"><div class="chip__abbr">5</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="summary">
+            <div class="summary__txt"><b>UROŠ MEDIĆ</b> by <b>KO/TKO</b> in <b>RD 1</b></div>
+            <div class="summary__pts"><b>3</b><span>MAX PTS</span></div>
+            <button class="btn btn--ghost">RESET</button>
+            <button class="btn">CONFIRM PICK</button>
+        </div>
+    </section>
+</div>
+</body>
+</html>

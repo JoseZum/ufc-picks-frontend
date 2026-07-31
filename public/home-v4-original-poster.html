@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UFC PICKS — Home V4 · Original + Póster Protagonista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   UFC PICKS — HOME V4 "ORIGINAL + PÓSTER PROTAGONISTA"
+   Copia fiel del diseño original (v2-theme.css) con mejoras:
+   1. El póster oficial 3:2 COMPLETO como pieza central del hero
+      (las caras nunca se recortan — aspect-ratio: 3/2)
+   2. Título y badge superpuestos sobre el póster con gradiente
+   3. Ticker superior con datos en vivo
+   4. Fotos de la tarjeta VS tomadas de las mitades del póster
+   5. Barra de picks de la comunidad en la tarjeta VS
+   6. Count-up en stats + reveal on scroll + grain sutil
+   7. Fila "YOU" en el leaderboard
+   ============================================================ */
+:root {
+    /* BROADCAST DARK PALETTE — idéntica al original */
+    --bg-base: #050505;
+    --bg-panel: #0f0f0f;
+    --bg-elevated: #1a1a1a;
+    --accent: #e10600;
+    --accent-dim: rgba(225, 6, 0, 0.15);
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.15);
+    --success: #22c55e;
+    --fighter-red: #dc2626;
+    --fighter-blue: #2563eb;
+    --gold: #fbbf24;
+    --border-thick: 3px;
+    --shadow-offset: 6px;
+    --grid-gap: 2px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Space Mono', monospace;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.4;
+    overflow-x: hidden;
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+/* [AÑADIDO] grain sutil de película */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.25;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+}
+
+/* ============ [AÑADIDO] TICKER SUPERIOR ============ */
+.ticker {
+    background: var(--accent);
+    height: 30px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1001;
+}
+.ticker__track {
+    display: flex;
+    gap: 3rem;
+    white-space: nowrap;
+    animation: ticker 28s linear infinite;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.ticker__item::before { content: '▮ '; opacity: 0.5; }
+@keyframes ticker { to { transform: translateX(-50%); } }
+
+/* ============ NAV — igual al original ============ */
+.nav {
+    position: fixed;
+    top: 30px; /* debajo del ticker */
+    left: 0; right: 0;
+    z-index: 1000;
+    background: var(--bg-panel);
+    border-bottom: var(--border-thick) solid var(--border-strong);
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    height: 70px;
+}
+.nav__logo {
+    display: flex;
+    align-items: center;
+    border-right: var(--border-thick) solid var(--border-strong);
+    text-decoration: none;
+    background: var(--accent);
+    padding: 0 1.2rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 3px;
+    color: #fff;
+}
+.nav__items { display: flex; flex: 1; }
+.nav__item {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--border);
+    text-decoration: none;
+    transition: all 0.1s;
+    background: transparent;
+}
+.nav__item:hover { background: var(--bg-elevated); color: var(--text-primary); }
+.nav__item--active {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--accent);
+}
+.nav__user {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    border-left: 1px solid var(--border);
+}
+.nav__avatar {
+    width: 40px; height: 40px;
+    background: var(--bg-panel);
+    border: 2px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+}
+
+/* ============ MAIN — igual al original ============ */
+.main {
+    padding-top: 120px; /* 30 ticker + 70 nav + margen */
+    padding-bottom: 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+/* ============ HERO — grid roto original ============ */
+.hero {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: var(--grid-gap);
+    margin-bottom: 2rem;
+}
+
+.hero__event {
+    grid-row: span 2;
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(225, 6, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* [CAMBIO CLAVE] El póster SIEMPRE es 3:2 (2000×1333) con las caras
+   arriba — se muestra COMPLETO con aspect-ratio, jamás recortado */
+.hero__event-image {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    background-image: url('sample-poster.jpg');
+    background-size: cover;
+    background-position: center;
+    border-bottom: var(--border-thick) solid var(--accent);
+    position: relative;
+}
+
+/* [AÑADIDO] gradiente inferior para legibilidad del título superpuesto */
+.hero__event-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5,5,5,0.25) 0%, transparent 22%, transparent 52%, rgba(5, 5, 5, 0.94) 100%);
+}
+
+.hero__event-badge {
+    position: absolute;
+    top: 20px; left: 0;
+    background: var(--success);
+    color: var(--bg-base);
+    padding: 0.5rem 1.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    z-index: 2;
+}
+.hero__event-badge--locked { background: var(--accent); color: var(--text-primary); }
+
+/* [AÑADIDO] título del evento SOBRE el póster, como en UFC.com */
+.hero__event-overlay {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 1.4rem 2rem 1.2rem;
+    z-index: 2;
+}
+.hero__event-kicker {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+}
+.hero__event-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 4.6vw, 4.2rem);
+    letter-spacing: 3px;
+    line-height: 0.95;
+    color: var(--text-primary);
+    text-shadow: 0 6px 30px rgba(0, 0, 0, 0.95), 0 2px 6px rgba(0,0,0,0.8);
+}
+.hero__event-title em { font-style: normal; color: var(--accent); }
+
+.hero__event-content {
+    padding: 1.6rem 2rem 2rem;
+    background: var(--bg-panel);
+}
+.hero__event-subtitle {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+.hero__event-subtitle strong { color: var(--text-primary); }
+
+/* countdown — caja original con borde rojo izquierdo */
+.hero__countdown {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-left: var(--border-thick) solid var(--accent);
+    padding: 1rem;
+    margin-bottom: 1.4rem;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.hero__countdown-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+}
+.hero__countdown-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    letter-spacing: 4px;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+.hero__countdown-time b { color: var(--accent); font-weight: 400; }
+
+/* [AÑADIDO] mini barra de picks de la comunidad bajo el countdown */
+.hero__community { margin-top: 0.2rem; }
+.hero__community-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+}
+.hero__community-label b { color: var(--text-secondary); }
+.hero__community-bar {
+    display: flex;
+    height: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+}
+.hero__community-red { background: var(--fighter-red); width: 0; transition: width 1.1s cubic-bezier(0.16,1,0.3,1) 0.4s; }
+.hero__community-blue { background: var(--fighter-blue); width: 0; transition: width 1.1s cubic-bezier(0.16,1,0.3,1) 0.4s; margin-left: auto; }
+
+/* stats del evento — panel original */
+.hero__stats {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    border-left: var(--border-thick) solid var(--accent);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.5);
+    color: var(--text-primary);
+    padding: 1.5rem;
+}
+.hero__stats-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+.hero__stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.hero__stat { text-align: center; }
+.hero__stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--text-primary);
+}
+.hero__stat-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+/* acción — original + [AÑADIDO] brillo que cruza al hover */
+.hero__action {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--accent);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(225, 6, 0, 0.4);
+    color: var(--text-primary);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.1s;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+.hero__action::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -80%;
+    width: 50%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.22), transparent);
+    transition: left 0.45s;
+}
+.hero__action:hover {
+    transform: translate(3px, 3px);
+    box-shadow: none;
+    background: var(--accent);
+}
+.hero__action:hover::before { left: 120%; }
+.hero__action-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+}
+.hero__action-arrow {
+    font-size: 2rem;
+    margin-top: 0.5rem;
+    color: var(--accent);
+    transition: transform 0.15s;
+}
+.hero__action:hover .hero__action-arrow { color: var(--text-primary); transform: translateX(6px); }
+
+/* ============ MAIN EVENT — tarjeta VS original ============ */
+.main-event {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    box-shadow: calc(var(--shadow-offset) * 1.5) calc(var(--shadow-offset) * 1.5) 0 rgba(225, 6, 0, 0.25);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+.main-event__header {
+    background: var(--accent);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+/* variante título (dorado) — igual al original */
+.main-event--title .main-event__header {
+    background: linear-gradient(90deg, #b45309, var(--gold));
+    color: #050505;
+    font-weight: 700;
+}
+.main-event__content {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    background: var(--bg-panel);
+}
+.main-event__fighter { padding: 2rem; text-align: center; }
+.main-event__fighter--red {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, var(--bg-panel) 100%);
+    border-right: 1px solid var(--border);
+}
+.main-event__fighter--blue {
+    background: linear-gradient(135deg, var(--bg-panel) 0%, rgba(37, 99, 235, 0.08) 100%);
+    border-left: 1px solid var(--border);
+}
+/* [AÑADIDO] las fotos se toman de las mitades del póster 3:2 —
+   la cara roja vive en la mitad izquierda, la azul en la derecha */
+.main-event__photo {
+    width: 180px; height: 180px;
+    background-color: var(--bg-elevated);
+    border: var(--border-thick) solid var(--border-strong);
+    margin: 0 auto 1rem;
+    overflow: hidden;
+    position: relative;
+    background-image: url('sample-poster.jpg');
+    background-size: 300% auto;
+    transition: transform 0.2s;
+}
+.main-event__fighter:hover .main-event__photo { transform: scale(1.04); }
+.main-event__photo--red { background-position: 13% 18%; }
+.main-event__photo--blue { background-position: 87% 18%; }
+.main-event__photo::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+}
+.main-event__fighter--red .main-event__photo::after { background: var(--fighter-red); }
+.main-event__fighter--blue .main-event__photo::after { background: var(--fighter-blue); }
+.main-event__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+.main-event__record { font-size: 0.75rem; color: var(--text-secondary); letter-spacing: 1px; }
+.main-event__country {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+}
+.main-event__vs {
+    background: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+}
+.main-event__vs-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: -5px;
+    color: var(--accent);
+}
+/* [AÑADIDO] barra de picks de la comunidad al pie de la tarjeta VS */
+.main-event__meter {
+    padding: 0.9rem 1.5rem 1.2rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-panel);
+}
+.main-event__meter-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+.main-event__meter-label b { color: var(--text-primary); }
+.main-event__meter-bar {
+    display: flex;
+    height: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+}
+.main-event__meter-red { background: linear-gradient(90deg, #7f1d1d, var(--fighter-red)); width: 0; transition: width 1.1s cubic-bezier(0.16,1,0.3,1) 0.3s; }
+.main-event__meter-blue { background: linear-gradient(90deg, var(--fighter-blue), #1e3a8a); width: 0; transition: width 1.1s cubic-bezier(0.16,1,0.3,1) 0.3s; margin-left: auto; }
+
+/* ============ YOUR STATS — tarjetas rotadas originales ============ */
+.stats-section { margin-bottom: 2rem; }
+.stats-section__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    border-left: var(--border-thick) solid var(--accent);
+    color: var(--text-primary);
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+}
+.stat-card {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    transition: all 0.1s;
+}
+.stat-card:nth-child(1) {
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.5);
+    transform: rotate(-1deg);
+}
+.stat-card:nth-child(2) {
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(225, 6, 0, 0.3);
+    transform: rotate(0.5deg);
+    z-index: 1;
+    border-color: var(--accent);
+}
+.stat-card:nth-child(3) {
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.5);
+    transform: rotate(1deg);
+}
+.stat-card:hover { transform: rotate(0) scale(1.02); z-index: 10; border-color: var(--accent); }
+.stat-card__label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+.stat-card__value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    line-height: 1;
+    color: var(--text-primary);
+}
+.stat-card:nth-child(2) .stat-card__value { color: var(--accent); }
+.stat-card__suffix { font-size: 2rem; }
+
+/* ============ LEADERBOARD — tabla original ============ */
+.leaderboard {
+    border: var(--border-thick) solid var(--border-strong);
+    box-shadow: calc(var(--shadow-offset) * 1.5) calc(var(--shadow-offset) * 1.5) 0 rgba(0, 0, 0, 0.5);
+    background: var(--bg-panel);
+    margin-bottom: 2rem;
+}
+.leaderboard__header {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+.leaderboard__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+}
+.leaderboard__link {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    transition: all 0.1s;
+}
+.leaderboard__link:hover { background: var(--accent); color: var(--text-primary); }
+.leaderboard__table { width: 100%; border-collapse: collapse; }
+.leaderboard__row {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.1s;
+    cursor: pointer;
+}
+.leaderboard__row:hover { background: var(--bg-elevated); }
+.leaderboard__row:last-child { border-bottom: none; }
+.leaderboard__row--highlight {
+    background: var(--accent-dim);
+    border-left: var(--border-thick) solid var(--accent);
+}
+/* [AÑADIDO] fila del usuario actual, anclada visualmente */
+.leaderboard__row--you {
+    background: rgba(34, 197, 94, 0.06);
+    border-left: var(--border-thick) solid var(--success);
+}
+.leaderboard__cell { padding: 1rem 1.5rem; vertical-align: middle; }
+.leaderboard__rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    width: 60px;
+    text-align: center;
+    color: var(--text-muted);
+}
+.leaderboard__rank--1 { color: var(--accent); }
+.leaderboard__rank--2 { color: var(--text-secondary); }
+.leaderboard__rank--3 { color: #b45309; }
+.leaderboard__user { display: flex; align-items: center; gap: 1rem; }
+.leaderboard__avatar {
+    width: 50px; height: 50px;
+    background: var(--bg-elevated);
+    border: 2px solid var(--border-strong);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    font-family: 'Bebas Neue', sans-serif;
+}
+.leaderboard__name {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+}
+.leaderboard__name small {
+    display: block;
+    font-weight: 400;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+.leaderboard__points {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    text-align: right;
+    color: var(--text-primary);
+}
+.leaderboard__accuracy {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* ============ FOOTER — original ============ */
+.footer {
+    border-top: var(--border-thick) solid var(--border-strong);
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    padding: 2rem;
+    margin-top: 4rem;
+}
+.footer__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+.footer__block { border: 1px solid var(--border); padding: 1.5rem; }
+.footer__label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+.footer__text { font-size: 0.8rem; color: var(--text-secondary); }
+
+/* [AÑADIDO] reveal on scroll */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.reveal.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px) {
+    .nav__items, .nav__user { display: none; }
+    .nav { height: 56px; }
+    .main { padding-top: 102px; }
+    .hero { grid-template-columns: 1fr; }
+    .hero__event { grid-row: auto; }
+    .hero__event-overlay { padding: 1rem 1.2rem 0.9rem; }
+    .hero__event-content { padding: 1.2rem 1.2rem 1.6rem; }
+    .hero__countdown-time { font-size: 1.9rem; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .main-event__content { grid-template-columns: 1fr; }
+    .main-event__vs { padding: 0.6rem; border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .main-event__vs-text { writing-mode: horizontal-tb; letter-spacing: 2px; font-size: 2.4rem; }
+    .main-event__fighter--red, .main-event__fighter--blue { border: none; }
+    .leaderboard__cell { padding: 0.75rem 0.5rem; }
+    .leaderboard__rank { font-size: 1.5rem; width: 40px; }
+    .leaderboard__avatar { width: 36px; height: 36px; font-size: 1rem; }
+    .leaderboard__accuracy { display: none; }
+    .footer__grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- [AÑADIDO] TICKER -->
+<div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+        <span class="ticker__item">UFC Fight Night · Sat, Aug 8 2026</span>
+        <span class="ticker__item">Picks close at fight start</span>
+        <span class="ticker__item">14,203 picks already in</span>
+        <span class="ticker__item">Top predictor this month: IRONFIST_88 — 91% accuracy</span>
+        <span class="ticker__item">13 fights on the card</span>
+        <span class="ticker__item">UFC Fight Night · Sat, Aug 8 2026</span>
+        <span class="ticker__item">Picks close at fight start</span>
+        <span class="ticker__item">14,203 picks already in</span>
+        <span class="ticker__item">Top predictor this month: IRONFIST_88 — 91% accuracy</span>
+        <span class="ticker__item">13 fights on the card</span>
+    </div>
+</div>
+
+<!-- NAV — original -->
+<nav class="nav">
+    <a href="#" class="nav__logo">UFC PICKS</a>
+    <div class="nav__items">
+        <a href="#" class="nav__item nav__item--active">Home</a>
+        <a href="#" class="nav__item">Events</a>
+        <a href="#" class="nav__item">Leaderboards</a>
+        <a href="#" class="nav__item">My Picks</a>
+        <a href="#" class="nav__item">Profile</a>
+    </div>
+    <div class="nav__user">
+        <div class="nav__avatar">J</div>
+        <span>JOSE_Z</span>
+    </div>
+</nav>
+
+<main class="main">
+    <!-- HERO — grid roto original, ahora con el póster 3:2 completo -->
+    <section class="hero">
+        <div class="hero__event">
+            <div class="hero__event-image">
+                <span class="hero__event-badge">OPEN FOR PICKS</span>
+                <!-- título superpuesto sobre el póster -->
+                <div class="hero__event-overlay">
+                    <div class="hero__event-kicker">Next Event // Fight Night</div>
+                    <h1 class="hero__event-title">UFC FIGHT NIGHT<br><em>MEDIC</em> VS RODRIGUEZ</h1>
+                </div>
+            </div>
+            <div class="hero__event-content">
+                <p class="hero__event-subtitle">
+                    <strong>SAT, AUG 8 2026</strong> // UFC APEX — LAS VEGAS, NV
+                </p>
+                <div class="hero__countdown">
+                    <div class="hero__countdown-label">TIME UNTIL EVENT</div>
+                    <div class="hero__countdown-time">
+                        <span id="cd-d">03</span><b>D</b> : <span id="cd-h">11</span><b>H</b> : <span id="cd-m">42</span><b>M</b> : <span id="cd-s">08</span><b>S</b>
+                    </div>
+                </div>
+                <div class="hero__community">
+                    <div class="hero__community-label">
+                        <b>MEDIC 61%</b>
+                        <span>COMMUNITY PICKS · 14,203 IN</span>
+                        <b>39% RODRIGUEZ</b>
+                    </div>
+                    <div class="hero__community-bar">
+                        <div class="hero__community-red" data-width="61%"></div>
+                        <div class="hero__community-blue" data-width="39%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero__stats">
+            <div class="hero__stats-title">EVENT STATS</div>
+            <div class="hero__stats-grid">
+                <div class="hero__stat">
+                    <div class="hero__stat-value">13</div>
+                    <div class="hero__stat-label">TOTAL FIGHTS</div>
+                </div>
+                <div class="hero__stat">
+                    <div class="hero__stat-value">0</div>
+                    <div class="hero__stat-label">TITLE FIGHTS</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="#" class="hero__action">
+            <span class="hero__action-text">MAKE YOUR PICKS</span>
+            <span class="hero__action-arrow">→</span>
+        </a>
+    </section>
+
+    <!-- MAIN EVENT — tarjeta VS original con fotos del póster -->
+    <section class="main-event reveal">
+        <div class="main-event__header">Main Event // Welterweight Bout</div>
+        <div class="main-event__content">
+            <div class="main-event__fighter main-event__fighter--red">
+                <div class="main-event__photo main-event__photo--red"></div>
+                <div class="main-event__name">Uros Medic</div>
+                <div class="main-event__record">11-3-0</div>
+                <div class="main-event__country">🇷🇸 Serbia</div>
+            </div>
+            <div class="main-event__vs">
+                <div class="main-event__vs-text">VS</div>
+            </div>
+            <div class="main-event__fighter main-event__fighter--blue">
+                <div class="main-event__photo main-event__photo--blue"></div>
+                <div class="main-event__name">Daniel Rodriguez</div>
+                <div class="main-event__record">18-5-0</div>
+                <div class="main-event__country">🇺🇸 United States</div>
+            </div>
+        </div>
+        <!-- [AÑADIDO] picks de la comunidad -->
+        <div class="main-event__meter">
+            <div class="main-event__meter-label"><b>61%</b><span>Community Picks</span><b>39%</b></div>
+            <div class="main-event__meter-bar">
+                <div class="main-event__meter-red" data-width="61%"></div>
+                <div class="main-event__meter-blue" data-width="39%"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- YOUR STATS — tarjetas rotadas originales + count-up -->
+    <section class="stats-section reveal">
+        <h2 class="stats-section__title">YOUR STATS</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card__label">PICKS MADE</div>
+                <div class="stat-card__value" data-count="147">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">GLOBAL RANK</div>
+                <div class="stat-card__value">#<span data-count="23">0</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__label">ACCURACY</div>
+                <div class="stat-card__value"><span data-count="71">0</span><span class="stat-card__suffix">%</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LEADERBOARD — tabla original + fila YOU -->
+    <section class="leaderboard reveal">
+        <div class="leaderboard__header">
+            <h2 class="leaderboard__title">TOP PREDICTORS</h2>
+            <a href="#" class="leaderboard__link">VIEW ALL →</a>
+        </div>
+        <table class="leaderboard__table">
+            <tbody>
+                <tr class="leaderboard__row leaderboard__row--highlight">
+                    <td class="leaderboard__cell leaderboard__rank leaderboard__rank--1">01</td>
+                    <td class="leaderboard__cell">
+                        <div class="leaderboard__user">
+                            <div class="leaderboard__avatar">I</div>
+                            <span class="leaderboard__name">IRONFIST_88 <small>3 WEEKS AT #1</small></span>
+                        </div>
+                    </td>
+                    <td class="leaderboard__cell leaderboard__points">1,381</td>
+                    <td class="leaderboard__cell leaderboard__accuracy">91%</td>
+                </tr>
+                <tr class="leaderboard__row">
+                    <td class="leaderboard__cell leaderboard__rank leaderboard__rank--2">02</td>
+                    <td class="leaderboard__cell">
+                        <div class="leaderboard__user">
+                            <div class="leaderboard__avatar">K</div>
+                            <span class="leaderboard__name">KO_QUEEN <small>▲ 1</small></span>
+                        </div>
+                    </td>
+                    <td class="leaderboard__cell leaderboard__points">1,204</td>
+                    <td class="leaderboard__cell leaderboard__accuracy">84%</td>
+                </tr>
+                <tr class="leaderboard__row">
+                    <td class="leaderboard__cell leaderboard__rank leaderboard__rank--3">03</td>
+                    <td class="leaderboard__cell">
+                        <div class="leaderboard__user">
+                            <div class="leaderboard__avatar">S</div>
+                            <span class="leaderboard__name">SUBHUNTER <small>▼ 1</small></span>
+                        </div>
+                    </td>
+                    <td class="leaderboard__cell leaderboard__points">1,158</td>
+                    <td class="leaderboard__cell leaderboard__accuracy">79%</td>
+                </tr>
+                <tr class="leaderboard__row">
+                    <td class="leaderboard__cell leaderboard__rank">04</td>
+                    <td class="leaderboard__cell">
+                        <div class="leaderboard__user">
+                            <div class="leaderboard__avatar">G</div>
+                            <span class="leaderboard__name">GROUND_GAME</span>
+                        </div>
+                    </td>
+                    <td class="leaderboard__cell leaderboard__points">1,092</td>
+                    <td class="leaderboard__cell leaderboard__accuracy">77%</td>
+                </tr>
+                <tr class="leaderboard__row leaderboard__row--you">
+                    <td class="leaderboard__cell leaderboard__rank">23</td>
+                    <td class="leaderboard__cell">
+                        <div class="leaderboard__user">
+                            <div class="leaderboard__avatar">J</div>
+                            <span class="leaderboard__name">JOSE_Z <small>▲ 4 THIS MONTH · YOU</small></span>
+                        </div>
+                    </td>
+                    <td class="leaderboard__cell leaderboard__points">1,047</td>
+                    <td class="leaderboard__cell leaderboard__accuracy">71%</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- FOOTER — original -->
+    <footer class="footer">
+        <div class="footer__grid">
+            <div class="footer__block">
+                <div class="footer__label">System Status</div>
+                <div class="footer__text">ALL SYSTEMS OPERATIONAL</div>
+            </div>
+            <div class="footer__block">
+                <div class="footer__label">Version</div>
+                <div class="footer__text">V2.1.0 [CONCEPT]</div>
+            </div>
+            <div class="footer__block">
+                <div class="footer__label">Legal</div>
+                <div class="footer__text">TERMS // PRIVACY</div>
+            </div>
+            <div class="footer__block">
+                <div class="footer__label">Contact</div>
+                <div class="footer__text">JOSEZUMBRU@GMAIL.COM</div>
+            </div>
+        </div>
+    </footer>
+</main>
+
+<script>
+// Countdown en vivo (fecha ficticia)
+(function () {
+    var target = new Date(Date.now() + (3 * 24 * 3600 + 11 * 3600 + 42 * 60) * 1000);
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function tick() {
+        var diff = Math.max(0, target - Date.now()) / 1000;
+        document.getElementById('cd-d').textContent = pad(Math.floor(diff / 86400));
+        document.getElementById('cd-h').textContent = pad(Math.floor(diff / 3600) % 24);
+        document.getElementById('cd-m').textContent = pad(Math.floor(diff / 60) % 60);
+        document.getElementById('cd-s').textContent = pad(Math.floor(diff) % 60);
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
+
+// Reveal + activar barras al entrar en viewport
+(function () {
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (!e.isIntersecting) return;
+            e.target.classList.add('is-visible');
+            e.target.querySelectorAll('[data-width]').forEach(function (bar) {
+                bar.style.width = bar.getAttribute('data-width');
+            });
+            io.unobserve(e.target);
+        });
+    }, { threshold: 0.15 });
+    document.querySelectorAll('.reveal, .hero__event-content').forEach(function (el) { io.observe(el); });
+})();
+
+// Count-up de stats
+(function () {
+    var done = false;
+    var io = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting || done) return;
+        done = true;
+        document.querySelectorAll('[data-count]').forEach(function (el) {
+            var end = parseInt(el.getAttribute('data-count'), 10);
+            var t0 = performance.now();
+            function step(t) {
+                var p = Math.min(1, (t - t0) / 900);
+                el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+    }, { threshold: 0.4 });
+    var grid = document.querySelector('.stats-grid');
+    if (grid) io.observe(grid);
+})();
+</script>
+</body>
+</html>
