@@ -1,0 +1,1546 @@
+/* ============================================================
+   FE-000A Mission Lab styles — extends the V2 brutalist theme.
+   Uses only existing v2 tokens; no global overrides. All class
+   names are prefixed .ml- to stay out of legacy CSS.
+   ============================================================ */
+
+/* ---------- Section shell (mirrors the V2 split-block header) ---------- */
+
+:root {
+    /* Deep orange: reads clearly orange and keeps white copy legible on it. */
+    --mission-orange: #d9560b;
+    /* Same idea for green: --success is too light to carry white text. */
+    --mission-green: #0f7a35;
+}
+
+.ml-section {
+    margin: 2.5rem 0;
+}
+
+.ml-section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1.2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Same stamped red block the app uses for MAIN EVENT. */
+.ml-section__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+    background: var(--accent);
+    color: var(--text-primary);
+    padding: 0.1rem 1.2rem 0;
+    transform: rotate(-1deg);
+    display: inline-block;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+.ml-section__title--sub {
+    font-size: 1.5rem;
+    letter-spacing: 3px;
+    background: transparent;
+    color: var(--text-primary);
+    transform: none;
+    box-shadow: none;
+    padding: 0 0 0 1rem;
+    border-left: var(--border-thick) solid var(--accent);
+}
+
+.ml-section__link {
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    transition: all 0.1s;
+}
+
+.ml-section__link:hover {
+    background: var(--accent);
+    color: var(--text-primary);
+}
+
+/* ---------- Event strip: real card art behind the mission header ---------- */
+
+.ml-event-strip {
+    position: relative;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-panel);
+    background-size: cover;
+    background-position: center 28%;
+    padding: 1.3rem 1.4rem;
+    margin-bottom: 1.4rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    min-height: 120px;
+}
+
+/* Dark scrim so the art reads as texture and the copy stays legible. */
+.ml-event-strip::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(5, 5, 5, 0.94) 0%, rgba(5, 5, 5, 0.45) 48%, rgba(5, 5, 5, 0.8) 100%),
+        linear-gradient(180deg, rgba(5, 5, 5, 0.35) 0%, transparent 45%, rgba(5, 5, 5, 0.75) 100%);
+}
+
+.ml-event-strip > * { position: relative; z-index: 1; }
+
+.ml-event-strip__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+.ml-event-strip__eyebrow {
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+}
+
+/* Stamped block like the section title, but orange and never tilted. */
+.ml-event-strip__lock {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--mission-orange);
+    padding: 0.15rem 0.9rem 0;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+    white-space: nowrap;
+}
+
+.ml-event-strip__lock--closed {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Monthly banner ----------
+   Two columns: the mission on the left, an XP reward panel on the right that
+   mirrors the hero EVENT STATS panel (thick border, accent edge, hard shadow).
+   Gold accent separates the global monthly from the red card missions. */
+
+.ml-monthly {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.6rem;
+    align-items: stretch;
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 60%);
+    border: 1px solid var(--border-strong);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    padding: 1.5rem 1.6rem 1.5rem;
+    margin-bottom: 1.4rem;
+    overflow: hidden;
+}
+
+.ml-monthly::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent 65%);
+}
+
+.ml-monthly--completed { border-color: var(--success); }
+.ml-monthly--completed::before { background: linear-gradient(90deg, var(--success), transparent 65%); }
+
+.ml-monthly__main { min-width: 0; }
+
+/* Stamped tag, same family as the lock stamp but gold. */
+.ml-monthly__tag {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--bg-base);
+    background: var(--gold);
+    padding: 0.1rem 0.7rem 0;
+    margin-bottom: 0.6rem;
+}
+
+.ml-monthly__month {
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-left: 0.6rem;
+}
+
+.ml-monthly__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    line-height: 1;
+    letter-spacing: 2px;
+    display: block;
+}
+
+.ml-monthly__desc {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin: 0.5rem 0 1.1rem;
+    max-width: 62ch;
+}
+
+/* XP reward panel: the hero EVENT STATS device. */
+.ml-monthly__reward {
+    background: var(--bg-panel);
+    border: var(--border-thick) solid var(--border-strong);
+    border-left: var(--border-thick) solid var(--gold);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.5);
+    padding: 1rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 138px;
+}
+
+.ml-monthly__reward-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.4rem;
+    line-height: 1;
+    color: var(--gold);
+    text-shadow: 0 0 35px rgba(251, 191, 36, 0.3);
+}
+
+.ml-monthly__reward-label {
+    font-size: 0.58rem;
+    letter-spacing: 3px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    margin-top: 0.35rem;
+}
+
+.ml-monthly__empty {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    padding: 0.25rem 0;
+    text-transform: uppercase;
+}
+
+/* ---------- Progress meter ---------- */
+
+/* The count is the headline and the rail underlines it. The achieved number
+   carries the status colour (red in progress, amber one away, green done);
+   the target and its noun stay white so nothing important is grey. */
+
+.ml-progress {
+    display: block;
+    --meter: var(--accent);
+    --meter-glow: rgba(225, 6, 0, 0.75);
+}
+
+.ml-progress--success {
+    --meter: var(--success);
+    --meter-glow: rgba(34, 197, 94, 0.7);
+}
+
+.ml-progress--warning {
+    --meter: var(--warning);
+    --meter-glow: rgba(245, 158, 11, 0.7);
+}
+
+.ml-progress__line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 0.45rem;
+    flex-wrap: wrap;
+}
+
+.ml-progress__num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.2rem;
+    line-height: 0.9;
+    letter-spacing: 1px;
+    color: var(--meter);
+}
+
+.ml-progress__sep,
+.ml-progress__total {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+}
+
+.ml-progress__unit {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+}
+
+/* Progress that compares two tallies: nouns quiet, numbers in the meter colour. */
+.ml-progress__cmp-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.ml-progress__cmp-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: var(--meter);
+    margin-right: 0.3rem;
+}
+
+.ml-progress__cmp-sep {
+    color: var(--text-muted);
+    margin: 0 0.2rem;
+}
+
+/* Progress that is a sentence, not a fraction. */
+.ml-progress__statement {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+}
+
+/* Light enough to read as an empty track on every panel shade in the feature. */
+.ml-progress__rail {
+    display: block;
+    position: relative;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.ml-progress__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--meter);
+    box-shadow: 0 0 12px var(--meter-glow);
+    transition: width 0.4s ease;
+}
+
+/* ---------- Slot grid ---------- */
+
+.ml-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.4rem;
+}
+
+.ml-slot {
+    position: relative;
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 60%);
+    border: 1px solid var(--border-strong);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    padding: 1.4rem 1.2rem 1.2rem;
+    min-height: 232px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.12s, border-color 0.12s;
+}
+
+.ml-slot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent 65%);
+}
+
+/* Giant ghost slot number, matching the cinematic stat cards. */
+.ml-slot::after {
+    content: attr(data-num);
+    position: absolute;
+    right: 0.5rem;
+    bottom: -1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 6.5rem;
+    color: rgba(255, 255, 255, 0.04);
+    pointer-events: none;
+}
+
+.ml-slot:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent);
+    z-index: 2;
+}
+
+.ml-slot__label {
+    font-size: 0.62rem;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+
+.ml-slot__prompt {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.9rem;
+    color: var(--text-primary);
+}
+
+.ml-slot--locked,
+.ml-slot--empty {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.ml-slot--locked:hover,
+.ml-slot--empty:hover { transform: none; border-color: var(--border-strong); }
+
+.ml-slot--locked::before { background: linear-gradient(90deg, var(--text-muted), transparent 65%); }
+
+.ml-slot__locked-text {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    max-width: 22ch;
+}
+
+.ml-slot__locked-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    border: 2px solid var(--border-strong);
+    padding: 0.15rem 0.9rem 0;
+    margin-bottom: 0.8rem;
+    text-transform: uppercase;
+}
+
+/* ---------- Offer rows: difficulty lanes ---------- */
+
+.ml-offer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    text-align: left;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text-muted);
+    color: var(--text-primary);
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 0.55rem;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, transform 0.12s;
+    font-family: inherit;
+}
+
+.ml-offer--easy { border-left-color: var(--success); }
+.ml-offer--medium { border-left-color: var(--gold); }
+.ml-offer--hard { border-left-color: var(--accent); }
+
+.ml-offer:hover,
+.ml-offer:focus-visible {
+    background: rgba(225, 6, 0, 0.1);
+    border-color: var(--accent);
+    border-left-width: 6px;
+    transform: translateX(2px);
+    outline: none;
+}
+
+.ml-offer:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+
+.ml-offer__body { flex: 1; min-width: 0; }
+
+.ml-offer__tier {
+    display: block;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.1rem;
+}
+
+.ml-offer--easy .ml-offer__tier { color: var(--success); }
+.ml-offer--medium .ml-offer__tier { color: var(--gold); }
+.ml-offer--hard .ml-offer__tier { color: var(--accent); }
+
+.ml-offer__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    letter-spacing: 1.5px;
+    line-height: 1.1;
+    display: block;
+}
+
+.ml-offer__xp {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.ml-offer__xp small {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+.ml-offer--hard .ml-offer__xp { color: var(--accent); }
+.ml-offer--medium .ml-offer__xp { color: var(--gold); }
+.ml-offer--easy .ml-offer__xp { color: var(--success); }
+
+/* ---------- Difficulty + status badges ---------- */
+
+/* Difficulty uses the same stamped tag as MONTHLY MISSION: solid fill, Bebas,
+   wide tracking. Copy flips to near-black on the light fills so it stays
+   readable, exactly like the gold monthly tag. */
+.ml-badge {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    padding: 0.1rem 0.7rem 0;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    background: #3a3a3a;
+}
+
+.ml-badge--easy {
+    background: var(--success);
+    color: var(--bg-base);
+}
+
+.ml-badge--medium {
+    background: var(--gold);
+    color: var(--bg-base);
+}
+
+.ml-badge--hard { background: var(--accent); }
+.ml-badge--monthly { background: var(--fighter-blue); }
+
+/* Mission status uses the same stamped tag as MONTHLY MISSION: solid block,
+   Bebas, wide tracking, white copy. The fills are deepened versions of the
+   status colours because white on --success/--warning is not legible. */
+.ml-status {
+    display: inline-block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 0.1rem 0.7rem 0;
+    white-space: nowrap;
+}
+
+.ml-status--active { background: var(--accent); }
+.ml-status--one-to-go { background: var(--mission-orange); }
+.ml-status--completed { background: var(--mission-green); }
+.ml-status--failed { background: #3a3a3a; }
+.ml-status--void { background: #3a3a3a; }
+
+/* ---------- Active/settled mission card ---------- */
+
+.ml-mission {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0;
+    /* Colour of the user's pick, by mission status. */
+    --pick: var(--accent);
+}
+
+.ml-mission--one-to-go { --pick: var(--warning); }
+.ml-mission--completed { --pick: var(--success); }
+.ml-mission--failed,
+.ml-mission--void { --pick: var(--text-secondary); }
+
+/* Portrait column + copy column. */
+.ml-mission__split {
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-start;
+}
+
+.ml-mission__col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+}
+
+.ml-mission__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    line-height: 1;
+    letter-spacing: 1.5px;
+}
+
+.ml-mission__target-img {
+    width: 84px;
+    height: 96px;
+    object-fit: cover;
+    object-position: top;
+    background: var(--bg-base);
+    flex-shrink: 0;
+    box-shadow: inset 0 -3px 0 0 var(--fighter-red);
+}
+
+/* The selection reads as role + pick: the role stays quiet and the pick takes
+   the status colour, so the card shows what is live at a glance. Every part of
+   a combo gets the same treatment. */
+.ml-mission__selection {
+    display: block;
+    line-height: 1.35;
+}
+
+.ml-mission__pick-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: 0.3rem;
+}
+
+.ml-mission__pick {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: 1px;
+    color: var(--pick);
+}
+
+.ml-mission__pick-sep {
+    color: var(--text-muted);
+    margin: 0 0.15rem;
+}
+
+.ml-mission__void-reason {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.ml-mission__earned {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 2px;
+    color: var(--success);
+    text-shadow: 0 0 25px rgba(34, 197, 94, 0.35);
+}
+
+.ml-mission__spacer { flex: 1; }
+
+.ml-slot--completed { border-color: var(--success); }
+.ml-slot--completed::before { background: linear-gradient(90deg, var(--success), transparent 65%); }
+.ml-slot--one-to-go { border-color: var(--warning); }
+.ml-slot--one-to-go::before { background: linear-gradient(90deg, var(--warning), transparent 65%); }
+.ml-slot--failed .ml-mission,
+.ml-slot--void .ml-mission { opacity: 0.7; }
+.ml-slot--failed::before,
+.ml-slot--void::before { background: linear-gradient(90deg, var(--text-muted), transparent 65%); }
+
+/* ---------- Drawer ---------- */
+
+.ml-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1100;
+}
+
+.ml-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(560px, 100vw);
+    background: var(--bg-panel);
+    border-left: var(--border-thick) solid var(--accent);
+    z-index: 1101;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 1.25rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-primary);
+}
+
+.ml-drawer__eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.ml-drawer__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 1px;
+    margin: 0.25rem 0;
+}
+
+.ml-drawer__desc {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.ml-drawer__meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.ml-drawer__section-label {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin: 1rem 0 0.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+}
+
+.ml-drawer__close {
+    position: absolute;
+    top: 0.9rem;
+    right: 0.9rem;
+    background: none;
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+}
+
+.ml-drawer__close:hover { border-color: var(--accent); color: var(--text-primary); }
+
+/* ---------- Pickers ---------- */
+
+.ml-roster { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.ml-roster__bout-label {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+}
+
+.ml-pick-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.45rem 0.6rem;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    font-size: 0.8rem;
+}
+
+.ml-pick-row:hover, .ml-pick-row:focus-visible { border-color: var(--accent); outline: none; }
+.ml-pick-row:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+
+.ml-pick-row--selected {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+}
+
+.ml-pick-row__img {
+    width: 40px;
+    height: 44px;
+    object-fit: cover;
+    object-position: top;
+    background: var(--bg-base);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.ml-pick-row__name {
+    flex: 1;
+    min-width: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1.05;
+    letter-spacing: 1px;
+}
+
+.ml-pick-row__sub {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
+/* Reads as the button it effectively is; the whole row is the tap target. */
+.ml-pick-row__check {
+    flex: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    padding: 0.15rem 0.7rem 0;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+
+.ml-pick-row--selected .ml-pick-row__check {
+    background: var(--accent);
+    color: #fff;
+}
+
+.ml-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+.ml-choice {
+    border: 2px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    padding: 1rem;
+    cursor: pointer;
+    text-align: center;
+}
+
+.ml-choice--selected { border-color: var(--accent); background: var(--accent-dim); }
+.ml-choice:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+
+.ml-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.ml-stepper__btn {
+    width: 44px;
+    height: 44px;
+    background: var(--bg-elevated);
+    border: 2px solid var(--border-strong);
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.ml-stepper__btn:disabled { opacity: 0.35; cursor: default; }
+.ml-stepper__btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+
+/* The count reads against its ceiling, same shape as every mission meter:
+   the value you own in accent, the total and unit in white. */
+.ml-stepper__value {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    color: var(--accent);
+    min-width: 3rem;
+    justify-content: center;
+}
+
+.ml-stepper__of {
+    font-size: 1.6rem;
+    color: var(--text-primary);
+}
+
+.ml-stepper__unit {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.66rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+}
+
+/* The rule you have to follow is an instruction, not a footnote: display type
+   in white, with the leg counter as a stamped tag beside it. */
+.ml-leg-status {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.15;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+    margin: 0 0 0.6rem;
+}
+
+.ml-leg-status__count {
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    background: var(--accent);
+    color: #fff;
+    padding: 0.1rem 0.55rem 0;
+}
+
+.ml-leg-status__count--done { background: var(--mission-green); }
+
+.ml-method-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.ml-method {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+}
+
+.ml-method--selected { border-color: var(--accent); color: var(--text-primary); background: var(--accent-dim); }
+.ml-method:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+
+/* ---------- Confirm step ---------- */
+
+.ml-confirm {
+    border: 2px solid var(--accent);
+    padding: 1rem;
+    margin-top: 1rem;
+    background: var(--bg-elevated);
+}
+
+.ml-confirm__summary { font-size: 0.85rem; margin-bottom: 0.75rem; }
+
+.ml-confirm__warning {
+    color: var(--warning);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+}
+
+.ml-confirm__actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+.ml-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    border: 2px solid var(--border-strong);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+
+.ml-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+.ml-btn:disabled { opacity: 0.45; cursor: default; }
+
+.ml-btn--primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 700;
+}
+
+.ml-btn--ghost { background: transparent; }
+
+.ml-btn--danger { border-color: var(--error); color: var(--error); background: transparent; }
+
+/* ---------- Profile hub ---------- */
+
+/* Identity row: the level number is the badge, the name and rank sit beside
+   it, then two stats and the XP meter across the full width. */
+.ml-hub-hero {
+    position: relative;
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 60%);
+    border: 1px solid var(--border-strong);
+    clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 0 100%);
+    padding: 1.6rem 1.7rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.ml-hub-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent 65%);
+}
+
+.ml-hub-hero__id {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.ml-hub-hero__level {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5.5rem;
+    line-height: 0.8;
+    color: var(--text-primary);
+    text-align: center;
+    flex: none;
+}
+
+.ml-hub-hero__level-cap {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.ml-hub-hero__who {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.ml-hub-hero__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+.ml-hub-hero__rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-shadow: 0 0 35px rgba(251, 191, 36, 0.28);
+}
+
+.ml-hub-hero__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.2rem;
+    margin: 1.1rem 0 1.2rem;
+}
+
+.ml-hubstat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.ml-hubstat b {
+    font-family: 'Bebas Neue', sans-serif;
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+.ml-hubstat--gold { color: var(--gold); }
+
+.ml-hubstat--dead { color: var(--text-muted); }
+
+/* Emoji has no glyph in Bebas Neue, so it needs the system emoji stack. */
+.ml-hubstat__flame {
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+    font-size: 1.5rem;
+    margin-right: 0.35rem;
+}
+
+.ml-hubstat--dead .ml-hubstat__flame {
+    filter: grayscale(1);
+    opacity: 0.45;
+}
+
+/* Direct child only: the caption. The flame lives inside <b> and keeps its
+   own emoji styling. */
+.ml-hubstat > span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.ml-streak__broken {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: var(--error);
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+    .ml-hub-hero__level { font-size: 4rem; }
+    .ml-hub-hero__name { font-size: 2.2rem; }
+    .ml-hub-hero__stats { gap: 1.4rem; }
+}
+
+/* ---------- History: scannable rows, not a grid of gray mono text ---------- */
+
+.ml-history {
+    border: 1px solid var(--border-strong);
+    background: var(--bg-panel);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0 rgba(0, 0, 0, 0.5);
+}
+
+/* A history row reads left to right: what tier it was, how it ended, which
+   mission, on which card, for how much XP. Difficulty and result are the two
+   things you scan, so both are solid blocks instead of coloured text. */
+.ml-history__row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.6rem 0.4rem;
+    border-bottom: 1px solid var(--border-strong);
+    transition: background 0.12s;
+}
+
+.ml-history__row:last-child { border-bottom: none; }
+.ml-history__row:hover { background: var(--bg-elevated); }
+
+/* Difficulty tile: E / M / H in the vivid tier colours. The letter flips to
+   near-black on the light fills (green, gold) so it never washes out. */
+.ml-history__tier {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #fff;
+    background: #3a3a3a;
+}
+
+.ml-history__tier--easy {
+    background: var(--success);
+    color: var(--bg-base);
+}
+
+.ml-history__tier--medium {
+    background: var(--gold);
+    color: var(--bg-base);
+}
+
+.ml-history__tier--hard { background: var(--accent); }
+.ml-history__tier--monthly { background: var(--fighter-blue); }
+
+.ml-history__status {
+    width: 132px;
+    flex: none;
+}
+
+.ml-history__name {
+    flex: 1;
+    min-width: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    line-height: 1.1;
+    letter-spacing: 1.5px;
+    color: var(--text-primary);
+}
+
+/* A lost mission keeps its name in white: the grey stamp already says how it
+   ended, and dimming the name buries information the user came here to read. */
+
+.ml-history__event {
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    text-align: right;
+    max-width: 34ch;
+}
+
+.ml-history__xp {
+    width: 74px;
+    text-align: right;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    color: var(--success);
+    text-shadow: 0 0 22px rgba(34, 197, 94, 0.3);
+}
+
+.ml-history__xp small {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    margin-left: 0.15rem;
+}
+
+.ml-history__xp--none {
+    color: var(--text-muted);
+    text-shadow: none;
+    font-size: 1.4rem;
+}
+
+/* Narrow screens drop the event column rather than squeezing every field. */
+@media (max-width: 720px) {
+    .ml-history__event { display: none; }
+    .ml-history__status { width: auto; }
+}
+
+.ml-history__empty {
+    color: var(--text-secondary);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border: 1px dashed var(--border-strong);
+    letter-spacing: 1px;
+    font-size: 0.8rem;
+}
+
+/* Filters read as controls, not as tiny chips. */
+.ml-filter {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    color: var(--text-secondary);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    padding: 0.3rem 0.9rem 0.15rem;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.ml-filter:hover { color: var(--text-primary); border-color: var(--accent); }
+.ml-filter:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+
+.ml-filter--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* ---------- Admin ---------- */
+
+.ml-admin-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.ml-admin-card {
+    position: relative;
+    background: linear-gradient(160deg, var(--bg-elevated) 0%, var(--bg-panel) 60%);
+    border: 1px solid var(--border-strong);
+    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 0 100%);
+    padding: 1.3rem 1.4rem 1.2rem;
+    overflow: hidden;
+}
+
+.ml-admin-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), transparent 65%);
+}
+
+.ml-admin-card__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+}
+
+.ml-state-badge {
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    padding: 0.25rem 0.55rem;
+    border: 1px solid currentColor;
+}
+
+.ml-state-badge--draft { color: var(--warning); }
+.ml-state-badge--active { color: var(--success); }
+.ml-state-badge--closed { color: var(--text-muted); }
+
+.ml-param-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
+}
+
+.ml-param-row label { font-size: 0.75rem; color: var(--text-secondary); }
+
+.ml-param-row input {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.6rem;
+    width: 90px;
+}
+
+.ml-param-row input:disabled { opacity: 0.5; }
+
+.ml-admin-note { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+.ml-admin-event {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.ml-admin-event__label { font-size: 0.78rem; flex: 1; min-width: 200px; }
+
+.ml-admin-event__sub { display: block; font-size: 0.65rem; color: var(--text-muted); }
+
+.ml-admin-event__actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.ml-recon { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+
+.ml-recon th {
+    text-align: left;
+    font-size: 0.6rem;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 2px solid var(--border-strong);
+}
+
+.ml-recon td { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--border); }
+
+.ml-recon__action--award-xp { color: var(--success); }
+.ml-recon__action--revoke-xp { color: var(--error); }
+.ml-recon__action--mark-void { color: var(--warning); }
+.ml-recon__action--no-change { color: var(--text-muted); }
+
+.ml-audit {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+    border-top: 1px solid var(--border);
+    padding-top: 0.6rem;
+    margin-top: 0.75rem;
+}
+
+/* ---------- Celebration ---------- */
+
+.ml-celebration {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(3, 3, 3, 0.94);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-primary);
+}
+
+.ml-celebration__eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.ml-celebration__headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 10vw, 6rem);
+    line-height: 1;
+    color: var(--accent);
+    animation: ml-celebration-pop 0.5s ease;
+}
+
+.ml-celebration__headline--gold { color: var(--gold); }
+
+.ml-celebration__sub { color: var(--text-secondary); font-size: 0.9rem; }
+
+.ml-celebration__queue { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 1px; }
+
+@keyframes ml-celebration-pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ml-celebration__headline { animation: none; }
+    .ml-progress__fill { transition: none; }
+}
+
+/* ---------- Edge states ---------- */
+
+.ml-skeleton {
+    background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-panel) 50%, var(--bg-elevated) 75%);
+    background-size: 200% 100%;
+    animation: ml-shimmer 1.4s infinite linear;
+    border: 1px solid var(--border);
+    min-height: 120px;
+}
+
+@keyframes ml-shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ml-skeleton { animation: none; }
+}
+
+.ml-edge-box {
+    border: 2px solid var(--border-strong);
+    background: var(--bg-panel);
+    padding: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.ml-edge-box--error { border-color: var(--error); }
+
+.ml-stale-banner {
+    background: var(--warning-dim);
+    border: 1px solid var(--warning);
+    color: var(--warning);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ---------- Lab shell ---------- */
+
+.ml-lab-bar {
+    position: sticky;
+    top: 70px;
+    z-index: 900;
+    background: var(--bg-elevated);
+    border: 2px dashed var(--warning);
+    padding: 0.6rem 0.9rem;
+    margin: 0.75rem 0 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.ml-lab-bar__tag {
+    color: var(--warning);
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+}
+
+.ml-lab-bar select {
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+    font-family: inherit;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.5rem;
+    max-width: 100%;
+}
+
+.ml-lab-bar__hint { font-size: 0.62rem; color: var(--text-muted); }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+    .ml-slots { grid-template-columns: 1fr; }
+    .ml-hub-hero { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+    .ml-drawer {
+        width: 100vw;
+        border-left: none;
+        border-top: var(--border-thick) solid var(--accent);
+    }
+    .ml-choice-grid { grid-template-columns: 1fr; }
+    .ml-history th:nth-child(2), .ml-history td:nth-child(2) { display: none; }
+
+    /* The lock label is long copy; let it wrap instead of overflowing the art. */
+    .ml-event-strip {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 104px;
+    }
+
+    .ml-event-strip__lock {
+        white-space: normal;
+        font-size: 0.6rem;
+        line-height: 1.5;
+    }
+
+    .ml-event-strip__name { font-size: 1.35rem; }
+
+    .ml-section__title { font-size: 1.7rem; letter-spacing: 3px; }
+    .ml-monthly { grid-template-columns: 1fr; gap: 1rem; }
+    .ml-monthly__name { font-size: 2rem; }
+    .ml-monthly__reward { flex-direction: row; gap: 0.7rem; padding: 0.7rem 1rem; }
+    .ml-monthly__reward-value { font-size: 2.4rem; }
+    .ml-monthly__reward-label { margin-top: 0; }
+    .ml-hub-hero__name { font-size: 2.2rem; }
+    .ml-level__title { font-size: 2rem; }
+    .ml-hub-hero__level::after { font-size: 5.5rem; bottom: -2.2rem; }
+}

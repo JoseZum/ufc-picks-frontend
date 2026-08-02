@@ -7,6 +7,8 @@ import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useMyLeaderboardPosition, useAllMyPicks, useGlobalLeaderboard, useLogout } from '@/lib/hooks';
 import { Loader2, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { ProfileMissionHubContainer } from '@/features/missions/surfaces/profile-mission-hub-container';
+import '@/features/missions/missions.css';
 
 export const ProfilePageV2 = () => {
     const router = useRouter();
@@ -229,53 +231,14 @@ export const ProfilePageV2 = () => {
                                 </a>
                             </div>
 
-                            {/* ACHIEVEMENTS (Future feature - keeping as placeholder) */}
-                            <div className="section-header" style={{ marginTop: '3rem' }}>
-                                <h2 className="section-header__title">ACHIEVEMENTS</h2>
-                            </div>
-
-                            <div className="achievements-grid">
-                                <div className={`achievement ${stats.total >= 1 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#127942;</div>
-                                    <div className="achievement__name">FIRST BLOOD</div>
-                                    <div className="achievement__desc">Make your first pick</div>
-                                </div>
-                                <div className={`achievement ${stats.correct >= 5 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#128293;</div>
-                                    <div className="achievement__name">ON FIRE</div>
-                                    <div className="achievement__desc">5 correct picks</div>
-                                </div>
-                                <div className={`achievement ${stats.total >= 100 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#127775;</div>
-                                    <div className="achievement__name">CENTURY</div>
-                                    <div className="achievement__desc">100 total picks made</div>
-                                </div>
-                                <div className={`achievement ${(myPosition?.rank || 999) <= 10 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#128081;</div>
-                                    <div className="achievement__name">CHAMPION</div>
-                                    <div className="achievement__desc">Reach top 10 globally</div>
-                                </div>
-                                <div className={`achievement ${stats.accuracy >= 70 && stats.total >= 50 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#129504;</div>
-                                    <div className="achievement__name">ANALYST</div>
-                                    <div className="achievement__desc">70% accuracy (min 50 picks)</div>
-                                </div>
-                                <div className="achievement">
-                                    <div className="achievement__icon">&#127919;</div>
-                                    <div className="achievement__name">PERFECT EVENT</div>
-                                    <div className="achievement__desc">100% accuracy on full card</div>
-                                </div>
-                                <div className="achievement">
-                                    <div className="achievement__icon">&#128640;</div>
-                                    <div className="achievement__name">RISING STAR</div>
-                                    <div className="achievement__desc">Gain 20 ranks in one event</div>
-                                </div>
-                                <div className={`achievement ${stats.accuracy >= 80 && stats.total >= 100 ? 'achievement--unlocked' : ''}`}>
-                                    <div className="achievement__icon">&#9889;</div>
-                                    <div className="achievement__name">ORACLE</div>
-                                    <div className="achievement__desc">80% accuracy (min 100 picks)</div>
-                                </div>
-                            </div>
+                            {/* Missions: XP, level, title, the single Card Streak, active
+                                missions and history. Replaces the placeholder
+                                achievements grid, which was never wired to anything. */}
+                            <ProfileMissionHubContainer
+                                isAuthenticated={Boolean(currentUser)}
+                                userName={currentUser?.name ?? ''}
+                                memberSince={memberSince}
+                            />
                         </section>
                     </>
                 )}

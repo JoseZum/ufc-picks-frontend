@@ -13,6 +13,7 @@ import { Loader2 } from 'lucide-react';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import { isEventStillVisible, getDaysUntilEvent } from '@/lib/dateUtils';
+import { HomeMissionsSection } from '@/features/missions/surfaces/home-missions-section';
 
 // Tarjeta VS estilo "split diagonal" (fight poster). Reutilizada para el main
 // event y el co-main (este último sólo en la home cuando es pelea de título).
@@ -323,6 +324,9 @@ export const LandingPageV2 = () => {
                         </tbody>
                     </table>
                 </section>
+
+                {/* MISSIONS - additive block, same V2 language */}
+                <HomeMissionsSection eventId={nextEvent?.id} />
 
                 {/* FOOTER - EXPOSED STRUCTURE */}
                 <footer className="footer">

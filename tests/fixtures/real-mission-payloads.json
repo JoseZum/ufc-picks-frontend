@@ -1,0 +1,1577 @@
+{
+  "_generated_by": "tests/fixtures/generate-real-mission-payloads.py",
+  "_source": "ufc-picks-backend app.modules.missions.contracts",
+  "catalog_version": "2026.08.01",
+  "capabilities": {
+    "api_version": "1",
+    "catalog_version": "2026.08.01",
+    "interaction_types": [
+      "AUTO",
+      "TARGET_FIGHTER",
+      "TARGET_FIGHT",
+      "COMBO_BUILDER",
+      "CARD_PROP"
+    ]
+  },
+  "home": {
+    "open": {
+      "event_id": 999,
+      "card_state": "OPEN",
+      "offer_set_id": "offer_set_e41289755e1ca693cd6e3ce4",
+      "card_revision": 1,
+      "monthly": {
+        "month_key": "2026-08",
+        "mission_id": "MONTH-V2-001",
+        "name": "WIN TARGET",
+        "description": "Hit the monthly winner target.",
+        "xp": 15,
+        "status": "ACTIVE",
+        "progress_text": "3 / 4 winners",
+        "progress_percent": 75
+      },
+      "slots": [
+        {
+          "slot": 1,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_effd45e44b9878b2351f2bc7",
+              "mission_id": "CARD-V2-E-004",
+              "name": "HEADLINER READ",
+              "description": "Correctly predict the main-event winner.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "AUTO",
+              "pick_effect": "NONE",
+              "selection_prompt": null,
+              "selection_spec": null
+            },
+            {
+              "offer_id": "offer_70a5732205da693ffdd167d6",
+              "mission_id": "CARD-V2-E-001",
+              "name": "BANKER LOCK",
+              "description": "Choose one fighter you are certain will win. They must win.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose one fighter as your Banker",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [],
+                "allowed_rounds": [],
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a2e92e5c7bd28416f86528c5",
+              "mission_id": "CARD-V2-H-003",
+              "name": "EXACT SCRIPT",
+              "description": "Choose a fighter, win method and exact round; all must be correct.",
+              "difficulty": "HARD",
+              "xp": 6,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose fighter, method and round",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "METHOD",
+                  "ROUND",
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [
+                  "SUBMISSION",
+                  "KO_TKO"
+                ],
+                "allowed_rounds": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 2,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_7cee4390f171bd2a59a77f31",
+              "mission_id": "CARD-V2-M-001",
+              "name": "FINISH LOCK",
+              "description": "Choose one fight you are certain will end before a decision.",
+              "difficulty": "MEDIUM",
+              "xp": 3,
+              "interaction": "TARGET_FIGHT",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose one fight to finish",
+              "selection_spec": {
+                "outcome": "FINISH",
+                "required_round": null
+              }
+            },
+            {
+              "offer_id": "offer_8563156c5330d2c5aa5017b3",
+              "mission_id": "CARD-V2-H-007",
+              "name": "METHOD CYCLE",
+              "description": "Build a 3-leg combo: one KO/TKO, one submission and one decision; all must win.",
+              "difficulty": "HARD",
+              "xp": 8,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose one KO, one SUB and one DEC winner",
+              "selection_spec": {
+                "leg_count": 3,
+                "legs": [
+                  {
+                    "key": "ko_leg",
+                    "label": "KO/TKO",
+                    "target": "FIGHTER",
+                    "method": "KO_TKO",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "submission_leg",
+                    "label": "Submission",
+                    "target": "FIGHTER",
+                    "method": "SUBMISSION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "decision_leg",
+                    "label": "Decision",
+                    "target": "FIGHTER",
+                    "method": "DECISION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_dbfc24c54764ea745c993cc0",
+              "mission_id": "CARD-V2-M-013",
+              "name": "METHOD PAIR",
+              "description": "Build a 2-fighter combo using different win methods; both must be correct.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose 2 fighters with distinct methods",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "method_one",
+                    "label": "Method 1",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "method_two",
+                    "label": "Method 2",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": true,
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 3,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_60bde33b49726212806939aa",
+              "mission_id": "CARD-V2-M-012",
+              "name": "FINISH DOUBLE",
+              "description": "Choose 2 fights; both must end in a finish.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose 2 fights to finish",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "finish_one",
+                    "label": "Finish 1",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  },
+                  {
+                    "key": "finish_two",
+                    "label": "Finish 2",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a9e9ca42d17a004adc518de3",
+              "mission_id": "CARD-V2-E-012",
+              "name": "THREE FINISHES",
+              "description": "The card must contain at least 3 finishes.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Accept the \u22653 finishes card prop",
+              "selection_spec": {
+                "input": "ACCEPT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_aedb1cfc3517ee0f07d69feb",
+              "mission_id": "CARD-V3-E-008",
+              "name": "PICK A LANE",
+              "description": "Choose FINISHES or DECISIONS. Your side must be at least as common on the card; a tie also completes the mission.",
+              "difficulty": "EASY",
+              "xp": 2,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose FINISHES or DECISIONS",
+              "selection_spec": {
+                "input": "CHOICE",
+                "choices": [
+                  "FINISHES",
+                  "DECISIONS"
+                ],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_f9e7b3707f9d63c074d1b26a",
+              "mission_id": "CARD-V2-H-019",
+              "name": "EXACT FINISH COUNT",
+              "description": "Choose the exact number of finishes that will occur on the card.",
+              "difficulty": "HARD",
+              "xp": 10,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose the exact finish count",
+              "selection_spec": {
+                "input": "EXACT_COUNT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "SELECTED_EXACT_COUNT",
+                "frozen_ratio": null
+              }
+            }
+          ]
+        }
+      ],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": false,
+      "lock_reason": null
+    },
+    "locked": {
+      "event_id": 999,
+      "card_state": "CLOSED",
+      "offer_set_id": "offer_set_e41289755e1ca693cd6e3ce4",
+      "card_revision": 1,
+      "monthly": {
+        "month_key": "2026-08",
+        "mission_id": "MONTH-V2-001",
+        "name": "WIN TARGET",
+        "description": "Hit the monthly winner target.",
+        "xp": 15,
+        "status": "ACTIVE",
+        "progress_text": "3 / 4 winners",
+        "progress_percent": 75
+      },
+      "slots": [
+        {
+          "slot": 1,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_effd45e44b9878b2351f2bc7",
+              "mission_id": "CARD-V2-E-004",
+              "name": "HEADLINER READ",
+              "description": "Correctly predict the main-event winner.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "AUTO",
+              "pick_effect": "NONE",
+              "selection_prompt": null,
+              "selection_spec": null
+            },
+            {
+              "offer_id": "offer_70a5732205da693ffdd167d6",
+              "mission_id": "CARD-V2-E-001",
+              "name": "BANKER LOCK",
+              "description": "Choose one fighter you are certain will win. They must win.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose one fighter as your Banker",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [],
+                "allowed_rounds": [],
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a2e92e5c7bd28416f86528c5",
+              "mission_id": "CARD-V2-H-003",
+              "name": "EXACT SCRIPT",
+              "description": "Choose a fighter, win method and exact round; all must be correct.",
+              "difficulty": "HARD",
+              "xp": 6,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose fighter, method and round",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "METHOD",
+                  "ROUND",
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [
+                  "SUBMISSION",
+                  "KO_TKO"
+                ],
+                "allowed_rounds": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 2,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_7cee4390f171bd2a59a77f31",
+              "mission_id": "CARD-V2-M-001",
+              "name": "FINISH LOCK",
+              "description": "Choose one fight you are certain will end before a decision.",
+              "difficulty": "MEDIUM",
+              "xp": 3,
+              "interaction": "TARGET_FIGHT",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose one fight to finish",
+              "selection_spec": {
+                "outcome": "FINISH",
+                "required_round": null
+              }
+            },
+            {
+              "offer_id": "offer_8563156c5330d2c5aa5017b3",
+              "mission_id": "CARD-V2-H-007",
+              "name": "METHOD CYCLE",
+              "description": "Build a 3-leg combo: one KO/TKO, one submission and one decision; all must win.",
+              "difficulty": "HARD",
+              "xp": 8,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose one KO, one SUB and one DEC winner",
+              "selection_spec": {
+                "leg_count": 3,
+                "legs": [
+                  {
+                    "key": "ko_leg",
+                    "label": "KO/TKO",
+                    "target": "FIGHTER",
+                    "method": "KO_TKO",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "submission_leg",
+                    "label": "Submission",
+                    "target": "FIGHTER",
+                    "method": "SUBMISSION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "decision_leg",
+                    "label": "Decision",
+                    "target": "FIGHTER",
+                    "method": "DECISION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_dbfc24c54764ea745c993cc0",
+              "mission_id": "CARD-V2-M-013",
+              "name": "METHOD PAIR",
+              "description": "Build a 2-fighter combo using different win methods; both must be correct.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose 2 fighters with distinct methods",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "method_one",
+                    "label": "Method 1",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "method_two",
+                    "label": "Method 2",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": true,
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 3,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_60bde33b49726212806939aa",
+              "mission_id": "CARD-V2-M-012",
+              "name": "FINISH DOUBLE",
+              "description": "Choose 2 fights; both must end in a finish.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose 2 fights to finish",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "finish_one",
+                    "label": "Finish 1",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  },
+                  {
+                    "key": "finish_two",
+                    "label": "Finish 2",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a9e9ca42d17a004adc518de3",
+              "mission_id": "CARD-V2-E-012",
+              "name": "THREE FINISHES",
+              "description": "The card must contain at least 3 finishes.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Accept the \u22653 finishes card prop",
+              "selection_spec": {
+                "input": "ACCEPT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_aedb1cfc3517ee0f07d69feb",
+              "mission_id": "CARD-V3-E-008",
+              "name": "PICK A LANE",
+              "description": "Choose FINISHES or DECISIONS. Your side must be at least as common on the card; a tie also completes the mission.",
+              "difficulty": "EASY",
+              "xp": 2,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose FINISHES or DECISIONS",
+              "selection_spec": {
+                "input": "CHOICE",
+                "choices": [
+                  "FINISHES",
+                  "DECISIONS"
+                ],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_f9e7b3707f9d63c074d1b26a",
+              "mission_id": "CARD-V2-H-019",
+              "name": "EXACT FINISH COUNT",
+              "description": "Choose the exact number of finishes that will occur on the card.",
+              "difficulty": "HARD",
+              "xp": 10,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose the exact finish count",
+              "selection_spec": {
+                "input": "EXACT_COUNT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "SELECTED_EXACT_COUNT",
+                "frozen_ratio": null
+              }
+            }
+          ]
+        }
+      ],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": true,
+      "lock_reason": "PICKS_CLOSED"
+    },
+    "results-started": {
+      "event_id": 999,
+      "card_state": "OPEN",
+      "offer_set_id": "offer_set_e41289755e1ca693cd6e3ce4",
+      "card_revision": 1,
+      "monthly": {
+        "month_key": "2026-08",
+        "mission_id": "MONTH-V2-001",
+        "name": "WIN TARGET",
+        "description": "Hit the monthly winner target.",
+        "xp": 15,
+        "status": "ACTIVE",
+        "progress_text": "3 / 4 winners",
+        "progress_percent": 75
+      },
+      "slots": [
+        {
+          "slot": 1,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_effd45e44b9878b2351f2bc7",
+              "mission_id": "CARD-V2-E-004",
+              "name": "HEADLINER READ",
+              "description": "Correctly predict the main-event winner.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "AUTO",
+              "pick_effect": "NONE",
+              "selection_prompt": null,
+              "selection_spec": null
+            },
+            {
+              "offer_id": "offer_70a5732205da693ffdd167d6",
+              "mission_id": "CARD-V2-E-001",
+              "name": "BANKER LOCK",
+              "description": "Choose one fighter you are certain will win. They must win.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose one fighter as your Banker",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [],
+                "allowed_rounds": [],
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a2e92e5c7bd28416f86528c5",
+              "mission_id": "CARD-V2-H-003",
+              "name": "EXACT SCRIPT",
+              "description": "Choose a fighter, win method and exact round; all must be correct.",
+              "difficulty": "HARD",
+              "xp": 6,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose fighter, method and round",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "METHOD",
+                  "ROUND",
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [
+                  "SUBMISSION",
+                  "KO_TKO"
+                ],
+                "allowed_rounds": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 2,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_7cee4390f171bd2a59a77f31",
+              "mission_id": "CARD-V2-M-001",
+              "name": "FINISH LOCK",
+              "description": "Choose one fight you are certain will end before a decision.",
+              "difficulty": "MEDIUM",
+              "xp": 3,
+              "interaction": "TARGET_FIGHT",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose one fight to finish",
+              "selection_spec": {
+                "outcome": "FINISH",
+                "required_round": null
+              }
+            },
+            {
+              "offer_id": "offer_8563156c5330d2c5aa5017b3",
+              "mission_id": "CARD-V2-H-007",
+              "name": "METHOD CYCLE",
+              "description": "Build a 3-leg combo: one KO/TKO, one submission and one decision; all must win.",
+              "difficulty": "HARD",
+              "xp": 8,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose one KO, one SUB and one DEC winner",
+              "selection_spec": {
+                "leg_count": 3,
+                "legs": [
+                  {
+                    "key": "ko_leg",
+                    "label": "KO/TKO",
+                    "target": "FIGHTER",
+                    "method": "KO_TKO",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "submission_leg",
+                    "label": "Submission",
+                    "target": "FIGHTER",
+                    "method": "SUBMISSION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "decision_leg",
+                    "label": "Decision",
+                    "target": "FIGHTER",
+                    "method": "DECISION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_dbfc24c54764ea745c993cc0",
+              "mission_id": "CARD-V2-M-013",
+              "name": "METHOD PAIR",
+              "description": "Build a 2-fighter combo using different win methods; both must be correct.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose 2 fighters with distinct methods",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "method_one",
+                    "label": "Method 1",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "method_two",
+                    "label": "Method 2",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": true,
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 3,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_60bde33b49726212806939aa",
+              "mission_id": "CARD-V2-M-012",
+              "name": "FINISH DOUBLE",
+              "description": "Choose 2 fights; both must end in a finish.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose 2 fights to finish",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "finish_one",
+                    "label": "Finish 1",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  },
+                  {
+                    "key": "finish_two",
+                    "label": "Finish 2",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a9e9ca42d17a004adc518de3",
+              "mission_id": "CARD-V2-E-012",
+              "name": "THREE FINISHES",
+              "description": "The card must contain at least 3 finishes.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Accept the \u22653 finishes card prop",
+              "selection_spec": {
+                "input": "ACCEPT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_aedb1cfc3517ee0f07d69feb",
+              "mission_id": "CARD-V3-E-008",
+              "name": "PICK A LANE",
+              "description": "Choose FINISHES or DECISIONS. Your side must be at least as common on the card; a tie also completes the mission.",
+              "difficulty": "EASY",
+              "xp": 2,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose FINISHES or DECISIONS",
+              "selection_spec": {
+                "input": "CHOICE",
+                "choices": [
+                  "FINISHES",
+                  "DECISIONS"
+                ],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_f9e7b3707f9d63c074d1b26a",
+              "mission_id": "CARD-V2-H-019",
+              "name": "EXACT FINISH COUNT",
+              "description": "Choose the exact number of finishes that will occur on the card.",
+              "difficulty": "HARD",
+              "xp": 10,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose the exact finish count",
+              "selection_spec": {
+                "input": "EXACT_COUNT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "SELECTED_EXACT_COUNT",
+                "frozen_ratio": null
+              }
+            }
+          ]
+        }
+      ],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": true,
+      "lock_reason": "RESULTS_STARTED"
+    },
+    "card-not-found": {
+      "event_id": 999,
+      "card_state": "VOID",
+      "offer_set_id": null,
+      "card_revision": null,
+      "monthly": null,
+      "slots": [],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": true,
+      "lock_reason": "CARD_NOT_FOUND"
+    },
+    "settled": {
+      "event_id": 999,
+      "card_state": "CLOSED",
+      "offer_set_id": "offer_set_e41289755e1ca693cd6e3ce4",
+      "card_revision": 1,
+      "monthly": {
+        "month_key": "2026-08",
+        "mission_id": "MONTH-V2-001",
+        "name": "WIN TARGET",
+        "description": "Hit the monthly winner target.",
+        "xp": 15,
+        "status": "COMPLETED",
+        "progress_text": "3 / 4 winners",
+        "progress_percent": 100
+      },
+      "slots": [
+        {
+          "slot": 1,
+          "selected": {
+            "assignment_id": "assignment_card_v2_e_004",
+            "event_id": 999,
+            "event_label": null,
+            "slot": 1,
+            "offer_id": null,
+            "mission_id": "CARD-V2-E-004",
+            "name": "HEADLINER READ",
+            "description": "Correctly predict the main-event winner.",
+            "difficulty": "EASY",
+            "xp": 1,
+            "xp_earned": 1,
+            "interaction": "AUTO",
+            "status": "COMPLETED",
+            "progress_text": "3 / 3 winners",
+            "progress_percent": 100,
+            "selection_summary": null,
+            "selection": null,
+            "void_reason": null
+          },
+          "options": []
+        },
+        {
+          "slot": 2,
+          "selected": {
+            "assignment_id": "assignment_card_v2_h_003",
+            "event_id": 999,
+            "event_label": null,
+            "slot": 2,
+            "offer_id": null,
+            "mission_id": "CARD-V2-H-003",
+            "name": "EXACT SCRIPT",
+            "description": "Choose a fighter, win method and exact round; all must be correct.",
+            "difficulty": "HARD",
+            "xp": 6,
+            "xp_earned": 0,
+            "interaction": "TARGET_FIGHTER",
+            "status": "FAILED",
+            "progress_text": "0 / 1 exact script",
+            "progress_percent": 0,
+            "selection_summary": "Uros Medic KO_TKO R2",
+            "selection": {
+              "legs": [
+                {
+                  "key": "winner",
+                  "fighter_name": "Uros Medic",
+                  "method": "KO_TKO",
+                  "round": 2
+                }
+              ]
+            },
+            "void_reason": null
+          },
+          "options": []
+        },
+        {
+          "slot": 3,
+          "selected": {
+            "assignment_id": "assignment_card_v2_m_001",
+            "event_id": 999,
+            "event_label": null,
+            "slot": 3,
+            "offer_id": null,
+            "mission_id": "CARD-V2-M-001",
+            "name": "FINISH LOCK",
+            "description": "Choose one fight you are certain will end before a decision.",
+            "difficulty": "MEDIUM",
+            "xp": 3,
+            "xp_earned": 0,
+            "interaction": "TARGET_FIGHT",
+            "status": "VOID",
+            "progress_text": "Bout cancelled",
+            "progress_percent": 0,
+            "selection_summary": null,
+            "selection": null,
+            "void_reason": "Bout cancelled - no XP charged."
+          },
+          "options": []
+        }
+      ],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": true,
+      "lock_reason": "ADMIN_CLOSED"
+    },
+    "no-offers": {
+      "event_id": 999,
+      "card_state": "OPEN",
+      "offer_set_id": "offer_set_e41289755e1ca693cd6e3ce4",
+      "card_revision": 1,
+      "monthly": null,
+      "slots": [
+        {
+          "slot": 1,
+          "selected": null,
+          "options": []
+        },
+        {
+          "slot": 2,
+          "selected": null,
+          "options": []
+        },
+        {
+          "slot": 3,
+          "selected": null,
+          "options": []
+        }
+      ],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": false,
+      "lock_reason": null
+    },
+    "month-closed": {
+      "event_id": 999,
+      "card_state": "OPEN",
+      "offer_set_id": "offer_set_e41289755e1ca693cd6e3ce4",
+      "card_revision": 1,
+      "monthly": {
+        "month_key": "2026-08",
+        "mission_id": "MONTH-V2-001",
+        "name": "WIN TARGET",
+        "description": "Hit the monthly winner target.",
+        "xp": 15,
+        "status": "FAILED",
+        "progress_text": "2 / 4 winners",
+        "progress_percent": 75
+      },
+      "slots": [
+        {
+          "slot": 1,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_effd45e44b9878b2351f2bc7",
+              "mission_id": "CARD-V2-E-004",
+              "name": "HEADLINER READ",
+              "description": "Correctly predict the main-event winner.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "AUTO",
+              "pick_effect": "NONE",
+              "selection_prompt": null,
+              "selection_spec": null
+            },
+            {
+              "offer_id": "offer_70a5732205da693ffdd167d6",
+              "mission_id": "CARD-V2-E-001",
+              "name": "BANKER LOCK",
+              "description": "Choose one fighter you are certain will win. They must win.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose one fighter as your Banker",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [],
+                "allowed_rounds": [],
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a2e92e5c7bd28416f86528c5",
+              "mission_id": "CARD-V2-H-003",
+              "name": "EXACT SCRIPT",
+              "description": "Choose a fighter, win method and exact round; all must be correct.",
+              "difficulty": "HARD",
+              "xp": 6,
+              "interaction": "TARGET_FIGHTER",
+              "pick_effect": "UPSERT_ONE",
+              "selection_prompt": "Choose fighter, method and round",
+              "selection_spec": {
+                "bound_pick_fields": [
+                  "METHOD",
+                  "ROUND",
+                  "WINNER"
+                ],
+                "winner_binding": "SELECTED_FIGHTER",
+                "allowed_methods": [
+                  "SUBMISSION",
+                  "KO_TKO"
+                ],
+                "allowed_rounds": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 2,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_7cee4390f171bd2a59a77f31",
+              "mission_id": "CARD-V2-M-001",
+              "name": "FINISH LOCK",
+              "description": "Choose one fight you are certain will end before a decision.",
+              "difficulty": "MEDIUM",
+              "xp": 3,
+              "interaction": "TARGET_FIGHT",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose one fight to finish",
+              "selection_spec": {
+                "outcome": "FINISH",
+                "required_round": null
+              }
+            },
+            {
+              "offer_id": "offer_8563156c5330d2c5aa5017b3",
+              "mission_id": "CARD-V2-H-007",
+              "name": "METHOD CYCLE",
+              "description": "Build a 3-leg combo: one KO/TKO, one submission and one decision; all must win.",
+              "difficulty": "HARD",
+              "xp": 8,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose one KO, one SUB and one DEC winner",
+              "selection_spec": {
+                "leg_count": 3,
+                "legs": [
+                  {
+                    "key": "ko_leg",
+                    "label": "KO/TKO",
+                    "target": "FIGHTER",
+                    "method": "KO_TKO",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "submission_leg",
+                    "label": "Submission",
+                    "target": "FIGHTER",
+                    "method": "SUBMISSION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "decision_leg",
+                    "label": "Decision",
+                    "target": "FIGHTER",
+                    "method": "DECISION",
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_dbfc24c54764ea745c993cc0",
+              "mission_id": "CARD-V2-M-013",
+              "name": "METHOD PAIR",
+              "description": "Build a 2-fighter combo using different win methods; both must be correct.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "UPSERT_MANY",
+              "selection_prompt": "Choose 2 fighters with distinct methods",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "method_one",
+                    "label": "Method 1",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  },
+                  {
+                    "key": "method_two",
+                    "label": "Method 2",
+                    "target": "FIGHTER",
+                    "method": null,
+                    "allowed_methods": [
+                      "SUBMISSION",
+                      "KO_TKO",
+                      "DECISION"
+                    ],
+                    "round": null,
+                    "fight_outcome": null
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": true,
+                "title_bouts_only": false
+              }
+            }
+          ]
+        },
+        {
+          "slot": 3,
+          "selected": null,
+          "options": [
+            {
+              "offer_id": "offer_60bde33b49726212806939aa",
+              "mission_id": "CARD-V2-M-012",
+              "name": "FINISH DOUBLE",
+              "description": "Choose 2 fights; both must end in a finish.",
+              "difficulty": "MEDIUM",
+              "xp": 4,
+              "interaction": "COMBO_BUILDER",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose 2 fights to finish",
+              "selection_spec": {
+                "leg_count": 2,
+                "legs": [
+                  {
+                    "key": "finish_one",
+                    "label": "Finish 1",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  },
+                  {
+                    "key": "finish_two",
+                    "label": "Finish 2",
+                    "target": "FIGHT",
+                    "method": null,
+                    "allowed_methods": [],
+                    "round": null,
+                    "fight_outcome": "FINISH"
+                  }
+                ],
+                "distinct_bouts": true,
+                "distinct_methods": false,
+                "title_bouts_only": false
+              }
+            },
+            {
+              "offer_id": "offer_a9e9ca42d17a004adc518de3",
+              "mission_id": "CARD-V2-E-012",
+              "name": "THREE FINISHES",
+              "description": "The card must contain at least 3 finishes.",
+              "difficulty": "EASY",
+              "xp": 1,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Accept the \u22653 finishes card prop",
+              "selection_spec": {
+                "input": "ACCEPT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_aedb1cfc3517ee0f07d69feb",
+              "mission_id": "CARD-V3-E-008",
+              "name": "PICK A LANE",
+              "description": "Choose FINISHES or DECISIONS. Your side must be at least as common on the card; a tie also completes the mission.",
+              "difficulty": "EASY",
+              "xp": 2,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose FINISHES or DECISIONS",
+              "selection_spec": {
+                "input": "CHOICE",
+                "choices": [
+                  "FINISHES",
+                  "DECISIONS"
+                ],
+                "max_count": null,
+                "target_source": "STATIC",
+                "frozen_ratio": null
+              }
+            },
+            {
+              "offer_id": "offer_f9e7b3707f9d63c074d1b26a",
+              "mission_id": "CARD-V2-H-019",
+              "name": "EXACT FINISH COUNT",
+              "description": "Choose the exact number of finishes that will occur on the card.",
+              "difficulty": "HARD",
+              "xp": 10,
+              "interaction": "CARD_PROP",
+              "pick_effect": "NONE",
+              "selection_prompt": "Choose the exact finish count",
+              "selection_spec": {
+                "input": "EXACT_COUNT",
+                "choices": [],
+                "max_count": null,
+                "target_source": "SELECTED_EXACT_COUNT",
+                "frozen_ratio": null
+              }
+            }
+          ]
+        }
+      ],
+      "current_streak": 0,
+      "best_streak": 0,
+      "locked": false,
+      "lock_reason": null
+    }
+  },
+  "profile": {
+    "lifetime_xp": 42,
+    "level": 5,
+    "title": "PROSPECT",
+    "xp_into_level": 2,
+    "xp_for_next_level": 13,
+    "level_progress_pct": 15,
+    "next_title": "RANKED",
+    "next_title_level": 10,
+    "current_streak": 3,
+    "best_streak": 7,
+    "next_streak_milestone_label": "5 \u2192 +3 XP",
+    "streak_just_broke": false,
+    "monthly": null,
+    "active": [
+      {
+        "assignment_id": "assignment_card_v2_e_001",
+        "event_id": 999,
+        "event_label": null,
+        "slot": 1,
+        "offer_id": null,
+        "mission_id": "CARD-V2-E-001",
+        "name": "BANKER LOCK",
+        "description": "Choose one fighter you are certain will win. They must win.",
+        "difficulty": "EASY",
+        "xp": 1,
+        "xp_earned": 0,
+        "interaction": "TARGET_FIGHTER",
+        "status": "ACTIVE",
+        "progress_text": "1 / 1 winner",
+        "progress_percent": 50,
+        "selection_summary": null,
+        "selection": null,
+        "void_reason": null
+      }
+    ],
+    "history": [
+      {
+        "assignment_id": "assignment_card_v2_e_004",
+        "event_id": 999,
+        "event_label": null,
+        "slot": 1,
+        "offer_id": null,
+        "mission_id": "CARD-V2-E-004",
+        "name": "HEADLINER READ",
+        "description": "Correctly predict the main-event winner.",
+        "difficulty": "EASY",
+        "xp": 1,
+        "xp_earned": 1,
+        "interaction": "AUTO",
+        "status": "COMPLETED",
+        "progress_text": "3 / 3 winners",
+        "progress_percent": 100,
+        "selection_summary": null,
+        "selection": null,
+        "void_reason": null
+      }
+    ],
+    "streak_history": [
+      {
+        "event_id": 999,
+        "event_label": "UFC 999: Fixture Night",
+        "outcome": "ADVANCED",
+        "picked": 9,
+        "denominator": 12,
+        "coverage_percent": 75,
+        "streak_after": 3,
+        "milestone": 3,
+        "xp_earned": 3
+      }
+    ],
+    "celebrations": [
+      {
+        "id": "celebration_1",
+        "kind": "MISSION_COMPLETED",
+        "presentation": "TOAST",
+        "heading": "Mission complete",
+        "message": "PERFECT MAIN CARD - +3 XP",
+        "metadata": {
+          "name": "PERFECT MAIN CARD",
+          "xp": 3
+        }
+      },
+      {
+        "id": "celebration_2",
+        "kind": "STREAK_MILESTONE",
+        "presentation": "FULL_SCREEN",
+        "heading": "3 card streak",
+        "message": "Streak milestone reached - +2 XP",
+        "metadata": {
+          "event_id": 999,
+          "streak": 3,
+          "bonus_xp": 2
+        }
+      }
+    ]
+  },
+  "select_201": {
+    "assignment_id": "assignment_card_v2_e_004",
+    "event_id": 999,
+    "event_label": null,
+    "slot": 1,
+    "offer_id": null,
+    "mission_id": "CARD-V2-E-004",
+    "name": "HEADLINER READ",
+    "description": "Correctly predict the main-event winner.",
+    "difficulty": "EASY",
+    "xp": 1,
+    "xp_earned": 0,
+    "interaction": "AUTO",
+    "status": "ACTIVE",
+    "progress_text": "Awaiting first result",
+    "progress_percent": 0,
+    "selection_summary": null,
+    "selection": null,
+    "void_reason": null
+  },
+  "errors": {
+    "slot_locked_409": {
+      "detail": {
+        "code": "SLOT_LOCKED",
+        "message": "Card missions are locked"
+      }
+    },
+    "offer_not_found_409": {
+      "detail": {
+        "code": "OFFER_NOT_FOUND",
+        "message": "That offer is not available in this slot"
+      }
+    },
+    "already_selected_409": {
+      "detail": {
+        "code": "ALREADY_SELECTED",
+        "message": "This mission slot already has an irreversible selection"
+      }
+    },
+    "idempotency_conflict_409": {
+      "detail": {
+        "code": "IDEMPOTENCY_CONFLICT",
+        "message": "Idempotency key was already used with another request"
+      }
+    },
+    "invalid_selection_409": {
+      "detail": {
+        "code": "INVALID_SELECTION",
+        "message": "Selected method is not allowed by this mission"
+      }
+    },
+    "card_not_found_404": {
+      "detail": {
+        "code": "CARD_NOT_FOUND",
+        "message": "Event has no mission offers"
+      }
+    },
+    "unauthenticated_401": {
+      "detail": "Not authenticated"
+    },
+    "legacy_frontend_body_422": {
+      "detail": [
+        {
+          "type": "missing",
+          "loc": [
+            "slot"
+          ],
+          "msg": "Field required",
+          "input": {
+            "event_id": 999,
+            "slot_index": 0,
+            "mission_id": "CARD-V2-E-004",
+            "selection": null
+          },
+          "url": "https://errors.pydantic.dev/2.7/v/missing"
+        },
+        {
+          "type": "missing",
+          "loc": [
+            "offer_id"
+          ],
+          "msg": "Field required",
+          "input": {
+            "event_id": 999,
+            "slot_index": 0,
+            "mission_id": "CARD-V2-E-004",
+            "selection": null
+          },
+          "url": "https://errors.pydantic.dev/2.7/v/missing"
+        },
+        {
+          "type": "missing",
+          "loc": [
+            "idempotency_key"
+          ],
+          "msg": "Field required",
+          "input": {
+            "event_id": 999,
+            "slot_index": 0,
+            "mission_id": "CARD-V2-E-004",
+            "selection": null
+          },
+          "url": "https://errors.pydantic.dev/2.7/v/missing"
+        }
+      ]
+    }
+  }
+}

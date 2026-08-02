@@ -53,3 +53,8 @@ DEPLOYMENT.md
 .env.example
 
 public/flags
+CLAUDE.md
+.env
+
+# Dev only — no va a producción
+docs/

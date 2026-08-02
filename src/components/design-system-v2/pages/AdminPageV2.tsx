@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { useEvents, useEventBouts, useCurrentUser } from '@/lib/hooks';
+import { AdminMissionPanelContainer } from '@/features/missions/surfaces/admin-mission-panel-container';
+import '@/features/missions/missions.css';
 import {
     getAuthToken,
     getBoutResultLabel,
@@ -17,10 +19,21 @@ import {
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 
+const MissionOperationsTab = () => {
+    const { data: eventsData, isLoading } = useEvents({ limit: 50 });
+    const events = (eventsData?.events ?? [])
+        .slice(0, 10)
+        .map((event) => ({ id: event.id, label: event.name }));
+
+    if (isLoading) return <div className="admin-loading">Loading events…</div>;
+    return <AdminMissionPanelContainer events={events} />;
+};
+
+
 export const AdminPageV2 = () => {
     const router = useRouter();
     const { data: user, isLoading: userLoading } = useCurrentUser();
-    const [activeTab, setActiveTab] = useState<'timing' | 'results' | 'uploads' | 'bouts' | 'photos'>('timing');
+    const [activeTab, setActiveTab] = useState<'timing' | 'results' | 'uploads' | 'bouts' | 'photos' | 'missions'>('timing');
 
     // Redirect if not admin
     if (!userLoading && (!user || !user.is_admin)) {
@@ -92,6 +105,13 @@ export const AdminPageV2 = () => {
                         <span className="admin-tab__icon">📸</span>
                         PHOTO UPLOADER
                     </button>
+                    <button
+                        className={`admin-tab ${activeTab === 'missions' ? 'admin-tab--active' : ''}`}
+                        onClick={() => setActiveTab('missions')}
+                    >
+                        <span className="admin-tab__icon">🎯</span>
+                        MISSIONS
+                    </button>
                 </div>
 
                 {/* TAB 1: EVENT TIMING MANAGER */}
@@ -108,6 +128,9 @@ export const AdminPageV2 = () => {
 
                 {/* TAB 5: PHOTO UPLOADER */}
                 {activeTab === 'photos' && <PhotoUploaderTab />}
+
+                {/* TAB 6: MISSION OPERATIONS */}
+                {activeTab === 'missions' && <MissionOperationsTab />}
             </div>
         </V2Layout>
     );
