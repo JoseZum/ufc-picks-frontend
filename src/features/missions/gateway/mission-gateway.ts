@@ -18,6 +18,7 @@ import type {
   ReconciliationPreviewVM,
   ReconciliationResultVM,
 } from '../contracts/mission-mock-models';
+import type { PickPatchInput } from '../renderers/pick-completion';
 
 export interface MissionLabGateway {
   getHomeState(): Promise<HomeMissionsVM>;
@@ -105,6 +106,12 @@ export interface MissionSelectRequest {
    *  it is the API's `offer_id`, not the catalog's `mission_id`. */
   offer: MissionOffer;
   selection: MockSelection;
+  /**
+   * Method/round the user supplied for bouts the mission binds but has not
+   * fixed and they have never picked. Empty for every mission with no pick
+   * effect, and for anyone who already filled the card.
+   */
+  pickPatches?: PickPatchInput[];
   /**
    * Optional override for the request's idempotency key. Left unset the adapter
    * derives a deterministic one from the request itself, so retrying the same

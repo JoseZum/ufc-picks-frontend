@@ -16,10 +16,11 @@
 import React from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAuthenticated } from '@/lib/api';
-import { useEvent, useEventBouts } from '@/lib/hooks';
+import { useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import '../missions.css';
 
 import type { MissionOffer, MockSelection } from '../contracts/mission-mock-models';
+import type { PickPatchInput } from '../renderers/pick-completion';
 import { showSelectionToast } from '../components/mission-celebration';
 import {
   MissionsErrorState,
@@ -46,6 +47,10 @@ export function HomeMissionsSection({ eventId }: { eventId?: number }) {
   const id = eventId ?? 0;
   const { data: event } = useEvent(id);
   const { data: bouts } = useEventBouts(id);
+  // Shares the cache the picks pages already fill. A mission that writes picks
+  // must know which bouts the user has already decided, or it asks them to
+  // choose a method they chose days ago.
+  const { data: picks } = useMyPicks(id);
 
   // Same query keys the rest of Home already uses, so this shares their cache
   // rather than issuing a second round of event/bout requests.
@@ -60,8 +65,13 @@ export function HomeMissionsSection({ eventId }: { eventId?: number }) {
   });
 
   const handleSelect = React.useCallback(
-    async (slot: 1 | 2 | 3, offer: MissionOffer, selection: MockSelection) => {
-      await gateway.select({ eventId: id, slot, offer, selection });
+    async (
+      slot: 1 | 2 | 3,
+      offer: MissionOffer,
+      selection: MockSelection,
+      pickPatches: PickPatchInput[]
+    ) => {
+      await gateway.select({ eventId: id, slot, offer, selection, pickPatches });
       // A mission with a pick effect can rewrite canonical picks, so both
       // caches are refreshed from the server rather than patched locally.
       await queryClient.invalidateQueries({ queryKey: ['missions', 'home', id] });
@@ -95,6 +105,10 @@ export function HomeMissionsSection({ eventId }: { eventId?: number }) {
   // The card is re-attached from the live event/bout caches so the drawer's
   // pickers always describe the fights currently on the card.
   return (
-    <HomeMissions state={{ ...missions.data, event: card }} onSelect={handleSelect} />
+    <HomeMissions
+      state={{ ...missions.data, event: card }}
+      picks={picks}
+      onSelect={handleSelect}
+    />
   );
 }

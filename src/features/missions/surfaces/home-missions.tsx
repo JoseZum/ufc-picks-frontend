@@ -18,6 +18,8 @@ import type {
 } from '../contracts/mission-mock-models';
 import { MissionCard, MonthlyCard } from '../components/mission-shared';
 import { MissionSelectionDrawer } from '../components/mission-selection-drawer';
+import type { PickPatchInput } from '../renderers/pick-completion';
+import type { Pick as ApiPick } from '@/lib/api';
 
 const LOCK_TEXT: Record<string, string> = {
   'picks-closed': 'Picks closed for this card',
@@ -27,10 +29,17 @@ const LOCK_TEXT: Record<string, string> = {
 
 interface Props {
   state: HomeMissionsVM;
+  /**
+   * The user's picks on this card. The drawer needs them to know whether a
+   * pick-writing mission still has to ask for a method or a round; without
+   * them it would ask for fields the user already supplied.
+   */
+  picks?: ApiPick[];
   onSelect: (
     slot: 1 | 2 | 3,
     offer: MissionOffer,
-    selection: MockSelection
+    selection: MockSelection,
+    pickPatches: PickPatchInput[]
   ) => Promise<{ name: string; xp: number } | void>;
   /**
    * Where "VIEW ALL" goes. In production this is a link to /profile; the
@@ -39,18 +48,23 @@ interface Props {
   onViewAll?: () => void;
 }
 
-export function HomeMissions({ state, onSelect, onViewAll }: Props) {
+export function HomeMissions({ state, picks, onSelect, onViewAll }: Props) {
   const [openOffer, setOpenOffer] = React.useState<{ slot: 1 | 2 | 3; offer: MissionOffer } | null>(
     null
   );
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const confirm = async (slot: 1 | 2 | 3, offer: MissionOffer, selection: MockSelection) => {
+  const confirm = async (
+    slot: 1 | 2 | 3,
+    offer: MissionOffer,
+    selection: MockSelection,
+    pickPatches: PickPatchInput[]
+  ) => {
     setSubmitting(true);
     setError(null);
     try {
-      await onSelect(slot, offer, selection);
+      await onSelect(slot, offer, selection, pickPatches);
       setOpenOffer(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Selection failed');
@@ -111,6 +125,7 @@ export function HomeMissions({ state, onSelect, onViewAll }: Props) {
         offer={openOffer?.offer ?? null}
         slot={openOffer?.slot ?? null}
         bouts={state.event.bouts}
+        picks={picks}
         submitting={submitting}
         errorText={error}
         onClose={() => {

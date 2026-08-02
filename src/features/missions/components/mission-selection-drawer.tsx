@@ -10,19 +10,132 @@
 
 import React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import type { LabBout, MissionOffer, MockSelection } from '../contracts/mission-mock-models';
+import type { Pick as ApiPick } from '@/lib/api';
+import type {
+  LabBout,
+  MissionOffer,
+  MockSelection,
+  WinMethod,
+} from '../contracts/mission-mock-models';
 import { MISSION_PICKERS, isDraftComplete } from '../renderers/pickers';
 import { instructionLabelFor } from '../renderers/instruction-copy';
+import {
+  isCompletionSatisfied,
+  pickGapsFor,
+  toPickPatches,
+  type PickCompletion,
+  type PickGap,
+  type PickPatchInput,
+} from '../renderers/pick-completion';
 import { DifficultyBadge } from './mission-shared';
 
 interface Props {
   offer: MissionOffer | null;
   slot: 1 | 2 | 3 | null;
   bouts: LabBout[];
+  /** The user's picks on this card. Undefined while they are still loading. */
+  picks?: ApiPick[];
   submitting: boolean;
   errorText?: string | null;
   onClose: () => void;
-  onConfirm: (slot: 1 | 2 | 3, offer: MissionOffer, selection: MockSelection) => void;
+  onConfirm: (
+    slot: 1 | 2 | 3,
+    offer: MissionOffer,
+    selection: MockSelection,
+    pickPatches: PickPatchInput[]
+  ) => void;
+}
+
+const METHODS: WinMethod[] = ['KO/TKO', 'Submission', 'Decision'];
+
+function fighterName(bouts: LabBout[], boutId: number, corner: 'red' | 'blue'): string {
+  const bout = bouts.find((b) => b.id === boutId);
+  if (!bout) return 'Fighter';
+  return (corner === 'red' ? bout.red : bout.blue).fighter_name;
+}
+
+/**
+ * Ask for the fields the mission binds but leaves open.
+ *
+ * This is a real pick being written on the user's behalf, so it says so. The
+ * alternative — inventing a method server-side — would silently put a pick in
+ * someone's card that they never made.
+ */
+function PickCompletionStep({
+  gaps,
+  bouts,
+  completion,
+  onChange,
+}: {
+  gaps: PickGap[];
+  bouts: LabBout[];
+  completion: PickCompletion;
+  onChange: (next: PickCompletion) => void;
+}) {
+  const set = (boutId: number, patch: { method?: WinMethod; round?: number }) =>
+    onChange({ ...completion, [boutId]: { ...completion[boutId], ...patch } });
+
+  return (
+    <div className="ml-completion">
+      <p className="ml-leg-status">
+        <span>This mission also sets your pick. Finish it.</span>
+      </p>
+      {gaps.map((gap) => {
+        const answer = completion[gap.boutId] ?? {};
+        const method = gap.knownMethod ?? answer.method;
+        const rounds = bouts.find((b) => b.id === gap.boutId)?.roundsScheduled ?? 3;
+        return (
+          <div className="ml-completion__row" key={gap.boutId}>
+            <span className="ml-completion__who">
+              {gap.legLabel ? `${gap.legLabel}: ` : ''}
+              {fighterName(bouts, gap.boutId, gap.corner)}
+            </span>
+
+            {gap.needsMethod ? (
+              <div className="ml-method-row" role="group" aria-label="Method">
+                {METHODS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    className={`ml-method ${answer.method === option ? 'ml-method--selected' : ''}`}
+                    aria-pressed={answer.method === option}
+                    onClick={() =>
+                      set(gap.boutId, {
+                        method: option,
+                        // Switching to a decision retires any round already
+                        // chosen, instead of sending one the server refuses.
+                        round: option === 'Decision' ? undefined : answer.round,
+                      })
+                    }
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <span className="ml-completion__fixed">{method}</span>
+            )}
+
+            {method && method !== 'Decision' ? (
+              <div className="ml-method-row" role="group" aria-label="Round">
+                {Array.from({ length: rounds }, (_, i) => i + 1).map((round) => (
+                  <button
+                    key={round}
+                    type="button"
+                    className={`ml-method ${answer.round === round ? 'ml-method--selected' : ''}`}
+                    aria-pressed={answer.round === round}
+                    onClick={() => set(gap.boutId, { round })}
+                  >
+                    R{round}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 function summarize(offer: MissionOffer, draft: MockSelection | null, bouts: LabBout[]): string {
@@ -72,24 +185,38 @@ export function MissionSelectionDrawer({
   offer,
   slot,
   bouts,
+  picks,
   submitting,
   errorText,
   onClose,
   onConfirm,
 }: Props) {
   const [draft, setDraft] = React.useState<MockSelection | null>(null);
-  const [step, setStep] = React.useState<'pick' | 'confirm'>('pick');
+  const [step, setStep] = React.useState<'pick' | 'complete' | 'confirm'>('pick');
+  const [completion, setCompletion] = React.useState<PickCompletion>({});
 
   // Reset whenever a different offer opens the drawer.
   React.useEffect(() => {
     setDraft(null);
+    setCompletion({});
     setStep('pick');
   }, [offer?.offerId]);
+
+  // Which bouts still owe a method or a round. Recomputed from the draft, so
+  // changing a leg re-opens exactly the questions that leg reintroduced.
+  const gaps = React.useMemo(
+    () => (offer ? pickGapsFor(offer, draft, picks) : []),
+    [offer, draft, picks]
+  );
 
   if (!offer || !slot) return null;
 
   const Picker = MISSION_PICKERS[offer.interaction];
   const canContinue = isDraftComplete(offer, draft);
+  const completionSatisfied = isCompletionSatisfied(gaps, completion);
+  // Skip the completion step entirely when nothing is missing, which is the
+  // case for 64 of the 85 missions and for anyone who already picked the card.
+  const afterPick = () => setStep(gaps.length ? 'complete' : 'confirm');
   // Several catalog entries phrase the prompt and the description identically;
   // when that happens only the display instruction is shown.
   const sectionLabel = instructionLabelFor(offer.selectionPrompt, offer.description);
@@ -137,12 +264,38 @@ export function MissionSelectionDrawer({
                   type="button"
                   className="ml-btn ml-btn--primary"
                   disabled={!canContinue}
-                  onClick={() => setStep('confirm')}
+                  onClick={afterPick}
                 >
                   Continue
                 </button>
                 <button type="button" className="ml-btn ml-btn--ghost" onClick={onClose}>
                   Cancel
+                </button>
+              </div>
+            </>
+          ) : step === 'complete' ? (
+            <>
+              <PickCompletionStep
+                gaps={gaps}
+                bouts={bouts}
+                completion={completion}
+                onChange={setCompletion}
+              />
+              <div className="ml-confirm__actions" style={{ marginTop: '1.25rem' }}>
+                <button
+                  type="button"
+                  className="ml-btn ml-btn--ghost"
+                  onClick={() => setStep('pick')}
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  className="ml-btn ml-btn--primary"
+                  disabled={!completionSatisfied}
+                  onClick={() => setStep('confirm')}
+                >
+                  Continue
                 </button>
               </div>
             </>
@@ -168,7 +321,7 @@ export function MissionSelectionDrawer({
                 <button
                   type="button"
                   className="ml-btn ml-btn--ghost"
-                  onClick={() => setStep('pick')}
+                  onClick={() => setStep(gaps.length ? 'complete' : 'pick')}
                   disabled={submitting}
                 >
                   Back
@@ -177,7 +330,9 @@ export function MissionSelectionDrawer({
                   type="button"
                   className="ml-btn ml-btn--primary"
                   disabled={submitting || !draft}
-                  onClick={() => draft && onConfirm(slot, offer, draft)}
+                  onClick={() =>
+                    draft && onConfirm(slot, offer, draft, toPickPatches(gaps, completion))
+                  }
                 >
                   {submitting ? 'Confirming…' : 'Confirm mission'}
                 </button>

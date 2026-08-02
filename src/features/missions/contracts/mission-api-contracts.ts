@@ -348,6 +348,20 @@ export interface MissionSelectRequestDTO {
   /** 8..128 chars matching `^[A-Za-z0-9._:-]+$`. Replaying it is a no-op. */
   idempotency_key: string;
   selection: MissionSelectionPayloadDTO | null;
+  /**
+   * Fields the mission binds but does not fix, for bouts the user has not
+   * picked. Without these the server refuses six of the catalog's missions
+   * with `A complete canonical pick method is required`, because a canonical
+   * pick has to be complete and there is no existing pick to inherit from.
+   *
+   * Never restate a value the mission itself fixed: the server treats a patch
+   * that disagrees with a binding as a conflict.
+   */
+  pick_patches?: Array<{
+    bout_id: number;
+    method?: WinMethodWire;
+    round?: number;
+  }>;
 }
 
 /** 201 returns the same assignment shape Home already renders. */

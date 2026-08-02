@@ -939,6 +939,36 @@
 .ml-method--selected { border-color: var(--accent); color: var(--text-primary); background: var(--accent-dim); }
 .ml-method:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
 
+/* ---------- Pick completion step ----------
+   A mission that binds a winner but not the method still has to write a whole
+   canonical pick, so the drawer asks for the rest. Same chips as the pickers
+   above; only the row that groups them per fighter is new. */
+
+.ml-completion__row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-elevated);
+    padding: 0.7rem 0.8rem;
+    margin-bottom: 0.55rem;
+}
+
+.ml-completion__who {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    color: var(--text-primary);
+}
+
+/* The method the mission itself fixed: shown so the user can see the whole
+   pick being written, but never presented as a choice. */
+.ml-completion__fixed {
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+}
+
 /* ---------- Confirm step ---------- */
 
 .ml-confirm {

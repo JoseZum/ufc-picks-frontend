@@ -56,6 +56,7 @@ import {
   toSelectionPayload,
   toCardControl,
   toReconciliationPreview,
+  toWireMethod,
 } from './mission-api-mappers';
 
 export interface HttpMissionGatewayOptions {
@@ -217,6 +218,15 @@ export function createHttpMissionGateway(
             selection,
           }),
         selection,
+        ...(req.pickPatches?.length
+          ? {
+              pick_patches: req.pickPatches.map((patch) => ({
+                bout_id: patch.boutId,
+                ...(patch.method ? { method: toWireMethod(patch.method) } : {}),
+                ...(patch.round != null ? { round: patch.round } : {}),
+              })),
+            }
+          : {}),
       };
       const dto = await request<MissionSelectResponseDTO>('/missions/select', {
         method: 'POST',
