@@ -16,7 +16,6 @@ import {
   MissionsErrorState,
   MissionsLoadingState,
   MissionsLoggedOutState,
-  MissionsUnavailableState,
 } from '../components/mission-states';
 import type { ProfileMissionHubVM } from '../contracts/mission-mock-models';
 import { createHttpMissionGateway } from '../gateway/http-mission-gateway';
@@ -113,19 +112,12 @@ export function ProfileMissionHubContainer({
   }
 
   const { hub } = phase;
-  const untouched =
-    hub.level.lifetimeXp === 0 &&
-    hub.streak.current === 0 &&
-    hub.streak.best === 0 &&
-    hub.activeMissions.length === 0 &&
-    hub.history.length === 0;
 
-  if (untouched) {
-    return (
-      <MissionsUnavailableState message="Accept your first mission on the next card and your XP, level and Card Streak start here." />
-    );
-  }
-
+  // The hub always renders, even for someone who has never accepted a mission.
+  // Hiding it behind an empty state was wrong: everyone starts at level 1 with
+  // a title, and a brand-new player was shown a sentence about XP instead of
+  // the level, title and meter the API had already sent. The lists inside carry
+  // their own empty copy.
   return (
     <>
       <ProfileMissionHub state={{ ...hub, userName, memberSince }} />
