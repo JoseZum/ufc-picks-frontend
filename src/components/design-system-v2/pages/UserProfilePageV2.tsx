@@ -274,6 +274,13 @@ export const UserProfilePageV2 = ({ userId }: UserProfilePageV2Props) => {
                             <EventPicksSection
                                 event={selectedEvent}
                                 picks={picksByEvent.get(selectedEvent.id) || []}
+                                // Someone else's profile: these are their calls,
+                                // not the viewer's.
+                                pickColumnLabel={
+                                    profile?.name
+                                        ? `${profile.name.toUpperCase()}'S PICK`
+                                        : 'THEIR PICK'
+                                }
                             />
                         ) : (
                             <div className="browse-grid">

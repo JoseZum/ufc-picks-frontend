@@ -2788,10 +2788,30 @@
    filas quedan alineadas entre sí sin importar el largo de los nombres. */
 .pick-row {
     display: grid;
-    grid-template-columns: 1fr 64px 1fr 116px 124px;
+    /* red · VS · blue · YOUR PICK · RESULT · verdict */
+    grid-template-columns: 1fr 56px 1fr 136px 136px 118px;
     align-items: stretch;
     border-bottom: 1px solid var(--border);
     transition: all 0.1s;
+}
+
+/* Labels the two comparison columns. Same grid as the rows so the words sit
+   exactly over the values they name. */
+.pick-row-head {
+    display: grid;
+    grid-template-columns: 1fr 56px 1fr 136px 136px 118px;
+    border-bottom: 1px solid var(--border);
+    /* Matches the row's 4px accent strip so the columns stay aligned. */
+    border-left: 4px solid transparent;
+}
+
+.pick-row-head__label {
+    padding: 0.45rem 0.75rem;
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    border-left: 1px solid var(--border);
 }
 
 .pick-row:last-child {
@@ -2917,6 +2937,31 @@
     font-size: 0.6rem;
     letter-spacing: 2px;
     text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Who: the fighter picked, or the fighter who actually won. Long names wrap to
+   two lines rather than being clipped — a truncated surname is unreadable. */
+.pick-row__outcome-who {
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    text-align: center;
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+
+/* The pick column never carries the verdict colour: green or red belongs to
+   what happened, not to what the user hoped for. */
+.pick-row__outcome--pick .pick-row__outcome-method {
+    color: var(--text-primary);
+}
+
+/* Shown only when the row stacks and the header strip is gone. */
+.pick-row__cell-label {
+    display: none;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
     color: var(--text-muted);
 }
 
@@ -3053,12 +3098,25 @@
         text-align: left;
     }
 
+    /* Stacked: the header strip has no columns to label, so each cell says
+       what it is on its own line. */
+    .pick-row-head {
+        display: none;
+    }
+
+    .pick-row__cell-label {
+        display: block;
+        width: 100%;
+        text-align: left;
+    }
+
     .pick-row__outcome {
         border-left: none;
         border-top: 1px solid var(--border);
         flex-direction: row;
         align-items: baseline;
-        justify-content: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
         gap: 0.8rem;
     }
 

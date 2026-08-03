@@ -2,7 +2,11 @@
 
 import React from 'react';
 import { useEventBouts } from '@/lib/hooks';
-import { getBoutResultOutcome, getFighterDisplayName } from '@/lib/api';
+import {
+    getBoutResultOutcome,
+    getFighterDisplayName,
+    getNormalizedFighterName,
+} from '@/lib/api';
 import { FighterPhoto } from '@/components/FighterImage';
 import { formatEventDate } from '@/lib/dateUtils';
 
@@ -40,13 +44,23 @@ export function computePoints(pick: any, bout: any): number {
 interface EventPicksSectionProps {
     event: any;
     picks: Array<{ pick: any; event: any }>;
+    /**
+     * Heading for the pick column. Defaults to the owner's own view; another
+     * user's profile renders the same rows, and calling their prediction
+     * "YOUR PICK" there would simply be false.
+     */
+    pickColumnLabel?: string;
 }
 
 /**
  * Renderiza los picks de un usuario para un evento concreto, con resultado y puntos.
  * Mismo estilo de "MY PICKS"; reutilizado en My Picks y en el perfil.
  */
-export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
+export const EventPicksSection = ({
+    event,
+    picks,
+    pickColumnLabel = 'YOUR PICK',
+}: EventPicksSectionProps) => {
     const { data: bouts } = useEventBouts(event.id);
 
     const picksWithBouts = picks.map(p => ({
@@ -79,6 +93,22 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                 </div>
             </div>
 
+            {/* Column headers for the two comparison columns. The fighter
+                columns need no label; these two do, because side by side they
+                answer "what did I say" against "what happened". Hidden on
+                narrow screens, where the row stacks and each cell labels
+                itself instead. */}
+            {eventPicks.length > 0 && (
+                <div className="pick-row-head" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                    <span className="pick-row-head__label">{pickColumnLabel}</span>
+                    <span className="pick-row-head__label">RESULT</span>
+                    <span />
+                </div>
+            )}
+
             {eventPicks.map(({ pick, bout }) => {
                 if (!bout) return null;
 
@@ -107,6 +137,30 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                 const resultMethod = bout.result ? normalizeMethod(bout.result.method) : '';
                 const resultRound = bout.result?.round;
                 const showRound = !!resultRound && resultMethod !== 'DEC';
+
+                // What the user actually said. Matched back to a corner so the
+                // name renders through the same display pipeline as the fighter
+                // blocks — the stored pick is a plain string.
+                const pickedName = (pick.picked_fighter_name ?? '').toLowerCase().trim();
+                const pickedCorner =
+                    pickedName === getNormalizedFighterName(bout.fighters.red)
+                        ? 'red'
+                        : pickedName === getNormalizedFighterName(bout.fighters.blue)
+                            ? 'blue'
+                            : null;
+                const pickedLabel = pickedCorner
+                    ? getFighterDisplayName(bout.fighters[pickedCorner]).toUpperCase()
+                    : (pick.picked_fighter_name ?? '').toUpperCase();
+                const pickMethod = normalizeMethod(pick.picked_method);
+                const showPickRound = !!pick.picked_round && pickMethod !== 'DEC';
+
+                // A draw or no-contest has no winning fighter to name.
+                const resultLabel =
+                    outcome === 'red' || outcome === 'blue'
+                        ? getFighterDisplayName(bout.fighters[outcome]).toUpperCase()
+                        : bout.result
+                            ? outcome === 'draw' ? 'DRAW' : 'NO CONTEST'
+                            : '';
 
                 // Ganador real de la pelea: se resalta y el otro se atenúa
                 const redState = outcome === 'red' ? 'winner' : outcome === 'blue' ? 'loser' : '';
@@ -162,8 +216,20 @@ export const EventPicksSection = ({ event, picks }: EventPicksSectionProps) => {
                                 </div>
                             </div>
                         </div>
+                        {/* LO QUE ELIGIÓ EL USUARIO — siempre neutro: el color
+                            vive en la columna del resultado, no aquí. */}
+                        <div className="pick-row__outcome pick-row__outcome--pick">
+                            <div className="pick-row__cell-label">{pickColumnLabel}</div>
+                            <div className="pick-row__outcome-who">{pickedLabel || '—'}</div>
+                            {showPickRound && (
+                                <div className="pick-row__outcome-round">RD {pick.picked_round}</div>
+                            )}
+                            <div className="pick-row__outcome-method">{pickMethod || '—'}</div>
+                        </div>
                         {/* RESULTADO REAL DE LA PELEA */}
                         <div className={`pick-row__outcome pick-row__outcome--${state}`}>
+                            <div className="pick-row__cell-label">RESULT</div>
+                            <div className="pick-row__outcome-who">{resultLabel || '—'}</div>
                             {showRound && <div className="pick-row__outcome-round">RD {resultRound}</div>}
                             <div className="pick-row__outcome-method">{resultMethod || '—'}</div>
                         </div>
