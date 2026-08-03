@@ -22,6 +22,12 @@ import type {
 } from '../contracts/mission-mock-models';
 import { createHttpMissionGateway } from '../gateway/http-mission-gateway';
 import type { MissionGateway } from '../gateway/mission-gateway';
+import { MissionGatewayError } from '../gateway/mission-gateway';
+
+/** `2026-08`. The API keys monthly configuration by month, not by date. */
+function monthKeyFor(date: Date): string {
+  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}`;
+}
 import { AdminMissionPanel, type AdminPanelAction } from './admin-mission-panel';
 
 export interface AdminMissionPanelContainerProps {
@@ -86,7 +92,7 @@ export function AdminMissionPanelContainer({
           eventId: event.id,
           eventLabel: event.label,
           missionState: control.state.toLowerCase() as AdminEventMissionRowVM['missionState'],
-          selectedCount: 0,
+          selectedCount: control.selectedAssignments,
           canReopen: control.state === 'CLOSED',
           reopenBlockedReason:
             control.state === 'VOID' ? 'VOID is irreversible' : undefined,
@@ -97,18 +103,30 @@ export function AdminMissionPanelContainer({
       // expensive read to run on every panel load.
       const preview = await admin.previewReconciliation({ eventId: events[0].id });
 
+      // The month this panel administers. A missing configuration is a real
+      // state — no month has been drafted yet — and is shown as such rather
+      // than failing the whole panel.
+      const monthKey = monthKeyFor(new Date());
+      const monthly = await admin.getMonthly(monthKey).catch((cause: unknown) => {
+        if (cause instanceof MissionGatewayError && cause.code === 'NOT_AVAILABLE') {
+          return null;
+        }
+        throw cause;
+      });
+
       if (cancelled) return;
       setPhase({
         status: 'ready',
         state: {
-          monthly: {
-            state: 'ACTIVE',
+          monthly: monthly ?? {
+            state: 'DRAFT',
             monthLabel: new Date()
               .toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
               .toUpperCase(),
-            templateName: '—',
+            templateName: 'NOT CONFIGURED',
             templateId: '',
             params: [],
+            validationNote: 'No monthly mission has been drafted for this month.',
           },
           events: rows,
           reconciliationPreview: toReconciliationRows(preview.operations),

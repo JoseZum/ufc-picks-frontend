@@ -34,6 +34,7 @@ import type {
   MissionHomeRequest,
   MissionSelectRequest,
   CardActionRequest,
+  MonthlyActionRequest,
   ReconciliationScopeRequest,
 } from './mission-gateway';
 import { MissionGatewayError } from './mission-gateway';
@@ -44,6 +45,8 @@ import type {
   MissionSelectRequestDTO,
   MissionSelectResponseDTO,
   CardControlDTO,
+  MonthlyConfigDTO,
+  MonthlyTemplateDTO,
   ReconciliationPreviewDTO,
   ReconciliationApplyDTO,
 } from '../contracts/mission-api-contracts';
@@ -54,6 +57,7 @@ import {
   toHomeMissions,
   toProfileHub,
   toSelectionPayload,
+  toAdminMonthly,
   toCardControl,
   toReconciliationPreview,
   toWireMethod,
@@ -243,6 +247,33 @@ export function createHttpMissionGateway(
     },
 
     admin: {
+      async getMonthlyTemplates() {
+        return request<MonthlyTemplateDTO[]>('/admin/missions/monthly/templates');
+      },
+
+      async getMonthly(monthKey: string) {
+        // Both reads, because labels and bounds live on the templates while the
+        // chosen values live on the configuration.
+        const [config, templates] = await Promise.all([
+          request<MonthlyConfigDTO>(
+            `/admin/missions/monthly/${encodeURIComponent(monthKey)}`
+          ),
+          request<MonthlyTemplateDTO[]>('/admin/missions/monthly/templates').catch(
+            () => undefined
+          ),
+        ]);
+        return toAdminMonthly(config, templates);
+      },
+
+      async actOnMonthly(req: MonthlyActionRequest) {
+        return toAdminMonthly(
+          await request<MonthlyConfigDTO>(
+            `/admin/missions/monthly/${encodeURIComponent(req.monthKey)}/${req.action}`,
+            { method: 'POST' }
+          )
+        );
+      },
+
       async getCardControl(eventId: number) {
         return toCardControl(
           await request<CardControlDTO>(`/admin/missions/cards/${eventId}`)

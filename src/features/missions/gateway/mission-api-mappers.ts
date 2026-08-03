@@ -52,6 +52,7 @@ import { getEventArtUrl, normalizeWeightClassLabel } from '@/lib/api';
 import type {
   ActiveMissionStatus,
   ActiveMissionVM,
+  AdminMonthlyVM,
   CardControlVM,
   CelebrationVM,
   ComboLegOffer,
@@ -70,6 +71,8 @@ import type {
 } from '../contracts/mission-mock-models';
 import type {
   CardControlDTO,
+  MonthlyConfigDTO,
+  MonthlyTemplateDTO,
   ComboSelectionSpecWire,
   MissionCelebrationDTO,
   MissionHomeResponseDTO,
@@ -748,6 +751,47 @@ export function idempotencyKeyFor(request: {
 // Admin
 // ---------------------------------------------------------------------------
 
+/**
+ * Assemble the month for the Admin panel.
+ *
+ * `templates` is optional because the labels and bounds live there, not on the
+ * configuration: the config carries `{winner_target: 15}` and nothing else.
+ * Without it the key is shown as its own label, which is worse copy but never
+ * a wrong number.
+ */
+export function toAdminMonthly(
+  dto: MonthlyConfigDTO,
+  templates?: MonthlyTemplateDTO[]
+): AdminMonthlyVM {
+  const spec = new Map(
+    (templates?.find((t) => t.mission_id === dto.mission_id)?.parameters ?? []).map(
+      (parameter) => [parameter.key, parameter] as const
+    )
+  );
+  return {
+    state: dto.state,
+    monthLabel: monthLabelFromKey(dto.month_key) ?? dto.month_key,
+    templateName: dto.name,
+    templateId: dto.mission_id,
+    templates: templates?.map((t) => ({ id: t.mission_id, name: t.name })),
+    params: Object.entries(dto.parameters ?? {}).map(([key, value]) => {
+      const parameter = spec.get(key);
+      return {
+        key,
+        label: parameter?.label ?? key.replace(/_/g, ' '),
+        value: Number(value),
+        ...(parameter?.minimum != null ? { min: parameter.minimum } : {}),
+        ...(parameter?.maximum != null ? { max: parameter.maximum } : {}),
+      };
+    }),
+    // The backend owns editability: a month freezes once it starts or once a
+    // user has made progress in it. The panel only renders the verdict.
+    validationNote: dto.editable
+      ? undefined
+      : 'Locked: the month is active or already has progress.',
+  };
+}
+
 export function toCardControl(dto: CardControlDTO): CardControlVM {
   return {
     eventId: dto.event_id,
@@ -756,6 +800,7 @@ export function toCardControl(dto: CardControlDTO): CardControlVM {
     actorId: dto.actor_id ?? null,
     updatedAt: dto.updated_at ?? null,
     voidedAssignments: dto.voided_assignments ?? 0,
+    selectedAssignments: dto.selected_assignments ?? 0,
     revision: dto.revision ?? 0,
   };
 }

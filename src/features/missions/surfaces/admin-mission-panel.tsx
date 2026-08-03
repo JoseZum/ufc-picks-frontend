@@ -103,9 +103,15 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
                 padding: '0.4rem 0.5rem',
               }}
             >
-              <option value={state.monthly.templateId}>
-                {state.monthly.templateName} ({state.monthly.templateId})
-              </option>
+              {(
+                state.monthly.templates ?? [
+                  { id: state.monthly.templateId, name: state.monthly.templateName },
+                ]
+              ).map((template) => (
+                <option value={template.id} key={template.id}>
+                  {template.name} ({template.id})
+                </option>
+              ))}
             </select>
           </div>
 
@@ -116,9 +122,17 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
                 id={`ml-param-${param.key}`}
                 type="number"
                 defaultValue={param.value}
+                min={param.min}
+                max={param.max}
                 disabled={!editable}
               />
-              <span className="ml-admin-note">{param.key}</span>
+              {/* The reviewed range, so an operator knows what the API will
+                  accept before it refuses. Validation stays server-side. */}
+              {param.min != null && param.max != null ? (
+                <span className="ml-admin-note">
+                  {param.min}–{param.max}
+                </span>
+              ) : null}
             </div>
           ))}
 

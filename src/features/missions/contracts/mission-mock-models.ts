@@ -381,8 +381,17 @@ export interface AdminMonthlyVM {
   monthLabel: string;
   templateName: string;
   templateId: string;
-  /** Editable parameters with catalog defaults, e.g. winner_target=15. */
-  params: Array<{ key: string; label: string; value: number }>;
+  /** Editable parameters with catalog defaults, e.g. winner_target=15. The
+   *  bounds are the reviewed ones; the input enforces nothing the API does not. */
+  params: Array<{
+    key: string;
+    label: string;
+    value: number;
+    min?: number;
+    max?: number;
+  }>;
+  /** Every template Admin may pick for a month that is still editable. */
+  templates?: Array<{ id: string; name: string }>;
   validationNote?: string;
 }
 
@@ -437,6 +446,8 @@ export interface CardControlVM {
   updatedAt: string | null;
   /** How many ACTIVE assignments a VOID settled. */
   voidedAssignments: number;
+  /** Missions users hold on this card — what a VOID would settle. */
+  selectedAssignments: number;
   revision: number;
 }
 

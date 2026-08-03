@@ -530,6 +530,45 @@ export type ProofSelectAddressesAnOffer = Expect<
 // Admin: card control and reconciliation
 // ---------------------------------------------------------------------------
 
+/** One tunable parameter of a monthly template, with the bounds Admin may use. */
+export interface MonthlyParameterDTO {
+  key: string;
+  /** Human label written in the reviewed workbook, e.g. "Winners required". */
+  label: string;
+  kind: string;
+  default: number;
+  minimum?: number | null;
+  maximum?: number | null;
+}
+
+/** `GET /admin/missions/monthly/templates` — the 18 reviewed templates. */
+export interface MonthlyTemplateDTO {
+  mission_id: string;
+  name: string;
+  description: string;
+  xp: number;
+  compatibility: string;
+  parameters: MonthlyParameterDTO[];
+}
+
+/** `GET/PUT /admin/missions/monthly/{month_key}` and its activate/close posts. */
+export interface MonthlyConfigDTO {
+  month_key: string;
+  mission_id: string;
+  name: string;
+  description: string;
+  state: 'DRAFT' | 'ACTIVE' | 'CLOSED';
+  xp: number;
+  /** Catalog parameters, e.g. `{ winner_target: 15 }`. Values are numbers. */
+  parameters: Record<string, number>;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  activated_at?: string | null;
+  closed_at?: string | null;
+  /** False once the month started or progress exists. Drives the form's lock. */
+  editable: boolean;
+}
+
 export interface CardControlDTO {
   event_id: number;
   state: 'OPEN' | 'CLOSED' | 'VOID';
@@ -537,6 +576,8 @@ export interface CardControlDTO {
   actor_id?: string | null;
   updated_at?: string | null;
   voided_assignments?: number;
+  /** Missions users hold on this card. What VOID would settle. */
+  selected_assignments?: number;
   revision?: number;
 }
 

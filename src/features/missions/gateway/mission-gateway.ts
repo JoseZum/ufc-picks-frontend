@@ -14,11 +14,13 @@ import type {
   MissionOffer,
   MockSelection,
   ProfileMissionHubVM,
+  AdminMonthlyVM,
   CardControlVM,
   ReconciliationPreviewVM,
   ReconciliationResultVM,
 } from '../contracts/mission-mock-models';
 import type { PickPatchInput } from '../renderers/pick-completion';
+import type { MonthlyTemplateDTO } from '../contracts/mission-api-contracts';
 
 export interface MissionLabGateway {
   getHomeState(): Promise<HomeMissionsVM>;
@@ -67,6 +69,15 @@ export interface MissionGateway {
 
 /** Every method here requires the Admin role and is audited server-side. */
 export interface MissionAdminGateway {
+  /**
+   * The month's real configuration. The panel used to hard-code `ACTIVE` with
+   * an em dash for a name, which told an operator a DRAFT month was live.
+   */
+  getMonthly(monthKey: string): Promise<AdminMonthlyVM>;
+  /** The 18 reviewed templates: parameter labels and the bounds Admin may use. */
+  getMonthlyTemplates(): Promise<MonthlyTemplateDTO[]>;
+  /** DRAFT -> ACTIVE, or ACTIVE -> CLOSED. Both are idempotent server-side. */
+  actOnMonthly(request: MonthlyActionRequest): Promise<AdminMonthlyVM>;
   getCardControl(eventId: number): Promise<CardControlVM>;
   /** `reason` is mandatory: an action on live user state must say why. */
   actOnCard(request: CardActionRequest): Promise<CardControlVM>;
@@ -81,6 +92,11 @@ export interface CardActionRequest {
   eventId: number;
   action: 'close' | 'reopen' | 'void';
   reason: string;
+}
+
+export interface MonthlyActionRequest {
+  monthKey: string;
+  action: 'activate' | 'close';
 }
 
 export interface ReconciliationScopeRequest {
