@@ -375,7 +375,7 @@ const ComboBuilderPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => 
 // CARD_PROP — accept / A-B choice / exact count stepper.
 // ---------------------------------------------------------------------------
 
-const CardPropPicker: MissionPicker = ({ offer, draft, onDraft }) => {
+const CardPropPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => {
   const prop = offer as CardPropMissionOffer;
   const current = draft?.kind === 'CARD_PROP' ? draft : null;
 
