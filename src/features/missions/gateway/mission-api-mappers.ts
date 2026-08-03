@@ -48,7 +48,7 @@
  */
 
 import type { Bout, Event } from '@/lib/api';
-import { getEventArtUrl, normalizeWeightClassLabel } from '@/lib/api';
+import { getEventImageUrl, normalizeWeightClassLabel } from '@/lib/api';
 import type {
   ActiveMissionStatus,
   ActiveMissionVM,
@@ -110,6 +110,28 @@ export function toLabBouts(bouts: Bout[] | undefined): LabBout[] {
   return (bouts ?? []).map(toLabBout);
 }
 
+/** The generic stand-in `getEventPosterUrl` falls back to. */
+const PLACEHOLDER_EVENT_ART = '/placeholder-event.svg';
+
+/**
+ * The card's artwork, using the same resolution the rest of the product does.
+ *
+ * `getEventArtUrl` was the wrong accessor: it only ever returns the image an
+ * admin uploaded by hand, so on an ordinary event it is null and the strip
+ * rendered as a flat panel. `getEventImageUrl` is what the Home hero and the
+ * event detail page use — official wide art, falling back to the poster.
+ *
+ * Its own last resort is a generic placeholder, and stretching that across the
+ * strip looks worse than no image at all, so it is treated as "no art" and the
+ * plain panel — a supported design state — shows instead.
+ */
+function cardArtFor(event: Event | undefined): string | null {
+  if (!event) return null;
+  const url = getEventImageUrl(event);
+  if (!url || url.endsWith(PLACEHOLDER_EVENT_ART)) return null;
+  return url;
+}
+
 /**
  * Assemble the card context the drawer's pickers need. Uses the product's own
  * event art pipeline; a null image is a supported design state, not a failure.
@@ -122,7 +144,7 @@ export function toCardContext(
   return {
     eventId,
     eventName: event?.name ?? 'THIS CARD',
-    eventImageUrl: event ? getEventArtUrl(event) : null,
+    eventImageUrl: cardArtFor(event),
     bouts: toLabBouts(bouts),
   };
 }
