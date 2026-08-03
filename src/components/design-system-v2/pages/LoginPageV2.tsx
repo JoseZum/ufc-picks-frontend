@@ -125,7 +125,7 @@ export const LoginPageV2 = () => {
                         </div>
                         <div className="login-footer__item">
                             <div className="login-footer__label">Version</div>
-                            <div className="login-footer__text">V2.0.0</div>
+                            <div className="login-footer__text">V3.0.0</div>
                         </div>
                         <div className="login-footer__item">
                             <div className="login-footer__label">Support</div>

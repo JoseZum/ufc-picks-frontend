@@ -26,6 +26,12 @@ const ACTION_LABEL: Record<ReconciliationRowVM['action'], string> = {
 export type AdminPanelAction =
   | { kind: 'card'; eventId: number; action: 'close' | 'reopen' | 'void'; label: string }
   | { kind: 'monthly'; action: 'activate' | 'close'; label: string }
+  | {
+      kind: 'monthly-save';
+      missionId: string;
+      parameters: Record<string, number>;
+      label: string;
+    }
   | { kind: 'reconcile'; label: string };
 
 export interface AdminMissionPanelProps {
@@ -40,7 +46,21 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
   const [busy, setBusy] = React.useState(false);
   const [failure, setFailure] = React.useState<string | null>(null);
 
+  // The form is controlled so the chosen template and numbers can actually be
+  // sent. Re-seeded from the server on every load, because the server is the
+  // authority on what the month currently is.
+  const [draftTemplate, setDraftTemplate] = React.useState(state.monthly.templateId);
+  const [draftParams, setDraftParams] = React.useState<Record<string, number>>(() =>
+    Object.fromEntries(state.monthly.params.map((p) => [p.key, p.value]))
+  );
+
   React.useEffect(() => setLog(state.auditLog), [state.auditLog]);
+  React.useEffect(() => {
+    setDraftTemplate(state.monthly.templateId);
+    setDraftParams(
+      Object.fromEntries(state.monthly.params.map((p) => [p.key, p.value]))
+    );
+  }, [state.monthly.templateId, state.monthly.params]);
 
   const setPendingAction = (action: AdminPanelAction) => {
     setFailure(null);
@@ -93,7 +113,13 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
             <select
               id="ml-template"
               disabled={!editable}
-              defaultValue={state.monthly.templateId}
+              value={draftTemplate}
+              onChange={(event) => {
+                // A different template has different parameters; keeping the
+                // old numbers would submit values the new one never declared.
+                setDraftTemplate(event.target.value);
+                setDraftParams({});
+              }}
               style={{
                 background: 'var(--bg-elevated)',
                 color: 'var(--text-primary)',
@@ -121,10 +147,16 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
               <input
                 id={`ml-param-${param.key}`}
                 type="number"
-                defaultValue={param.value}
+                value={draftParams[param.key] ?? param.value}
                 min={param.min}
                 max={param.max}
                 disabled={!editable}
+                onChange={(event) =>
+                  setDraftParams((prev) => ({
+                    ...prev,
+                    [param.key]: Number(event.target.value),
+                  }))
+                }
               />
               {/* The reviewed range, so an operator knows what the API will
                   accept before it refuses. Validation stays server-side. */}
@@ -144,6 +176,21 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
             <button
               type="button"
               className="ml-btn ml-btn--primary"
+              disabled={!editable || !draftTemplate}
+              onClick={() =>
+                setPendingAction({
+                  kind: 'monthly-save',
+                  missionId: draftTemplate,
+                  parameters: draftParams,
+                  label: `Save ${state.monthly.monthLabel} as a draft`,
+                })
+              }
+            >
+              Save draft
+            </button>
+            <button
+              type="button"
+              className="ml-btn"
               disabled={!editable}
               onClick={() =>
                 setPendingAction({

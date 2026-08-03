@@ -341,7 +341,7 @@ export const LandingPageV2 = () => {
                         </div>
                         <div className="footer__block">
                             <div className="footer__label">Version</div>
-                            <div className="footer__text mono">V2.0.0 [BETA]</div>
+                            <div className="footer__text mono">V3.0.0</div>
                         </div>
                         <div className="footer__block">
                             <div className="footer__label">Legal</div>

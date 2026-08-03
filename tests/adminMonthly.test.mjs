@@ -198,3 +198,49 @@ test('an older payload without the count degrades to zero, not to NaN', async ()
   const vm = await gateway.admin.getCardControl(1);
   assert.equal(vm.selectedAssignments, 0);
 });
+
+test('a month can be drafted, which is what the panel could not do', async () => {
+  // The panel could activate and close a month but never author one, so a
+  // month nobody had drafted showed "NOT CONFIGURED" with no way forward.
+  const seen = [];
+  const gateway = gatewayFor((url, init) => {
+    seen.push({ method: init.method ?? 'GET', url, body: init.body });
+    return ok(url.endsWith('templates') ? TEMPLATES : { ...PAYLOAD, state: 'DRAFT' });
+  });
+
+  const vm = await gateway.admin.saveMonthly({
+    monthKey: '2026-08',
+    missionId: 'MONTH-V2-001',
+    parameters: { winner_target: 20 },
+  });
+
+  const put = seen.find((call) => call.method === 'PUT');
+  assert.ok(put, 'the draft is written with PUT');
+  assert.equal(put.url, 'http://api.test/admin/missions/monthly/2026-08');
+  assert.deepEqual(JSON.parse(put.body), {
+    mission_id: 'MONTH-V2-001',
+    parameters: { winner_target: 20 },
+  });
+  assert.equal(vm.state, 'DRAFT');
+});
+
+test('saving without parameters lets the catalog defaults stand', async () => {
+  const seen = [];
+  const gateway = gatewayFor((url, init) => {
+    seen.push(init.body);
+    return ok(url.endsWith('templates') ? TEMPLATES : PAYLOAD);
+  });
+
+  await gateway.admin.saveMonthly({ monthKey: '2026-08', missionId: 'MONTH-V2-002' });
+
+  const body = JSON.parse(seen.find((b) => b) ?? '{}');
+  assert.deepEqual(body, { mission_id: 'MONTH-V2-002' });
+  assert.equal('parameters' in body, false, 'omitted, not sent as empty');
+});
+
+test('the template list is fetchable on its own for an unconfigured month', async () => {
+  const gateway = gatewayFor(() => ok(TEMPLATES));
+  const templates = await gateway.admin.getMonthlyTemplates();
+  assert.equal(templates.length, 2);
+  assert.equal(templates[0].parameters[0].label, 'Winners required');
+});

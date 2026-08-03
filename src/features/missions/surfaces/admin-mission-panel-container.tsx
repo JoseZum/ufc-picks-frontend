@@ -113,6 +113,12 @@ export function AdminMissionPanelContainer({
         }
         throw cause;
       });
+      // A month nobody has drafted still needs the template list, or the
+      // operator is shown an empty selector and cannot author the month at all
+      // — which is exactly how August ended up stuck on "NOT CONFIGURED".
+      const templates = monthly
+        ? undefined
+        : await admin.getMonthlyTemplates().catch(() => []);
 
       if (cancelled) return;
       setPhase({
@@ -123,10 +129,23 @@ export function AdminMissionPanelContainer({
             monthLabel: new Date()
               .toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
               .toUpperCase(),
-            templateName: 'NOT CONFIGURED',
-            templateId: '',
-            params: [],
-            validationNote: 'No monthly mission has been drafted for this month.',
+            // Pre-selects the first reviewed template rather than an empty
+            // option, so "Save draft" is reachable in one click.
+            templateName: templates?.[0]?.name ?? 'NOT CONFIGURED',
+            templateId: templates?.[0]?.mission_id ?? '',
+            templates: templates?.map((template) => ({
+              id: template.mission_id,
+              name: template.name,
+            })),
+            params: (templates?.[0]?.parameters ?? []).map((parameter) => ({
+              key: parameter.key,
+              label: parameter.label,
+              value: parameter.default,
+              ...(parameter.minimum != null ? { min: parameter.minimum } : {}),
+              ...(parameter.maximum != null ? { max: parameter.maximum } : {}),
+            })),
+            validationNote:
+              'No monthly mission has been drafted yet. Pick a template and save.',
           },
           events: rows,
           reconciliationPreview: toReconciliationRows(preview.operations),
@@ -151,10 +170,29 @@ export function AdminMissionPanelContainer({
   const onAction = React.useCallback(
     async (action: AdminPanelAction) => {
       if (!admin) return;
+      if (action.kind === 'monthly-save') {
+        await admin.saveMonthly({
+          monthKey: monthKeyFor(new Date()),
+          missionId: action.missionId,
+          ...(Object.keys(action.parameters).length
+            ? { parameters: action.parameters }
+            : {}),
+        });
+        reload();
+        return;
+      }
+
+      if (action.kind === 'monthly') {
+        await admin.actOnMonthly({
+          monthKey: monthKeyFor(new Date()),
+          action: action.action,
+        });
+        reload();
+        return;
+      }
+
       if (action.kind !== 'card') {
-        // Monthly configuration lives on its own Admin screen; the panel only
-        // links to it, so confirming here must not pretend to have acted.
-        throw new Error('Monthly configuration is managed on the monthly screen.');
+        throw new Error('Unsupported Admin action.');
       }
       const reason = window.prompt(`Reason for "${action.label}"`)?.trim();
       if (!reason) throw new Error('A reason is required for every Admin action.');
