@@ -414,7 +414,7 @@ const CardPropPicker: MissionPicker = ({ offer, draft, onDraft }) => {
   }
 
   // exact-count
-  const max = prop.maxCount ?? 7;
+  const max = bouts.length;
   const value = current?.exactCount ?? 0;
   return (
     <div>
