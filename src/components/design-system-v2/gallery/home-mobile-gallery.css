@@ -1,0 +1,485 @@
+/* Galería local: opciones de arreglo para la home en móvil.
+   Usa los mismos tokens de V2 para que lo que se ve aquí sea trasladable
+   tal cual; nada de esto se importa desde el producto. */
+
+/* La paleta V2 vive en v2-theme.css y sólo la trae V2Layout. Esta página no
+   lo usa, así que sin este import los tokens se resuelven contra index.css,
+   donde --accent y --success son tripletas HSL y no colores: el rojo y el
+   verde salían transparentes. */
+@import '../v2-theme.css';
+
+.hmg {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 5rem;
+    color: var(--text-primary);
+}
+
+.hmg-head__title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.4rem;
+    letter-spacing: 4px;
+    background: var(--accent);
+    color: var(--text-primary);
+    padding: 0.1rem 1.2rem 0;
+    display: inline-block;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+    transform: rotate(-1deg);
+}
+
+.hmg-head__sub,
+.hmg-head__now {
+    max-width: 62ch;
+    margin-top: 1.2rem;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.hmg-head__now {
+    margin-top: 0.8rem;
+    border-left: 3px solid var(--border-strong);
+    padding-left: 0.9rem;
+    color: var(--text-muted);
+}
+
+.hmg-head__now b { color: var(--text-secondary); }
+
+.hmg-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2.5rem 2rem;
+    margin-top: 2.5rem;
+}
+
+/* ---------- rótulo + marco ---------- */
+
+.hmg-cap {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 0.7rem;
+    align-items: baseline;
+    margin-bottom: 0.8rem;
+}
+
+.hmg-cap b {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--accent);
+    grid-row: span 2;
+}
+
+.hmg-cap__name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+}
+
+.hmg-cap__note {
+    font-size: 0.7rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+
+.hmg-phone {
+    width: 390px;
+    max-width: 100%;
+    border: 10px solid #17171a;
+    border-radius: 26px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    background: var(--bg-base);
+}
+
+.hmg-screen {
+    height: 700px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background: var(--bg-base);
+    display: flex;
+    flex-direction: column;
+}
+
+/* barra superior y tabs: cromo idéntico en las cinco, para no comparar eso */
+
+.hmg-nav {
+    flex: none;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-base);
+    border-bottom: 1px solid var(--border);
+}
+
+.hmg-nav__logo {
+    display: inline-block;
+    background: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+    padding: 0.5rem 1.6rem 0.35rem 0.9rem;
+    clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+}
+
+.hmg-body { flex: 1 0 auto; }
+
+.hmg-tabs {
+    flex: none;
+    position: sticky;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border-strong);
+    padding: 0.7rem 0 0.8rem;
+    text-align: center;
+    font-size: 0.52rem;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+}
+
+.hmg-tabs .is-on { color: var(--accent); }
+
+/* ---------- hero ---------- */
+
+.hmg-hero { display: block; }
+
+/* el gutter que hoy encajona el póster; las variantes "bleed" lo rompen y se
+   lo devuelven sólo a lo que sí es texto o control */
+.hmg-gut { padding: 0.9rem 1rem 1.4rem; }
+
+.hmg-poster {
+    position: relative;
+    overflow: hidden;
+    background: #08080a;
+    border-bottom: 3px solid var(--accent);
+}
+
+.hmg-poster--32 { aspect-ratio: 3 / 2; }
+.hmg-poster--45 { aspect-ratio: 4 / 5; }
+.hmg-poster--34 { aspect-ratio: 3 / 4; }
+
+.hmg-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* degradado inferior: sin él el título no se lee sobre el arte */
+.hmg-poster::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(5, 5, 5, 0.35) 0%, transparent 26%, transparent 46%, rgba(5, 5, 5, 0.95) 100%);
+    pointer-events: none;
+}
+
+.hmg-badge {
+    position: absolute;
+    z-index: 2;
+    top: 14px;
+    left: 0;
+    background: var(--success);
+    color: var(--bg-base);
+    padding: 0.35rem 1rem;
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+}
+
+.hmg-poster__foot {
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1rem 1rem 1.1rem;
+}
+
+.hmg-title__kicker {
+    display: block;
+    font-size: 0.55rem;
+    letter-spacing: 3.5px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.2rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+.hmg-title__names {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    line-height: 0.92;
+    letter-spacing: 1px;
+    text-shadow: 0 6px 26px rgba(0, 0, 0, 0.95);
+}
+
+.hmg-title--lg .hmg-title__names { font-size: 2.5rem; }
+.hmg-title--md .hmg-title__names { font-size: 1.9rem; }
+.hmg-title__names em { font-style: normal; color: var(--accent); }
+
+.hmg-meta {
+    font-size: 0.58rem;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    margin-top: 0.4rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+}
+
+/* ---------- controles ---------- */
+
+.hmg-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    background: var(--accent);
+    color: var(--text-primary);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    letter-spacing: 3px;
+    padding: 0.75rem 1rem 0.55rem;
+    margin-top: 0.8rem;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+}
+
+/* pegado al borde del bloque: sin margen ni sombra, es el filo de la tarjeta */
+.hmg-cta--flush {
+    margin: 0;
+    box-shadow: none;
+}
+
+/* clavado al borde inferior del póster. Va absoluto porque el póster es el
+   contenedor posicionado y en flujo normal el botón caía ARRIBA del arte. */
+.hmg-cta--pinned {
+    position: absolute;
+    z-index: 4;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* deja sitio para el botón clavado abajo */
+.hmg-poster--34 .hmg-poster__foot { bottom: 46px; }
+
+.hmg-chips {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+}
+
+.hmg-chip {
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid var(--border-strong);
+    padding: 0.25rem 0.5rem;
+}
+
+.hmg-chip b {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-right: 0.25rem;
+}
+
+.hmg-clock {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+.hmg-clock__cell {
+    background: linear-gradient(180deg, #171717 0%, #0a0a0a 55%, #111111 100%);
+    border: 1px solid var(--border-strong);
+    text-align: center;
+    padding: 0.45rem 0.1rem 0.3rem;
+}
+
+.hmg-clock--tight .hmg-clock__cell { padding: 0.35rem 0.1rem 0.25rem; }
+
+.hmg-clock__cell b {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.65rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.hmg-clock__cell i {
+    font-style: normal;
+    font-size: 0.45rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+.hmg-clockline {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-top: 0.55rem;
+}
+
+.hmg-clockline__label {
+    font-size: 0.5rem;
+    letter-spacing: 2.5px;
+    color: var(--text-muted);
+}
+
+.hmg-clockline__value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.hmg-clockline__value i { font-style: normal; color: var(--text-muted); margin: 0 0.15rem; }
+.hmg-clockline__value small { font-size: 0.55rem; color: var(--text-muted); margin-left: 1px; }
+
+/* ---------- 03 TICKET ---------- */
+
+.hmg-stub {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.hmg-stub__row { padding: 0.55rem 1rem; }
+.hmg-stub__row + .hmg-stub__row { border-top: 1px solid var(--border); }
+
+.hmg-stub__row--split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.hmg-stub .hmg-meta,
+.hmg-stub .hmg-chips { margin-top: 0; text-shadow: none; }
+.hmg-stub .hmg-clockline { margin-top: 0; }
+
+/* ---------- 04 HUD ---------- */
+
+.hmg-hud {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.hmg-hud__stats {
+    display: grid;
+    gap: 0.3rem;
+    text-align: right;
+    border-left: 3px solid var(--accent);
+    padding-left: 0.6rem;
+}
+
+.hmg-hud__stats b {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.hmg-hud__stats i {
+    display: block;
+    font-style: normal;
+    font-size: 0.45rem;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+}
+
+/* ---------- 05 CARTEL ---------- */
+
+.hmg-card {
+    border: 3px solid var(--border-strong);
+    box-shadow: 8px 8px 0 rgba(225, 6, 0, 0.3);
+}
+
+.hmg-card .hmg-poster { border-bottom: none; }
+
+.hmg-rail {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 0.2rem;
+}
+
+.hmg-rail__chip {
+    flex: none;
+    scroll-snap-align: start;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-strong);
+    border-left: 3px solid var(--accent);
+    padding: 0.45rem 0.7rem;
+    text-align: left;
+}
+
+.hmg-rail__chip--wide { min-width: 148px; }
+
+.hmg-rail__chip b {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.hmg-rail__chip i {
+    font-style: normal;
+    font-size: 0.45rem;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+}
+
+/* ---------- asomo de la sección siguiente ---------- */
+
+.hmg-peek { padding: 1.4rem 1rem 2rem; }
+
+.hmg-peek__chip {
+    display: inline-block;
+    background: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    letter-spacing: 3px;
+    padding: 0.1rem 0.8rem 0;
+    transform: rotate(-1deg);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+.hmg-peek__card {
+    margin-top: 0.7rem;
+    border: 3px solid var(--border-strong);
+    background: linear-gradient(180deg, rgba(220, 38, 38, 0.16), var(--bg-panel));
+    padding: 0.9rem 1rem 1.6rem;
+}
+
+.hmg-peek__corner {
+    display: inline-block;
+    background: var(--fighter-red, #dc2626);
+    font-size: 0.5rem;
+    letter-spacing: 2.5px;
+    padding: 0.2rem 0.6rem;
+}
+
+.hmg-peek__name {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 480px) {
+    .hmg { padding: 1.2rem 0.6rem 4rem; }
+    .hmg-grid { grid-template-columns: 1fr; }
+    .hmg-phone { border-width: 6px; }
+}

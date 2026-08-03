@@ -51,8 +51,14 @@ export function UserTapeCard({ userId, onClose }: Props) {
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="utc-overlay" />
         <DialogPrimitive.Content className="utc-card" aria-describedby={undefined}>
-          <DialogPrimitive.Close className="utc-close">CLOSE</DialogPrimitive.Close>
-          <Body userId={userId} />
+          {/* Fuera del área con scroll: CLOSE sigue a la vista por largo que
+              sea el perfil. */}
+          <div className="utc-bar">
+            <DialogPrimitive.Close className="utc-close">CLOSE</DialogPrimitive.Close>
+          </div>
+          <div className="utc-scroll">
+            <Body userId={userId} />
+          </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

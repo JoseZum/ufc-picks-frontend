@@ -753,6 +753,10 @@
 .leaderboard__avatar {
     width: 50px;
     height: 50px;
+    /* El avatar es un cuadrado, no una columna elástica: sin esto un nombre
+       que se parte en dos líneas encogía la caja y la dejaba flaca frente a
+       las demás filas. */
+    flex: none;
     background: var(--bg-elevated);
     border: 2px solid var(--border-strong);
     display: flex;
@@ -2094,6 +2098,9 @@
 /* PNG transparente sin caja, con la proporción real del archivo (599×436):
    grande, imponente y sentado sobre la línea inferior de la tarjeta */
 .fight-card__photo {
+    /* cuánto cuelga el PNG hacia el borde externo de la tarjeta; cambia por
+       breakpoint y lo consumen los dos corners, así nunca se desajustan */
+    --fc-photo-hang: -1.5rem;
     height: 170px;
     aspect-ratio: 599 / 436;
     width: auto;
@@ -2108,14 +2115,14 @@
     /* el busto queda parado justo encima de la línea del corner (3px) */
     margin-bottom: calc(-1.5rem + 3px);
     /* el margen transparente del PNG cuelga hacia el borde externo */
-    margin-left: -1.5rem;
+    margin-left: var(--fc-photo-hang);
     filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.65));
     pointer-events: none;
 }
 
 .fight-card__fighter--blue .fight-card__photo {
     margin-left: 0;
-    margin-right: -1.5rem;
+    margin-right: var(--fc-photo-hang);
 }
 
 .fight-card__info {}
@@ -2538,6 +2545,14 @@
         text-align: left;
     }
 
+    /* Apilados, el corner azul se lee igual que el rojo (foto, luego texto),
+       así que su foto tiene que colgar del MISMO borde. Con el margen todavía
+       a la derecha, las dos fotos quedaban desalineadas entre sí. */
+    .fight-card__fighter--blue .fight-card__photo {
+        margin-left: var(--fc-photo-hang);
+        margin-right: 0;
+    }
+
     .fight-card__vs {
         padding: 0.75rem;
         border-left: none;
@@ -2603,14 +2618,9 @@
     }
 
     .fight-card__photo {
+        --fc-photo-hang: -1rem;
         height: 110px;
         margin-bottom: -1rem;
-        margin-left: -1rem;
-    }
-
-    .fight-card__fighter--blue .fight-card__photo {
-        margin-left: 0;
-        margin-right: -1rem;
     }
 
     .fight-card__name {
@@ -3277,6 +3287,7 @@
 .your-position__avatar {
     width: 60px;
     height: 60px;
+    flex: none;
     background: var(--bg-elevated);
     border: 2px solid var(--accent);
     display: flex;
@@ -3372,6 +3383,7 @@
 .leaderboard-full__avatar {
     width: 50px;
     height: 50px;
+    flex: none;
     background: var(--bg-elevated);
     border: 2px solid var(--border-strong);
     display: flex;
@@ -7062,5 +7074,128 @@
 @media (prefers-reduced-motion: reduce) {
     .clock__value {
         animation: none;
+    }
+}
+
+/* ============================================
+   HOME EN MÓVIL — "TAKEOVER"
+   El póster se lleva la pantalla completa y el HUD (fecha, cuenta regresiva
+   y botón) va encima de él. Antes eran cuatro paneles con borde del mismo
+   peso apilados dentro del gutter: ninguno mandaba y el arte quedaba a
+   media pantalla. Sólo cambia el arreglo; los datos son los mismos.
+   ============================================ */
+
+@media (max-width: 900px) {
+    /* rompe el padding lateral de .main para que el arte toque los dos bordes */
+    .hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+        margin: 0 -20px 2rem;
+        width: calc(100% + 40px);
+    }
+
+    /* los cuatro bloques comparten una sola celda: el póster manda el alto y
+       el resto se apila sobre él en orden de DOM */
+    .hero > * {
+        grid-area: 1 / 1;
+    }
+
+    .hero__event {
+        border: none;
+        box-shadow: none;
+        border-bottom: var(--border-thick) solid var(--accent);
+    }
+
+    /* recorte vertical: en 3:2 y dentro del gutter el póster no impactaba */
+    .hero__event-image {
+        aspect-ratio: 3 / 4;
+        background-position: center 20% !important;
+        border-bottom: none;
+    }
+
+    /* con el HUD encima el degradado tiene que subir más, o no se lee nada */
+    .hero__event-image--loaded::after {
+        background: linear-gradient(180deg, rgba(5, 5, 5, 0.45) 0%, transparent 24%, transparent 38%, rgba(5, 5, 5, 0.97) 86%);
+    }
+
+    /* deja libre la franja del reloj y del botón, que van clavados abajo */
+    .hero__event-overlay {
+        bottom: 112px;
+        padding: 0 1rem;
+        z-index: 3;
+    }
+
+    /* sobre el póster completo la fecha sí tiene sitio: vuelve */
+    .hero__event-sub {
+        display: block;
+    }
+
+    /* EVENT STATS no sobrevive al takeover */
+    .hero__stats {
+        display: none;
+    }
+
+    /* el reloj deja de ser un panel y pasa a ser una línea sobre el arte */
+    .hero__clock {
+        align-self: end;
+        z-index: 3;
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0 1rem 0.55rem;
+        margin-bottom: 56px;
+    }
+
+    .clock {
+        grid-template-columns: repeat(4, auto);
+        justify-content: start;
+        align-items: baseline;
+        gap: 0.8rem;
+    }
+
+    .clock__cell {
+        background: none;
+        border: none;
+        padding: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 0.15rem;
+    }
+
+    .clock__cell::after {
+        content: none;
+    }
+
+    .clock__value {
+        font-size: 1.7rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+    }
+
+    .clock__unit {
+        margin-top: 0;
+        font-size: 0.5rem;
+        letter-spacing: 1px;
+    }
+
+    /* el botón es el filo inferior del bloque, no una caja aparte */
+    .hero__action {
+        align-self: end;
+        z-index: 3;
+        background: var(--accent);
+        border: none;
+        box-shadow: none;
+        flex-direction: row;
+        gap: 0.6rem;
+        padding: 0.75rem 1rem 0.6rem;
+    }
+
+    .hero__action-arrow {
+        margin-top: 0;
+        color: var(--text-primary);
+    }
+
+    .hero__action:hover {
+        transform: none;
     }
 }

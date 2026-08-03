@@ -10,20 +10,36 @@
     animation: utc-fade 0.14s ease-out;
 }
 
+/* El diálogo es una columna: barra fija arriba y cuerpo con scroll debajo.
+   Con el scroll en la tarjeta entera, CLOSE se iba de vista al primer gesto. */
 .utc-card {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: min(680px, calc(100vw - 2rem));
-    max-height: min(86vh, 760px);
-    overflow-y: auto;
+    width: min(1040px, calc(100vw - 2rem));
+    max-height: min(88vh, 860px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     z-index: 91;
     background: var(--bg-panel);
     border: 1px solid var(--border-strong);
     border-top: 3px solid var(--accent);
-    padding: 2.4rem 1.6rem 1.4rem;
+    padding: 0;
     animation: utc-rise 0.16s ease-out;
+}
+
+.utc-bar {
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.7rem 0.9rem 0;
+}
+
+.utc-scroll {
+    overflow-y: auto;
+    padding: 0.4rem 1.6rem 1.6rem;
 }
 
 @keyframes utc-fade { from { opacity: 0; } }
@@ -37,19 +53,21 @@
     .utc-overlay, .utc-card { animation: none; }
 }
 
+/* Mismo sello que el título MISSIONS: Bebas sobre rojo con sombra dura. El
+   CLOSE gris de 0.6rem sobre panel oscuro directamente no se veía. */
 .utc-close {
-    position: absolute;
-    top: 0.9rem;
-    right: 1rem;
-    background: none;
+    background: var(--accent);
     border: none;
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
+    color: var(--text-primary);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1;
+    letter-spacing: 3px;
+    padding: 0.42rem 1.1rem 0.22rem;
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
     cursor: pointer;
 }
-.utc-close:hover { color: var(--text-primary); }
+.utc-close:hover { background: var(--text-primary); color: var(--accent); }
 
 .utc-loading { display: grid; place-items: center; min-height: 180px; color: var(--text-muted); }
 .utc-spin { animation: utc-spin 1s linear infinite; }
@@ -119,7 +137,10 @@
 
 .utc-tape {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    /* Tantas columnas como celdas haya. Fijarlas en seis dejaba un hueco
+       muerto a la derecha cuando el perfil no trae datos de misiones. */
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     gap: 1px;
     background: var(--border);
     border: 1px solid var(--border);
@@ -171,10 +192,11 @@
 /* ---------- narrow ---------- */
 
 @media (max-width: 620px) {
-    .utc-card { width: 100vw; max-width: 100vw; height: 100vh; max-height: 100vh; top: 0; left: 0; transform: none; border: none; border-top: 3px solid var(--accent); }
+    .utc-card { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; top: 0; left: 0; transform: none; border: none; border-top: 3px solid var(--accent); }
+    .utc-scroll { padding: 0.4rem 1rem 2.5rem; }
     .utc-hero { grid-template-columns: 1fr; }
     .utc-hero__right { text-align: left; min-width: 0; }
-    .utc-tape { grid-template-columns: repeat(3, 1fr); }
+    .utc-tape { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); }
     @keyframes utc-rise { from { opacity: 0; transform: translateY(10px); } }
 }
 
@@ -255,7 +277,17 @@
     margin-left: 0.35rem;
 }
 
-/* The picks table inside the dialog has far less room than a page. */
-.utc-card .pick-row,
-.utc-card .pick-row-head { grid-template-columns: 1fr 92px 92px 84px; }
-.utc-card .picks-event__header { padding-left: 0; padding-right: 0; }
+/* La tabla de picks dentro del diálogo: las MISMAS seis columnas, sólo un
+   poco más apretadas. El override anterior declaraba cuatro columnas para
+   seis celdas, así que RESULT y el veredicto se caían a una segunda fila.
+   Va acotado a >900px porque por debajo la fila se apila sola y este
+   selector, más específico, se lo impediría. */
+@media (min-width: 901px) {
+    .utc-card .pick-row,
+    .utc-card .pick-row-head {
+        grid-template-columns: 1fr 44px 1fr 118px 118px 104px;
+    }
+
+    .utc-card .pick-row__fighter { padding: 0.9rem 0.85rem; }
+    .utc-card .pick-row__outcome { padding-left: 0.5rem; padding-right: 0.5rem; }
+}

@@ -46,7 +46,12 @@ export function HomeMissionsSection({ eventId }: { eventId?: number }) {
 
   const id = eventId ?? 0;
   const { data: event } = useEvent(id);
-  const { data: bouts } = useEventBouts(id);
+  const {
+    data: bouts,
+    isError: cardFailed,
+    error: cardError,
+    refetch: refetchCard,
+  } = useEventBouts(id);
   // Shares the cache the picks pages already fill. A mission that writes picks
   // must know which bouts the user has already decided, or it asks them to
   // choose a method they chose days ago.
@@ -84,6 +89,24 @@ export function HomeMissionsSection({ eventId }: { eventId?: number }) {
   if (!mounted) return <MissionsLoadingState />;
   if (!signedIn) return <MissionsLoggedOutState />;
   if (id <= 0) return <MissionsUnavailableState />;
+
+  // El bloque no puede pedir misiones sin la cartelera, así que la consulta de
+  // misiones queda deshabilitada mientras `bouts` sea undefined. Si esa
+  // petición FALLA, undefined es para siempre: la sección se quedaba en
+  // esqueleto sin decir nunca que algo reventó ni dar forma de reintentar.
+  if (cardFailed) {
+    return (
+      <MissionsErrorState
+        message={
+          cardError instanceof Error
+            ? cardError.message
+            : 'The card for this event could not be loaded.'
+        }
+        onRetry={() => void refetchCard()}
+      />
+    );
+  }
+
   if (!cardReady || missions.isPending) return <MissionsLoadingState />;
 
   if (missions.isError) {

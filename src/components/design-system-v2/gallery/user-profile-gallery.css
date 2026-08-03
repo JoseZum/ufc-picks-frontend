@@ -1,6 +1,12 @@
 /* Local design gallery for the public profile. Every colour and font here is a
    V2 token — the variants are layout proposals, not a new visual language. */
 
+/* The V2 palette ships with v2-theme.css, and only V2Layout pulls it in. This
+   page does not use V2Layout, so on a cold load the tokens resolved against
+   index.css instead, where --accent and --success are HSL triplets rather than
+   colours: every red and green came out transparent. */
+@import '../v2-theme.css';
+
 .ug-page { padding: 2rem 1.5rem 5rem; max-width: 1280px; margin: 0 auto; }
 .ug-page__title { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: 2px; color: var(--text-primary); }
 .ug-page__sub { color: var(--text-muted); font-size: 0.78rem; letter-spacing: 1px; max-width: 60ch; }
