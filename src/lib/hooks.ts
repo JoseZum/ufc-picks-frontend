@@ -327,6 +327,23 @@ export function useUserPicks(userId: string, params?: {
 /**
  * Hook para obtener las estadísticas de picks de un usuario
  */
+/**
+ * Another user's mission standing for the profile card.
+ *
+ * `retry: false` because the two realistic failures — the missions feature is
+ * dark for this viewer, or the user has no record — both answer 404, and
+ * retrying a 404 only delays the card.
+ */
+export function useUserMissionProfile(userId: string | null) {
+  return useQuery({
+    queryKey: ['userMissionProfile', userId],
+    queryFn: () => api.getUserMissionProfile(userId as string),
+    enabled: api.isAuthenticated() && !!userId,
+    retry: false,
+    staleTime: 60 * 1000,
+  });
+}
+
 export function useUserPicksStats(userId: string, year?: number) {
   return useQuery({
     queryKey: ['userPicksStats', userId, year],

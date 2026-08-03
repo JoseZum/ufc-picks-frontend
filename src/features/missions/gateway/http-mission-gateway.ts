@@ -35,6 +35,7 @@ import type {
   MissionSelectRequest,
   CardActionRequest,
   MonthlyActionRequest,
+  MonthlySaveRequest,
   ReconciliationScopeRequest,
 } from './mission-gateway';
 import { MissionGatewayError } from './mission-gateway';
@@ -257,6 +258,25 @@ export function createHttpMissionGateway(
         const [config, templates] = await Promise.all([
           request<MonthlyConfigDTO>(
             `/admin/missions/monthly/${encodeURIComponent(monthKey)}`
+          ),
+          request<MonthlyTemplateDTO[]>('/admin/missions/monthly/templates').catch(
+            () => undefined
+          ),
+        ]);
+        return toAdminMonthly(config, templates);
+      },
+
+      async saveMonthly(req: MonthlySaveRequest) {
+        const [config, templates] = await Promise.all([
+          request<MonthlyConfigDTO>(
+            `/admin/missions/monthly/${encodeURIComponent(req.monthKey)}`,
+            {
+              method: 'PUT',
+              body: JSON.stringify({
+                mission_id: req.missionId,
+                ...(req.parameters ? { parameters: req.parameters } : {}),
+              }),
+            }
           ),
           request<MonthlyTemplateDTO[]>('/admin/missions/monthly/templates').catch(
             () => undefined

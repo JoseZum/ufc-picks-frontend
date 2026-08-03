@@ -7,8 +7,12 @@ import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useGlobalLeaderboard, useEventLeaderboard, useEvents, useCurrentUser } from '@/lib/hooks';
 import { Loader2 } from 'lucide-react';
+import { UserTapeCard } from '../UserTapeCard';
 
 export const LeaderboardPageV2 = () => {
+    // A leaderboard is a list you compare across; opening each profile as a
+    // page would mean going back for every single one.
+    const [tapeUserId, setTapeUserId] = useState<string | null>(null);
     const router = useRouter();
     const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
 
@@ -206,9 +210,10 @@ export const LeaderboardPageV2 = () => {
                                 </div>
 
                                 {restOfLeaderboard.map((entry) => (
-                                    <a 
-                                        key={entry.user_id} 
-                                        href={`/users/${entry.user_id}`} 
+                                    <button
+                                        type="button"
+                                        key={entry.user_id}
+                                        onClick={() => setTapeUserId(entry.user_id)}
                                         className="leaderboard-full__row"
                                     >
                                         <span className="leaderboard-full__rank">{formatRank(entry.rank)}</span>
@@ -224,7 +229,7 @@ export const LeaderboardPageV2 = () => {
                                         <span className="leaderboard-full__points">{entry.total_points?.toLocaleString()}</span>
                                         <span className="leaderboard-full__accuracy">{entry.picks_total ? Math.round(entry.picks_correct / entry.picks_total * 100) : 0}%</span>
                                         <span className="leaderboard-full__picks">{entry.picks_total || '-'}</span>
-                                    </a>
+                                    </button>
                                 ))}
                             </div>
                         )}
@@ -251,6 +256,7 @@ export const LeaderboardPageV2 = () => {
                 </div>
             </footer>
         <MobileNav activePage="leaderboard" />
+            <UserTapeCard userId={tapeUserId} onClose={() => setTapeUserId(null)} />
         </V2Layout>
     );
 };

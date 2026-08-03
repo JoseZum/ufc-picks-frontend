@@ -78,6 +78,12 @@ export interface MissionAdminGateway {
   getMonthlyTemplates(): Promise<MonthlyTemplateDTO[]>;
   /** DRAFT -> ACTIVE, or ACTIVE -> CLOSED. Both are idempotent server-side. */
   actOnMonthly(request: MonthlyActionRequest): Promise<AdminMonthlyVM>;
+  /**
+   * Create or edit the month's draft. Without this the panel could activate a
+   * month but never author one, so a month nobody had drafted stayed empty
+   * with no way out of the screen.
+   */
+  saveMonthly(request: MonthlySaveRequest): Promise<AdminMonthlyVM>;
   getCardControl(eventId: number): Promise<CardControlVM>;
   /** `reason` is mandatory: an action on live user state must say why. */
   actOnCard(request: CardActionRequest): Promise<CardControlVM>;
@@ -97,6 +103,13 @@ export interface CardActionRequest {
 export interface MonthlyActionRequest {
   monthKey: string;
   action: 'activate' | 'close';
+}
+
+export interface MonthlySaveRequest {
+  monthKey: string;
+  missionId: string;
+  /** Catalog parameters by key. Omitted values take the reviewed defaults. */
+  parameters?: Record<string, number>;
 }
 
 export interface ReconciliationScopeRequest {

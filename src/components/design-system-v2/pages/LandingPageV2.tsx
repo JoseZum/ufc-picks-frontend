@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
+import { UserTapeCard } from '../UserTapeCard';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
 import { useCountdown } from '../hooks/useCountdown';
@@ -124,6 +125,9 @@ const renderEventTitle = (name: string) => {
 
 export const LandingPageV2 = () => {
     const router = useRouter();
+    // Clicking a predictor opens their card here rather than navigating away:
+    // you are usually mid-scroll on Home and do not want to lose your place.
+    const [tapeUserId, setTapeUserId] = React.useState<string | null>(null);
 
     // 1. Get Next Event
     const { data: eventsData, isLoading: eventsLoading } = useEvents({
@@ -297,7 +301,7 @@ export const LandingPageV2 = () => {
                                 <tr
                                     key={user.user_id}
                                     className={`leaderboard__row ${index === 0 ? 'leaderboard__row--highlight' : ''}`}
-                                    onClick={() => router.push(`/users/${user.user_id}`)}
+                                    onClick={() => setTapeUserId(user.user_id)}
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <td className={`leaderboard__cell leaderboard__rank leaderboard__rank--${index + 1}`}>
@@ -351,6 +355,7 @@ export const LandingPageV2 = () => {
                 </footer>
             </main>
             <MobileNav activePage="home" />
+            <UserTapeCard userId={tapeUserId} onClose={() => setTapeUserId(null)} />
         </V2Layout>
     );
 };

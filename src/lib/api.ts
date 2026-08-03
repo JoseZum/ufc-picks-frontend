@@ -655,6 +655,30 @@ export async function getEventBouts(eventId: number): Promise<Bout[]> {
 // PICKS ENDPOINTS
 // ============================================
 
+/** `GET /missions/users/{id}` — the public subset of a mission profile. */
+export interface UserMissionProfile {
+  user_id: string;
+  lifetime_xp: number;
+  level: number;
+  title: string;
+  xp_into_level: number;
+  xp_for_next_level: number;
+  level_progress_pct: number;
+  current_streak: number;
+  best_streak: number;
+  missions_completed: number;
+  missions_settled: number;
+  recent: Array<{
+    assignment_id: string;
+    mission_id: string;
+    name: string;
+    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+    xp: number;
+    xp_earned: number;
+    event_label?: string | null;
+  }>;
+}
+
 export interface Pick {
   id: string;
   user_id: string;
@@ -932,6 +956,13 @@ export async function getUserProfile(userId: string): Promise<PublicUserProfile>
   return apiRequest<PublicUserProfile>(`/users/${userId}`);
 }
 
+/** Another user's level, title, XP and finished missions. */
+export async function getUserMissionProfile(
+  userId: string
+): Promise<UserMissionProfile> {
+  return apiRequest<UserMissionProfile>(`/missions/users/${userId}`);
+}
+
 /**
  * Obtiene los picks de un usuario (solo picks locked/públicos)
  */
@@ -1008,6 +1039,7 @@ const api = {
 
   // Public User Profiles
   getUserProfile,
+  getUserMissionProfile,
   getUserPicks,
   getUserPicksStats,
 };
