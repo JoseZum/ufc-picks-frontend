@@ -62,8 +62,13 @@ const EventVsCard = ({ bout, label, eventId }: { bout: Bout; label: string; even
                         <div className="split__info">
                         <span className="split__tag">Red Corner</span>
                         <div className="split__name">
-                            {/* línea de apodo siempre presente para alinear ambos nombres */}
-                            <small className="split__nick">{red.nickname ? `"${red.nickname}"` : ' '}</small>
+                            {/* Sin apodo la linea no se reserva: el nombre
+                                sube a ocupar ese sitio y conserva el mismo aire
+                                desde la etiqueta (margin-bottom de `.split__tag`),
+                                en vez de dejar un hueco vacio encima. */}
+                            {red.nickname ? (
+                                <small className="split__nick">{`"${red.nickname}"`}</small>
+                            ) : null}
                             {splitFighterName(redName)}
                         </div>
                         <div className="split__record">{formatRecord(red)}</div>
@@ -85,7 +90,9 @@ const EventVsCard = ({ bout, label, eventId }: { bout: Bout; label: string; even
                         <div className="split__info">
                         <span className="split__tag">Blue Corner</span>
                         <div className="split__name">
-                            <small className="split__nick">{blue.nickname ? `"${blue.nickname}"` : ' '}</small>
+                            {blue.nickname ? (
+                                <small className="split__nick">{`"${blue.nickname}"`}</small>
+                            ) : null}
                             {splitFighterName(blueName)}
                         </div>
                         <div className="split__record">{formatRecord(blue)}</div>

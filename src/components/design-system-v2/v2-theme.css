@@ -6810,8 +6810,9 @@
     letter-spacing: 2px;
 }
 
-/* Línea de apodo SIEMPRE reservada (aunque no haya apodo) para que ambos
-   nombres queden al mismo nivel, con aire para tildes/diacríticos */
+/* Sólo se pinta cuando hay apodo. Antes se reservaba siempre para que los dos
+   nombres quedaran al mismo nivel, pero eso dejaba un hueco muerto sobre quien
+   no tiene apodo; sin apodo el nombre ocupa esa posición directamente. */
 .split__nick {
     display: block;
     font-size: 0.34em;
