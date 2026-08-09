@@ -153,7 +153,7 @@ function MissionBrief({ text }: { text?: string }) {
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
-        {open ? 'HIDE BRIEF' : "WHAT'S THIS?"}
+        {open ? 'HIDE BRIEF' : "DESCRIPTION"}
       </button>
       {open ? <p className="ml-mission__brief">{text}</p> : null}
     </>
