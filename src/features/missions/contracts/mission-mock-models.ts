@@ -223,6 +223,12 @@ export interface SelectionPartVM {
   /** Role or leg label, e.g. "Banker", "KO", "Your lane". */
   label?: string;
   value: string;
+  /**
+   * Qualifier that rides along with the value and reads quieter than it, e.g.
+   * the `KO/TKO` in "MANOEL SOUSA KO/TKO". Kept separate from `value` so the
+   * surface can de-emphasise it instead of shouting the whole leg.
+   */
+  detail?: string;
 }
 
 /**
@@ -253,6 +259,12 @@ export interface MissionCompareVM {
 export interface ActiveMissionVM {
   missionId: string;
   name: string;
+  /**
+   * The catalog line explaining what the mission asks for. Shown on demand:
+   * once a mission is active its name alone ("THREE STRIKES") does not remind
+   * anyone what they signed up for.
+   */
+  description?: string;
   interaction: MissionInteractionType;
   difficulty: MissionDifficulty;
   xp: number;

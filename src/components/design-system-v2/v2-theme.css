@@ -3354,6 +3354,19 @@
     transition: all 0.1s;
     text-decoration: none;
     color: inherit;
+    /* This row is a <button>, and a button shrink-to-fits its content instead
+       of filling its parent: without these the grid was as wide as whatever
+       name it held, so every row ended at a different place and no column
+       lined up with the header. */
+    width: 100%;
+    box-sizing: border-box;
+    background: none;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
 }
 
 .leaderboard-full__row:hover {
@@ -5225,12 +5238,17 @@
     position: relative;
 }
 
+/* Each side closes with its own colour and the divider closes in neutral, so
+   the arena reads as one sealed box instead of two panels hanging open at the
+   bottom. The bottom rule matches the side rule in weight on purpose. */
 .fighter-card--red {
     border-left: var(--border-thick) solid var(--fighter-red);
+    border-bottom: var(--border-thick) solid var(--fighter-red);
 }
 
 .fighter-card--blue {
     border-right: var(--border-thick) solid var(--fighter-blue);
+    border-bottom: var(--border-thick) solid var(--fighter-blue);
 }
 
 .fighter-card:hover {
@@ -5533,6 +5551,7 @@
     padding: 2rem 1.5rem;
     border-left: 1px solid var(--border);
     border-right: 1px solid var(--border);
+    border-bottom: var(--border-thick) solid var(--border-strong);
     gap: 2rem;
 }
 

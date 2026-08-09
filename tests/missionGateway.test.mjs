@@ -223,7 +223,7 @@ const PICK_EFFECTS = new Set(['NONE', 'UPSERT_ONE', 'UPSERT_MANY']);
  * recompute progress and this fails.
  */
 const MISSION_KEYS = new Set([
-  'missionId', 'name', 'interaction', 'difficulty', 'xp',
+  'missionId', 'name', 'description', 'interaction', 'difficulty', 'xp',
   'selectionSummary', 'selection', 'targetBoutId', 'targetCorner', 'targetFighter',
   'progressText', 'progress', 'progressCompare', 'progressPct',
   'status', 'voidReason', 'earnedXp',
@@ -531,6 +531,36 @@ test('[http] a selection summary is never split into parts', () => {
 
   assert.equal(mission.selectionSummary, 'KO Rakic · SUB Klein · DEC Elliott');
   assert.equal(mission.selection, undefined, 'splitting a combo sentence produces garbage');
+});
+
+test('[http] selection parts are used when the backend sends them', () => {
+  const mission = toActiveMission({
+    ...PAYLOADS.select_201,
+    selection_summary: 'Manoel Sousa KO/TKO · Alexia Thainara Decision',
+    selection_parts: [
+      { value: 'Manoel Sousa', detail: 'KO/TKO' },
+      { value: 'Alexia Thainara', detail: 'Decision' },
+    ],
+  });
+
+  assert.equal(mission.selection?.length, 2, 'each leg must arrive as its own part');
+  assert.equal(mission.selection[0].value, 'Manoel Sousa');
+  assert.equal(
+    mission.selection[0].detail,
+    'KO/TKO',
+    'the method must arrive spelled for display, never as the KO_TKO enum'
+  );
+  assert.equal(mission.selection[0].label, undefined, 'an absent label is not invented');
+});
+
+test('[http] the mission carries its catalog description', () => {
+  const mission = toActiveMission(PAYLOADS.select_201);
+
+  assert.equal(
+    typeof mission.description,
+    'string',
+    'an active mission must still be able to explain itself'
+  );
 });
 
 test('[http] pick_effect is carried independently of interaction', () => {

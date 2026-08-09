@@ -161,6 +161,7 @@ export function createMockMissionGateway(scenarioId: string): MissionLabGateway 
       const mission: ActiveMissionVM = {
         missionId: offer.missionId,
         name: offer.name,
+        description: offer.description,
         interaction: offer.interaction,
         difficulty: offer.difficulty,
         xp: offer.xp,

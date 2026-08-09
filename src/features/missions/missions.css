@@ -649,6 +649,47 @@
     margin: 0 0.15rem;
 }
 
+/* The method qualifier: same line as the fighter, deliberately quieter — it
+   describes the choice, it is not the choice. */
+.ml-mission__pick-detail {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-left: 0.35rem;
+}
+
+.ml-mission__brief-toggle {
+    display: inline-block;
+    margin-top: 0.4rem;
+    padding: 0;
+    background: none;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.ml-mission__brief-toggle:hover,
+.ml-mission__brief-toggle:focus-visible {
+    color: var(--text-secondary);
+}
+
+.ml-mission__brief {
+    margin: 0.4rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    max-width: 46ch;
+}
+
 .ml-mission__void-reason {
     font-size: 0.7rem;
     color: var(--text-muted);

@@ -123,9 +123,40 @@ function SelectionLine({ mission }: { mission: ActiveMissionVM }) {
           {i > 0 ? <span className="ml-mission__pick-sep"> · </span> : null}
           {part.label ? <span className="ml-mission__pick-label">{part.label}</span> : null}
           <span className="ml-mission__pick">{part.value}</span>
+          {/* The qualifier rides at the value's side, deliberately quieter:
+              the fighter is the choice, the method only describes it. */}
+          {part.detail ? <span className="ml-mission__pick-detail">{part.detail}</span> : null}
         </React.Fragment>
       ))}
     </span>
+  );
+}
+
+/**
+ * The catalog line, revealed on demand.
+ *
+ * A mission is chosen once and then lives on the card for the rest of the
+ * night, and by then "THREE STRIKES" no longer tells anyone what they signed
+ * up for. It stays collapsed so the card keeps its shape, and it is a real
+ * `<button>` with `aria-expanded` so it works from the keyboard. The same
+ * component is used by Home, your own history and someone else's profile —
+ * whoever is reading needs the rules just as much.
+ */
+function MissionBrief({ text }: { text?: string }) {
+  const [open, setOpen] = React.useState(false);
+  if (!text) return null;
+  return (
+    <>
+      <button
+        type="button"
+        className="ml-mission__brief-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? 'HIDE BRIEF' : "WHAT'S THIS?"}
+      </button>
+      {open ? <p className="ml-mission__brief">{text}</p> : null}
+    </>
   );
 }
 
@@ -150,6 +181,7 @@ export function MissionCard({ mission }: { mission: ActiveMissionVM }) {
           <span className="ml-mission__name">{mission.name}</span>
           <StatusBadge status={mission.status} />
           <SelectionLine mission={mission} />
+          <MissionBrief text={mission.description} />
         </div>
       </div>
 

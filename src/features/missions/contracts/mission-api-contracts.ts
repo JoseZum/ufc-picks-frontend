@@ -243,12 +243,25 @@ export interface SelectedMissionDTO {
   progress_percent: number;
   selection_summary?: string | null;
   /**
+   * The same choice already split into styleable pieces, so a combo renders one
+   * part per leg instead of a single run-on line. The backend also spells the
+   * method for display here (`KO/TKO`, not the `KO_TKO` enum).
+   */
+  selection_parts?: SelectionPartDTO[] | null;
+  /**
    * The resolved selection the backend persisted. Free-form on purpose: it is
    * a domain document, not a view model. The mapper reads only the identifiers
    * it needs to resolve a fighter portrait and never re-derives progress.
    */
   selection?: ResolvedSelectionDTO | null;
   void_reason?: string | null;
+}
+
+/** One styleable piece of a selection: `MANOEL SOUSA` + `KO/TKO`. */
+export interface SelectionPartDTO {
+  label?: string | null;
+  value: string;
+  detail?: string | null;
 }
 
 /** The parts of a persisted selection the mapper is allowed to look at. */

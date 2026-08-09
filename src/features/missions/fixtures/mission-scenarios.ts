@@ -247,6 +247,7 @@ export const SLOT_3_OFFERS: MissionOffer[] = [
 export const ACTIVE_BANKER: ActiveMissionVM = {
   missionId: 'CARD-V2-E-001',
   name: 'BANKER LOCK',
+  description: 'Pick one fighter you are sure about. They must win, any method.',
   interaction: 'TARGET_FIGHTER',
   difficulty: 'EASY',
   xp: 1,
@@ -262,14 +263,18 @@ export const ACTIVE_BANKER: ActiveMissionVM = {
 export const ACTIVE_COMBO_PARTIAL: ActiveMissionVM = {
   missionId: 'CARD-V2-H-007',
   name: 'METHOD CYCLE',
+  description:
+    'Win one fight by KO/TKO, one by submission and one by decision — one leg of each.',
   interaction: 'COMBO_BUILDER',
   difficulty: 'HARD',
   xp: 8,
-  selectionSummary: 'KO: Rakic · SUB: Klein · DEC: Elliott',
+  // Shaped like the wire: the fighter is the choice and the method rides along
+  // as a quieter qualifier, already spelled for display.
+  selectionSummary: 'Rakic KO/TKO · Klein Submission · Elliott Decision',
   selection: [
-    { label: 'KO', value: 'Rakic' },
-    { label: 'SUB', value: 'Klein' },
-    { label: 'DEC', value: 'Elliott' },
+    { value: 'Rakic', detail: 'KO/TKO' },
+    { value: 'Klein', detail: 'Submission' },
+    { value: 'Elliott', detail: 'Decision' },
   ],
   targetBoutId: 1139708,
   targetCorner: 'red',
@@ -282,6 +287,7 @@ export const ACTIVE_COMBO_PARTIAL: ActiveMissionVM = {
 export const SETTLED_COMPLETED: ActiveMissionVM = {
   missionId: 'CARD-V2-E-006',
   name: 'TWO ON THE BOARD',
+  description: 'Get two of your picked winners right on this card.',
   interaction: 'AUTO',
   difficulty: 'EASY',
   xp: 1,
@@ -295,6 +301,7 @@ export const SETTLED_COMPLETED: ActiveMissionVM = {
 export const SETTLED_FAILED: ActiveMissionVM = {
   missionId: 'CARD-V2-M-004',
   name: 'FIRST-ROUND FIRE',
+  description: 'Your chosen fighter must win by KO/TKO in round one.',
   interaction: 'TARGET_FIGHT',
   difficulty: 'MEDIUM',
   xp: 3,
@@ -310,6 +317,7 @@ export const SETTLED_FAILED: ActiveMissionVM = {
 export const SETTLED_VOID: ActiveMissionVM = {
   missionId: 'CARD-V2-M-002',
   name: 'KO LOCK',
+  description: 'Your chosen fighter must win by KO/TKO, any round.',
   interaction: 'TARGET_FIGHTER',
   difficulty: 'MEDIUM',
   xp: 3,

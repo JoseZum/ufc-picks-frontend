@@ -34,8 +34,8 @@
  *  3. Split progress (`current`/`total`/`unit`) and comparison progress are not
  *     on the wire, so the meter renders the sentence form only. Parsing
  *     `progress_text` would be domain logic in React and is not done.
- *  4. Split selection parts are not on the wire. A combo therefore renders as
- *     one summary line instead of one styled part per leg.
+ *  4. CLOSED: `selection_parts` now ships, so a combo renders one styled part
+ *     per leg and the method arrives already spelled for display.
  *  5. CARD_PROP `displayed_target` does not exist. The definition carries
  *     `target_source` and `frozen_ratio` (raw domain inputs); resolving a
  *     displayed line from them would be exactly the recomputation this
@@ -446,10 +446,18 @@ export function toActiveMission(
   return {
     missionId: dto.mission_id,
     name: dto.name,
+    description: dto.description,
     interaction: dto.interaction,
     difficulty: dto.difficulty,
     xp: dto.xp,
     selectionSummary: dto.selection_summary ?? undefined,
+    selection: dto.selection_parts?.length
+      ? dto.selection_parts.map((part) => ({
+          ...(part.label ? { label: part.label } : {}),
+          value: part.value,
+          ...(part.detail ? { detail: part.detail } : {}),
+        }))
+      : undefined,
     targetBoutId: boutId,
     targetCorner: corner,
     targetFighter: bout ? (corner === 'blue' ? bout.blue : bout.red) : undefined,
