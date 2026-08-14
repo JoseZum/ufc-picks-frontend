@@ -36,12 +36,12 @@
  *     `progress_text` would be domain logic in React and is not done.
  *  4. CLOSED: `selection_parts` now ships, so a combo renders one styled part
  *     per leg and the method arrives already spelled for display.
- *  5. CARD_PROP `displayed_target` does not exist. The definition carries
- *     `target_source` and `frozen_ratio` (raw domain inputs); resolving a
- *     displayed line from them would be exactly the recomputation this
- *     boundary exists to prevent, so no target is shown over HTTP.
- *  6. `count_unit` for the exact-count stepper is not on the wire; the picker
- *     falls back to its neutral noun.
+ *  5. CLOSED: `displayed_target` now ships resolved. It used to be absent, so
+ *     "DISPLAYED FINISH LINE" reached the drawer with no line to display; the
+ *     server resolves it from the same denominator selection freezes, which
+ *     keeps the arithmetic out of React and off the wire as raw inputs.
+ *  6. CLOSED: `count_unit` ships too, so the exact-count stepper names what it
+ *     counts instead of falling back to its neutral noun.
  *
  * (7) is closed: celebrations now carry a typed `metadata` payload beside the
  * display copy, so the `CelebrationVM` union is built from it.
@@ -399,7 +399,10 @@ export function toMissionOffer(dto: MissionOfferDTO): MissionOffer {
               : 'exact-count',
         choices: spec.choices?.length ? spec.choices : undefined,
         maxCount: spec.max_count ?? undefined,
-        // GAP 5 and 6: no displayed target and no count unit exist on the wire.
+        // Both resolved server-side against the same denominator selection
+        // freezes, so the drawer shows the number that will actually be stored.
+        displayedTarget: spec.displayed_target ?? undefined,
+        countUnit: spec.count_unit ?? undefined,
       };
     }
 

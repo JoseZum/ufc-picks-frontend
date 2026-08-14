@@ -163,6 +163,14 @@ export interface CardPropSelectionSpecWire {
   max_count: number | null;
   target_source: CardPropTargetSourceWire;
   frozen_ratio: number | null;
+  /**
+   * The line a ratio-based prop is asking the user to beat, already resolved
+   * against the card. Absent for props whose target is static — their
+   * description states the number outright.
+   */
+  displayed_target?: number | null;
+  /** What an exact-count stepper is counting, e.g. `FINISHES`. */
+  count_unit?: string | null;
 }
 
 // ---------------------------------------------------------------------------
