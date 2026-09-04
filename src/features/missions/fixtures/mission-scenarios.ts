@@ -592,6 +592,35 @@ export const ADMIN_SCENARIOS: Record<string, AdminMissionsVM> = {
       monthLabel: 'SEPTEMBER 2026',
       templateName: 'MONTHLY SHARPSHOOTER',
       templateId: 'MONTH-V2-004',
+      templates: [
+        {
+          id: 'MONTH-V2-004',
+          name: 'MONTHLY SHARPSHOOTER',
+          params: [
+            {
+              key: 'accuracy_target_pct',
+              label: 'Accuracy target %',
+              value: 65,
+              min: 50,
+              max: 90,
+            },
+          ],
+        },
+        {
+          id: 'MONTH-V2-001',
+          name: 'WIN TARGET',
+          params: [
+            { key: 'winner_target', label: 'Winner target', value: 15, min: 5, max: 40 },
+          ],
+        },
+        {
+          id: 'MONTH-V3-008',
+          name: 'POINT TARGET',
+          params: [
+            { key: 'point_target', label: 'Point target', value: 60, min: 20, max: 150 },
+          ],
+        },
+      ],
       params: [{ key: 'accuracy_target_pct', label: 'Accuracy target %', value: 65 }],
       validationNote: 'Editable until September starts.',
     },

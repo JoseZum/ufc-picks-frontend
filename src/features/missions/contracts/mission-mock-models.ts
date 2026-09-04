@@ -388,6 +388,14 @@ export interface ProfileMissionHubVM {
 
 export type MonthlyConfigState = 'DRAFT' | 'ACTIVE' | 'CLOSED';
 
+export interface AdminMonthlyParameterVM {
+  key: string;
+  label: string;
+  value: number;
+  min?: number;
+  max?: number;
+}
+
 export interface AdminMonthlyVM {
   state: MonthlyConfigState;
   monthLabel: string;
@@ -395,15 +403,13 @@ export interface AdminMonthlyVM {
   templateId: string;
   /** Editable parameters with catalog defaults, e.g. winner_target=15. The
    *  bounds are the reviewed ones; the input enforces nothing the API does not. */
-  params: Array<{
-    key: string;
-    label: string;
-    value: number;
-    min?: number;
-    max?: number;
+  params: AdminMonthlyParameterVM[];
+  /** Every template Admin may pick, including its own parameter contract. */
+  templates?: Array<{
+    id: string;
+    name: string;
+    params: AdminMonthlyParameterVM[];
   }>;
-  /** Every template Admin may pick for a month that is still editable. */
-  templates?: Array<{ id: string; name: string }>;
   validationNote?: string;
 }
 

@@ -136,6 +136,13 @@ export function AdminMissionPanelContainer({
             templates: templates?.map((template) => ({
               id: template.mission_id,
               name: template.name,
+              params: template.parameters.map((parameter) => ({
+                key: parameter.key,
+                label: parameter.label,
+                value: parameter.default,
+                ...(parameter.minimum != null ? { min: parameter.minimum } : {}),
+                ...(parameter.maximum != null ? { max: parameter.maximum } : {}),
+              })),
             })),
             params: (templates?.[0]?.parameters ?? []).map((parameter) => ({
               key: parameter.key,

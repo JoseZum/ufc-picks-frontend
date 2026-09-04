@@ -74,7 +74,16 @@ const TEMPLATES = [
     description: '',
     xp: 15,
     compatibility: 'V1_READY',
-    parameters: [],
+    parameters: [
+      {
+        key: 'accuracy_target_pct',
+        label: 'Winner accuracy required',
+        kind: 'PERCENT',
+        default: 65,
+        minimum: 50,
+        maximum: 90,
+      },
+    ],
   },
 ];
 
@@ -93,9 +102,43 @@ test('the month renders its real name, state and parameters', () => {
 test('every template is offered, so a month is not stuck on one option', () => {
   const vm = toAdminMonthly(PAYLOAD, TEMPLATES);
   assert.deepEqual(vm.templates, [
-    { id: 'MONTH-V2-001', name: 'WIN TARGET' },
-    { id: 'MONTH-V2-002', name: 'ACCURACY TARGET' },
+    {
+      id: 'MONTH-V2-001',
+      name: 'WIN TARGET',
+      params: [
+        { key: 'winner_target', label: 'Winners required', value: 15, min: 5, max: 60 },
+      ],
+    },
+    {
+      id: 'MONTH-V2-002',
+      name: 'ACCURACY TARGET',
+      params: [
+        {
+          key: 'accuracy_target_pct',
+          label: 'Winner accuracy required',
+          value: 65,
+          min: 50,
+          max: 90,
+        },
+      ],
+    },
   ]);
+});
+
+test('each selectable template carries its own metric and default', () => {
+  const vm = toAdminMonthly(PAYLOAD, TEMPLATES);
+  const accuracy = vm.templates.find((template) => template.id === 'MONTH-V2-002');
+
+  assert.deepEqual(accuracy.params, [
+    {
+      key: 'accuracy_target_pct',
+      label: 'Winner accuracy required',
+      value: 65,
+      min: 50,
+      max: 90,
+    },
+  ]);
+  assert.notEqual(accuracy.params[0].key, vm.params[0].key);
 });
 
 test('without templates the value is still right, only the label is poorer', () => {

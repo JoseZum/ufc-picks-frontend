@@ -801,22 +801,41 @@ export function toAdminMonthly(
       (parameter) => [parameter.key, parameter] as const
     )
   );
+  const templateViews = templates?.map((template) => ({
+    id: template.mission_id,
+    name: template.name,
+    params: template.parameters.map((parameter) => ({
+      key: parameter.key,
+      label: parameter.label,
+      value:
+        template.mission_id === dto.mission_id &&
+        Object.prototype.hasOwnProperty.call(dto.parameters ?? {}, parameter.key)
+          ? Number(dto.parameters?.[parameter.key])
+          : parameter.default,
+      ...(parameter.minimum != null ? { min: parameter.minimum } : {}),
+      ...(parameter.maximum != null ? { max: parameter.maximum } : {}),
+    })),
+  }));
+  const selectedTemplate = templateViews?.find((template) => template.id === dto.mission_id);
+
   return {
     state: dto.state,
     monthLabel: monthLabelFromKey(dto.month_key) ?? dto.month_key,
     templateName: dto.name,
     templateId: dto.mission_id,
-    templates: templates?.map((t) => ({ id: t.mission_id, name: t.name })),
-    params: Object.entries(dto.parameters ?? {}).map(([key, value]) => {
-      const parameter = spec.get(key);
-      return {
-        key,
-        label: parameter?.label ?? key.replace(/_/g, ' '),
-        value: Number(value),
-        ...(parameter?.minimum != null ? { min: parameter.minimum } : {}),
-        ...(parameter?.maximum != null ? { max: parameter.maximum } : {}),
-      };
-    }),
+    templates: templateViews,
+    params:
+      selectedTemplate?.params ??
+      Object.entries(dto.parameters ?? {}).map(([key, value]) => {
+        const parameter = spec.get(key);
+        return {
+          key,
+          label: parameter?.label ?? key.replace(/_/g, ' '),
+          value: Number(value),
+          ...(parameter?.minimum != null ? { min: parameter.minimum } : {}),
+          ...(parameter?.maximum != null ? { max: parameter.maximum } : {}),
+        };
+      }),
     // The backend owns editability: a month freezes once it starts or once a
     // user has made progress in it. The panel only renders the verdict.
     validationNote: dto.editable

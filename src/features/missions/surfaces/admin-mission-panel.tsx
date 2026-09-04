@@ -88,6 +88,10 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
   };
 
   const editable = state.monthly.state === 'DRAFT';
+  const selectedTemplate = state.monthly.templates?.find(
+    (template) => template.id === draftTemplate
+  );
+  const visibleParams = selectedTemplate?.params ?? state.monthly.params;
   const changes = state.reconciliationPreview.filter((r) => r.action !== 'no-change').length;
 
   return (
@@ -117,8 +121,16 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
               onChange={(event) => {
                 // A different template has different parameters; keeping the
                 // old numbers would submit values the new one never declared.
-                setDraftTemplate(event.target.value);
-                setDraftParams({});
+                const nextTemplateId = event.target.value;
+                const nextTemplate = state.monthly.templates?.find(
+                  (template) => template.id === nextTemplateId
+                );
+                setDraftTemplate(nextTemplateId);
+                setDraftParams(
+                  Object.fromEntries(
+                    (nextTemplate?.params ?? []).map((param) => [param.key, param.value])
+                  )
+                );
               }}
               style={{
                 background: 'var(--bg-elevated)',
@@ -131,7 +143,11 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
             >
               {(
                 state.monthly.templates ?? [
-                  { id: state.monthly.templateId, name: state.monthly.templateName },
+                  {
+                    id: state.monthly.templateId,
+                    name: state.monthly.templateName,
+                    params: state.monthly.params,
+                  },
                 ]
               ).map((template) => (
                 <option value={template.id} key={template.id}>
@@ -141,7 +157,7 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
             </select>
           </div>
 
-          {state.monthly.params.map((param) => (
+          {visibleParams.map((param) => (
             <div className="ml-param-row" key={param.key}>
               <label htmlFor={`ml-param-${param.key}`}>{param.label}</label>
               <input
