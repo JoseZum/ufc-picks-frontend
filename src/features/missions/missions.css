@@ -1191,6 +1191,11 @@
 
 /* ---------- History: scannable rows, not a grid of gray mono text ---------- */
 
+.ml-history-section {
+    margin-top: 1.5rem;
+    container-type: inline-size;
+}
+
 .ml-history {
     border: 1px solid var(--border-strong);
     background: var(--bg-panel);
@@ -1201,16 +1206,36 @@
    mission, on which card, for how much XP. Difficulty and result are the two
    things you scan, so both are solid blocks instead of coloured text. */
 .ml-history__row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 34px 110px minmax(0, 1fr) minmax(0, 0.7fr) 60px;
     align-items: center;
     gap: 1rem;
     padding: 0.6rem 0.4rem;
-    border-bottom: 1px solid var(--border-strong);
+    cursor: pointer;
+    list-style: none;
     transition: background 0.12s;
 }
 
-.ml-history__row:last-child { border-bottom: none; }
+.ml-history__row::-webkit-details-marker { display: none; }
+.ml-history__row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ml-history__entry { border-bottom: 1px solid var(--border-strong); }
+.ml-history__entry:last-child { border-bottom: none; }
 .ml-history__row:hover { background: var(--bg-elevated); }
+
+.ml-history__chevron { flex: none; color: var(--text-secondary); }
+.ml-history__entry[open] .ml-history__chevron { transform: rotate(180deg); }
+.ml-history__detail {
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+.ml-history__detail p { margin: 0; }
 
 /* Difficulty tile: E / M / H in the vivid tier colours. The letter flips to
    near-black on the light fills (green, gold) so it never washes out. */
@@ -1241,11 +1266,15 @@
 .ml-history__tier--monthly { background: var(--fighter-blue); }
 
 .ml-history__status {
-    width: 132px;
+    min-width: 0;
     flex: none;
 }
 
 .ml-history__name {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    overflow-wrap: anywhere;
     flex: 1;
     min-width: 0;
     font-family: 'Bebas Neue', sans-serif;
@@ -1267,7 +1296,7 @@
 }
 
 .ml-history__xp {
-    width: 74px;
+    min-width: 0;
     text-align: right;
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.8rem;
@@ -1291,10 +1320,19 @@
     font-size: 1.4rem;
 }
 
-/* Narrow screens drop the event column rather than squeezing every field. */
-@media (max-width: 720px) {
-    .ml-history__event { display: none; }
-    .ml-history__status { width: auto; }
+/* Also responds to the profile dialog's width, independently of the viewport. */
+@container (max-width: 620px) {
+    .ml-history__row {
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        grid-template-areas: 'tier status xp' 'name name name' 'event event event';
+        gap: 0.6rem;
+        padding: 0.8rem;
+    }
+    .ml-history__tier { grid-area: tier; width: 28px; height: 28px; }
+    .ml-history__status { grid-area: status; }
+    .ml-history__name { grid-area: name; }
+    .ml-history__event { grid-area: event; text-align: left; max-width: none; }
+    .ml-history__xp { grid-area: xp; }
 }
 
 .ml-history__empty {

@@ -21,6 +21,9 @@ import {
 } from '@/lib/hooks';
 import { getEventPosterUrl } from '@/lib/api';
 import { EventPicksSection } from './EventPicksSection';
+import { MissionHistory } from '@/features/missions/components/mission-history';
+import { toHistoryRow } from '@/features/missions/gateway/mission-api-mappers';
+import type { HistoryRowVM } from '@/features/missions/contracts/mission-mock-models';
 import './user-tape-card.css';
 
 export interface UserTapeProfileProps {
@@ -153,21 +156,13 @@ export function UserTapeProfile({ userId, renderName }: UserTapeProfileProps) {
         ) : null}
       </div>
 
-      {missions && missions.recent.length > 0 ? (
-        <>
-          <h4 className="utc-h">MISSIONS COMPLETED</h4>
-          <div className="utc-chips">
-            {missions.recent.map((mission) => (
-              <span
-                className={`utc-chip utc-chip--${mission.difficulty.toLowerCase()}`}
-                key={mission.assignment_id}
-              >
-                {mission.name}
-                <b>+{mission.xp_earned}</b>
-              </span>
-            ))}
-          </div>
-        </>
+      {missions ? (
+        <MissionHistory
+          key={userId}
+          history={(missions.history ?? missions.recent)
+            .map(toHistoryRow)
+            .filter((row): row is HistoryRowVM => row !== null)}
+        />
       ) : null}
 
       <h4 className="utc-h">

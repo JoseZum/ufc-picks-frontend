@@ -354,7 +354,9 @@ export interface LevelVM {
 }
 
 export interface HistoryRowVM {
+  assignmentId?: string;
   missionName: string;
+  description?: string;
   eventLabel: string;
   difficulty: MissionDifficulty | 'MONTHLY';
   status: 'COMPLETED' | 'FAILED' | 'VOID';

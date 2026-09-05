@@ -655,6 +655,18 @@ export async function getEventBouts(eventId: number): Promise<Bout[]> {
 // PICKS ENDPOINTS
 // ============================================
 
+export interface UserMissionHistoryEntry {
+  assignment_id: string;
+  mission_id: string;
+  name: string;
+  description: string;
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  status: 'COMPLETED' | 'FAILED' | 'VOID';
+  xp: number;
+  xp_earned: number;
+  event_label?: string | null;
+}
+
 /** `GET /missions/users/{id}` — the public subset of a mission profile. */
 export interface UserMissionProfile {
   user_id: string;
@@ -668,15 +680,9 @@ export interface UserMissionProfile {
   best_streak: number;
   missions_completed: number;
   missions_settled: number;
-  recent: Array<{
-    assignment_id: string;
-    mission_id: string;
-    name: string;
-    difficulty: 'EASY' | 'MEDIUM' | 'HARD';
-    xp: number;
-    xp_earned: number;
-    event_label?: string | null;
-  }>;
+  /** Optional during rollout against a backend that only provides recent. */
+  history?: UserMissionHistoryEntry[];
+  recent: UserMissionHistoryEntry[];
 }
 
 export interface Pick {

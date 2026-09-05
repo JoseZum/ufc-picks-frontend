@@ -558,10 +558,17 @@ export function toHomeMissions(
 
 const SETTLED: ReadonlyArray<ActiveMissionStatus> = ['COMPLETED', 'FAILED', 'VOID'];
 
-function toHistoryRow(dto: SelectedMissionDTO): HistoryRowVM | null {
+export function toHistoryRow(
+  dto: Pick<SelectedMissionDTO,
+    | 'assignment_id' | 'name' | 'description' | 'event_label'
+    | 'difficulty' | 'status' | 'xp_earned' | 'xp'
+  >
+): HistoryRowVM | null {
   if (!SETTLED.includes(dto.status)) return null;
   return {
+    assignmentId: dto.assignment_id,
     missionName: dto.name,
+    description: dto.description,
     // Resolved by the backend. Still falls back to empty rather than inventing
     // a card name when an older payload carries none.
     eventLabel: dto.event_label ?? '',

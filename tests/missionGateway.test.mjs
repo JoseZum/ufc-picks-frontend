@@ -44,6 +44,7 @@ const {
   toHomeMissions,
   toSelectionPayload,
   toProfileHub,
+  toHistoryRow,
   idempotencyKeyFor,
 } = await import('../src/features/missions/gateway/mission-api-mappers.ts');
 const { isDraftComplete } = await import(
@@ -1253,6 +1254,19 @@ test('[profile] history rows carry the card name the backend resolved', () => {
   const settled = PAYLOADS.profile.history[0];
   assert.ok(settled, 'the fixture must contain a settled assignment');
   assert.equal(hub.history[0].eventLabel, settled.event_label ?? '');
+  assert.equal(hub.history[0].assignmentId, settled.assignment_id);
+  assert.equal(hub.history[0].description, settled.description);
+});
+
+test('[profile] public history preserves every settled status and excludes active selections', () => {
+  const base = PAYLOADS.profile.history[0];
+  for (const status of ['COMPLETED', 'FAILED', 'VOID']) {
+    const row = toHistoryRow({ ...base, status, xp_earned: status === 'COMPLETED' ? 3 : 0 });
+    assert.equal(row.status, status);
+    assert.equal(row.description, base.description);
+    assert.equal(row.xp, status === 'COMPLETED' ? 3 : 0);
+  }
+  assert.equal(toHistoryRow({ ...base, status: 'ACTIVE' }), null);
 });
 
 test('[profile] the backend answers the streak history the hub needs', () => {
