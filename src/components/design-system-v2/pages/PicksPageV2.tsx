@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
@@ -113,7 +114,7 @@ export const PicksPageV2 = () => {
                 ) : !currentUser ? (
                     <div style={{ textAlign: 'center', padding: '4rem' }}>
                         <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>Please log in to see your picks</p>
-                        <a href="/auth" className="btn btn--primary">LOGIN</a>
+                        <Link href="/auth" className="btn btn--primary">LOGIN</Link>
                     </div>
                 ) : (
                     <>
@@ -198,9 +199,9 @@ export const PicksPageV2 = () => {
                                 {eventsWithPicks.length === 0 && (
                                     <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
                                         <p>No picks made yet.</p>
-                                        <a href="/events" style={{ color: 'var(--accent)', marginTop: '1rem', display: 'inline-block' }}>
+                                        <Link href="/events" style={{ color: 'var(--accent)', marginTop: '1rem', display: 'inline-block' }}>
                                             Browse Events &rarr;
-                                        </a>
+                                        </Link>
                                     </div>
                                 )}
                             </>
@@ -255,7 +256,7 @@ export const PicksPageV2 = () => {
                             ))}
 
                             {browseEvents.length === 0 && (
-                                <div className="browse-grid__empty">No events match "{browseQuery}".</div>
+                                <div className="browse-grid__empty">No events match &quot;{browseQuery}&quot;.</div>
                             )}
                         </div>
                     </div>

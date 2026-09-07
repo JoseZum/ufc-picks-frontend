@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useGoogleLogin as useGoogleOAuthLogin } from '@react-oauth/google';
@@ -32,9 +33,9 @@ export const LoginPageV2 = () => {
             <div className="login-page">
                 {/* HEADER */}
                 <header className="login-header">
-                    <a href="/" className="login-header__logo">
+                    <Link href="/" className="login-header__logo">
                         <img src="/ufcPISK.png" alt="UFC PICKS" className="login-header__logo-img" />
-                    </a>
+                    </Link>
                 </header>
 
                 {/* MAIN LOGIN CONTENT */}

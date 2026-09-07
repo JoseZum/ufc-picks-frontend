@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useMemo } from 'react';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
@@ -55,7 +56,7 @@ export const ProfilePageV2 = () => {
                 <div className="main" style={{ paddingTop: '100px', textAlign: 'center' }}>
                     <h1 style={{ marginBottom: '2rem' }}>LOGIN REQUIRED</h1>
                     <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Please log in to view your profile</p>
-                    <a href="/auth" className="btn btn--primary" style={{
+                    <Link href="/auth" className="btn btn--primary" style={{
                         display: 'inline-block',
                         padding: '1rem 2rem',
                         backgroundColor: 'var(--accent)',
@@ -64,7 +65,7 @@ export const ProfilePageV2 = () => {
                         textDecoration: 'none'
                     }}>
                         LOGIN WITH GOOGLE
-                    </a>
+                    </Link>
                 </div>
             <MobileNav activePage="profile" />
         </V2Layout>
@@ -193,7 +194,7 @@ export const ProfilePageV2 = () => {
                                 gap: '1rem',
                                 marginBottom: '2rem'
                             }}>
-                                <a href="/my-picks" style={{
+                                <Link href="/my-picks" style={{
                                     display: 'block',
                                     padding: '1.5rem',
                                     backgroundColor: 'var(--bg-light)',
@@ -204,8 +205,8 @@ export const ProfilePageV2 = () => {
                                 }}>
                                     <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>MY PICKS</div>
                                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>View all your predictions</div>
-                                </a>
-                                <a href="/events" style={{
+                                </Link>
+                                <Link href="/events" style={{
                                     display: 'block',
                                     padding: '1.5rem',
                                     backgroundColor: 'var(--bg-light)',
@@ -216,8 +217,8 @@ export const ProfilePageV2 = () => {
                                 }}>
                                     <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>EVENTS</div>
                                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Browse upcoming fights</div>
-                                </a>
-                                <a href="/leaderboards" style={{
+                                </Link>
+                                <Link href="/leaderboards" style={{
                                     display: 'block',
                                     padding: '1.5rem',
                                     backgroundColor: 'var(--bg-light)',
@@ -228,7 +229,7 @@ export const ProfilePageV2 = () => {
                                 }}>
                                     <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>LEADERBOARDS</div>
                                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>See global rankings</div>
-                                </a>
+                                </Link>
                             </div>
 
                             {/* Missions: XP, level, title, the single Card Streak, active
