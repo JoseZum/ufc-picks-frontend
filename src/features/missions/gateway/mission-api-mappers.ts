@@ -1,50 +1,25 @@
 /**
- * The only place allowed to translate mission wire payloads into the
- * presentation view models the surfaces render.
+ * Único sitio donde el payload de misiones se traduce a view models.
  *
- * Everything here is either a rename, an enum-to-copy lookup, or an object
- * assembly. There is deliberately no arithmetic, no threshold, no comparison
- * against a target and no string parsing of a backend sentence:
+ * Aquí solo hay renombrados, búsquedas de enum y armado de objetos. No hay
+ * aritmética, umbrales ni parseo de frases del backend: los textos y
+ * porcentajes de progreso viajan tal cual. React no decide si una misión está
+ * completa, es elegible o paga XP.
  *
- *  - `progress_text`  -> `progressText`   (verbatim)
- *  - `progress_percent` -> `progressPct`  (verbatim)
- *  - `selection_summary` -> `selectionSummary` (verbatim, never split)
- *  - `void_reason`    -> `voidReason`     (verbatim)
- *  - `xp` / `xp_earned` -> `xp` / `earnedXp` (verbatim)
+ * `selection_spec` es la excepción: llega como snapshot del dominio, no con
+ * forma de UI, así que los inputs del picker se derivan de él. Derivar no es
+ * calcular.
  *
- * `selection_spec` is the one place that needs real work. The backend sends a
- * RAW DOMAIN SNAPSHOT of the mission definition, not a UI-shaped object, so the
- * picker inputs are DERIVED here, `requiresMethod` from the presence of
- * `METHOD` in `bound_pick_fields`, method spellings from the backend enum, leg
- * keys straight off the definition. Deriving is not computing: nothing below
- * decides whether a mission is complete, eligible or rewarded.
+ * Dos trampas del wire que ya nos mordieron:
+ *  - `bound_pick_fields` y `allowed_methods` son `frozenset` de pydantic y su
+ *    orden en JSON no es determinista. Todo lo que sale de ahí se consulta por
+ *    pertenencia o se ordena, para que el mismo payload se vea siempre igual.
+ *  - Los slots del wire empiezan en 1. Aquí no se reindexan.
  *
- * Two properties of the wire that bit us before and are handled explicitly:
- *
- *  - `bound_pick_fields` and `allowed_methods` are pydantic `frozenset`s. Their
- *    JSON array order is NON-DETERMINISTIC between processes. Everything read
- *    off them is membership-tested or sorted into a canonical order, so the
- *    same payload always renders the same way.
- *  - Slots are ONE-BASED on the wire (`slot: 1|2|3`). No re-basing happens here.
- *
- * GAPS against the current contract (report, do not paper over):
- *  1. `ONE_TO_GO`, the UI has a "1 to go" state; the API only reports
- *     ACTIVE/COMPLETED/FAILED/VOID, so it can never be produced over HTTP.
- *  2. `near-completion` monthly, same reason.
- *  3. Split progress (`current`/`total`/`unit`) and comparison progress are not
- *     on the wire, so the meter renders the sentence form only. Parsing
- *     `progress_text` would be domain logic in React and is not done.
- *  4. CLOSED: `selection_parts` now ships, so a combo renders one styled part
- *     per leg and the method arrives already spelled for display.
- *  5. CLOSED: `displayed_target` now ships resolved. It used to be absent, so
- *     "DISPLAYED FINISH LINE" reached the drawer with no line to display; the
- *     server resolves it from the same denominator selection freezes, which
- *     keeps the arithmetic out of React and off the wire as raw inputs.
- *  6. CLOSED: `count_unit` ships too, so the exact-count stepper names what it
- *     counts instead of falling back to its neutral noun.
- *
- * (7) is closed: celebrations now carry a typed `metadata` payload beside the
- * display copy, so the `CelebrationVM` union is built from it.
+ * Huecos del contrato que se reportan y no se disimulan: el estado "1 to go"
+ * y el mensual "near-completion" no existen en la API (solo manda
+ * ACTIVE/COMPLETED/FAILED/VOID), y el progreso partido en current/total/unit
+ * tampoco viaja, así que el medidor solo puede mostrar la frase.
  */
 
 import type { Bout, Event } from '@/lib/api';
