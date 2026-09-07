@@ -41,7 +41,12 @@ export interface AdminMissionPanelProps {
 }
 
 export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
-  const [log, setLog] = React.useState<string[]>(state.auditLog);
+  // Solo las lineas simuladas viven en estado; el log real viene del server.
+  const [simulatedLog, setSimulatedLog] = React.useState<string[]>([]);
+  const log = React.useMemo(
+    () => [...simulatedLog, ...state.auditLog],
+    [simulatedLog, state.auditLog]
+  );
   const [pending, setPending] = React.useState<AdminPanelAction | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [failure, setFailure] = React.useState<string | null>(null);
@@ -54,7 +59,6 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
     Object.fromEntries(state.monthly.params.map((p) => [p.key, p.value]))
   );
 
-  React.useEffect(() => setLog(state.auditLog), [state.auditLog]);
   React.useEffect(() => {
     setDraftTemplate(state.monthly.templateId);
     setDraftParams(
@@ -70,7 +74,7 @@ export function AdminMissionPanel({ state, onAction }: AdminMissionPanelProps) {
   const confirm = async () => {
     if (!pending) return;
     if (!onAction) {
-      setLog((prev) => [`[simulated] ${pending.label}`, ...prev]);
+      setSimulatedLog((prev) => [`[simulated] ${pending.label}`, ...prev]);
       setPending(null);
       return;
     }
