@@ -29,6 +29,7 @@ import { FighterImage } from '@/components/FighterImage';
 import { FlagBadge } from '@/components/FlagBadge';
 import { getFlagCode } from '@/lib/countryCodeMapping';
 import { useCountdown } from '../hooks/useCountdown';
+import { useIsPast } from '../hooks/useIsPast';
 import { FastPicksPanel } from '../FastPicksPanel';
 import { toast } from 'sonner';
 import {
@@ -69,6 +70,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
     const mostRecentlyLockedSection =
         event && bouts ? getMostRecentlyLockedSection(event, bouts) : null;
     const { formatted } = useCountdown(nextSectionLock?.at ?? null);
+    const cardHasStarted = useIsPast(event?.card_start_time_utc);
 
     React.useEffect(() => {
         if (!event) return;
@@ -400,9 +402,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         ? new Date(event.card_start_time_utc)
         : eventDateTime;
     const hasOpenPicks = bouts.some((bout) => !isBoutEffectivelyLocked(event, bout));
-    const isCardStarted =
-        !!event.card_start_time_utc &&
-        new Date(event.card_start_time_utc).getTime() <= Date.now();
+    const isCardStarted = cardHasStarted;
     const eventIsFullyLocked =
         event.picks_lock_override === 'locked' ||
         bouts.every((bout) => isBoutEffectivelyLocked(event, bout));
