@@ -1,16 +1,9 @@
 /**
- * API Client para comunicarse con el backend FastAPI
- *
- * Configurado para funcionar con:
- * - Desarrollo local: http://localhost:8000
- * - Produccion: URL configurada en NEXT_PUBLIC_API_URL
+ * Cliente del backend FastAPI. La URL sale de NEXT_PUBLIC_API_URL.
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
-/**
- * Returns the API URL for use in components
- */
 export function getApiUrl(): string {
   return API_URL;
 }
@@ -23,9 +16,6 @@ if (typeof window !== 'undefined') {
   authToken = localStorage.getItem('auth_token');
 }
 
-/**
- * Guarda el token de autenticacion
- */
 export function setAuthToken(token: string | null) {
   authToken = token;
   if (typeof window !== 'undefined') {
@@ -37,23 +27,14 @@ export function setAuthToken(token: string | null) {
   }
 }
 
-/**
- * Obtiene el token actual
- */
 export function getAuthToken(): string | null {
   return authToken;
 }
 
-/**
- * Verifica si el usuario esta autenticado
- */
 export function isAuthenticated(): boolean {
   return !!authToken;
 }
 
-/**
- * Hace una peticion al API con manejo de errores y autenticacion
- */
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -154,10 +135,6 @@ export interface AuthResponse {
   user: User;
 }
 
-/**
- * Autentica con Google OAuth
- * @param googleIdToken - Token ID de Google (credential from Google Sign-In)
- */
 export async function loginWithGoogle(googleIdToken: string): Promise<AuthResponse> {
   const response = await apiRequest<AuthResponse>('/auth/google', {
     method: 'POST',
@@ -170,10 +147,6 @@ export async function loginWithGoogle(googleIdToken: string): Promise<AuthRespon
   return response;
 }
 
-/**
- * Autentica con Google OAuth usando access_token (custom button flow)
- * @param accessToken - Access token de Google
- */
 export async function loginWithGoogleAccessToken(accessToken: string): Promise<AuthResponse> {
   const response = await apiRequest<AuthResponse>('/auth/google', {
     method: 'POST',
@@ -186,31 +159,19 @@ export async function loginWithGoogleAccessToken(accessToken: string): Promise<A
   return response;
 }
 
-/**
- * Obtiene el usuario actual
- */
 export async function getCurrentUser(): Promise<User> {
   return apiRequest<User>('/auth/me');
 }
 
-/**
- * Cierra sesion
- */
 export function logout() {
   setAuthToken(null);
 }
 
-/**
- * Request para actualizar perfil
- */
 export interface UpdateProfileRequest {
   name?: string;
   profile_picture?: string;
 }
 
-/**
- * Actualiza el perfil del usuario actual
- */
 export async function updateProfile(data: UpdateProfileRequest): Promise<User> {
   return apiRequest<User>('/auth/me', {
     method: 'PUT',
@@ -258,9 +219,6 @@ export interface EventsResponse {
   total: number;
 }
 
-/**
- * Obtiene lista de eventos
- */
 export async function getEvents(params?: {
   status?: string;
   limit?: number;
@@ -277,9 +235,6 @@ export async function getEvents(params?: {
   return { events, total: events.length };
 }
 
-/**
- * Obtiene un evento por ID
- */
 export async function getEvent(eventId: number): Promise<Event> {
   return apiRequest<Event>(`/events/${eventId}`);
 }
@@ -291,9 +246,6 @@ export async function getFightCardImage(eventId: number): Promise<Blob> {
   return apiBlob(`/events/${eventId}/fight-card-image`);
 }
 
-/**
- * Marca un evento como completado (solo admins)
- */
 export async function completeEvent(eventId: number): Promise<void> {
   await apiRequest<{ success: boolean }>(`/admin/events/${eventId}/complete`, {
     method: 'POST',
@@ -301,13 +253,8 @@ export async function completeEvent(eventId: number): Promise<void> {
 }
 
 /**
- * Construye un Date object para un evento con su hora ET
- *
- * Prefiere el timestamp UTC canónico. El fallback legado convierte la hora de
- * New York respetando EST/EDT en la fecha del evento.
- *
- * @param event - Evento con date y start_time_et
- * @returns Date object en UTC con la hora correcta del evento
+ * Fecha y hora del evento en UTC. Prefiere el timestamp canónico; el fallback
+ * legacy convierte la hora de Nueva York respetando EST/EDT.
  */
 export function getEventDateTime(event: Event): Date {
   if (event.card_start_time_utc) {
@@ -488,8 +435,7 @@ export function getFighterShortName(fighter?: Partial<Fighter> | null): string {
 }
 
 /**
- * Helper to get fighter image URL from Tapology THROUGH NGINX PROXY
- * Returns placeholder if no tapology_id available
+ * Foto del peleador, o el placeholder si todavía no tiene imagen.
  */
 export function getFighterImageUrl(fighter: Fighter): string {
   // If no profile_image_url, show placeholder
@@ -516,15 +462,9 @@ const FIGHTER_IMAGE_EXT_PRIORITY = ['png', 'jpg', 'jpeg', 'webp', 'avif', 'gif']
 export const FIGHTER_PLACEHOLDER = '/placeholder-fighter.svg';
 
 /**
- * Devuelve la lista ordenada de URLs candidatas para la foto de un peleador.
- *
- * Sólo hace el "cascadeo" de extensiones para nuestras propias imágenes de
- * CloudFront/S3 (las que terminan en una extensión de imagen conocida).
- * Para URLs externas (avatares de Google) o proxys con query string, devuelve
- * la URL tal cual seguida del placeholder.
- *
- * La última entrada siempre es el placeholder, así el consumidor sabe que
- * cuando llega ahí debe rendirse.
+ * URLs candidatas para la foto, en orden. Solo prueba varias extensiones en
+ * nuestras imágenes de CloudFront; las externas van tal cual. La última
+ * siempre es el placeholder, así el consumidor sabe cuándo rendirse.
  */
 export function getFighterImageCandidates(fighter: Fighter): string[] {
   const base = getFighterImageUrl(fighter);
@@ -563,8 +503,7 @@ export function getFighterImageCandidates(fighter: Fighter): string[] {
   return candidates;
 }
 /**
- * Helper to get event poster URL
- * Uses the Wikipedia-credited original source when available.
+ * Poster del evento, priorizando la fuente original acreditada en Wikipedia.
  */
 export function getEventPosterUrl(event: Event): string {
   // Use the poster_image_url from the backend if available
@@ -582,8 +521,7 @@ export function getEventPosterUrl(event: Event): string {
 }
 
 /**
- * Helper to get event art URL (admin-uploaded image stored in MongoDB)
- * Returns null if no event art, otherwise returns full API URL
+ * Arte que subió un admin, o null si el evento no tiene.
  */
 export function getEventArtUrl(event: Event): string | null {
   if (!event.event_art_url) {
@@ -594,9 +532,8 @@ export function getEventArtUrl(event: Event): string | null {
 }
 
 /**
- * Resolve the wide, high-resolution art for landing/detail heroes.
- * The official UFC background_image_xl_2x URL is always preferred. The
- * vertical source poster is the migration fallback until UFC publishes art.
+ * Arte apaisada para los heroes. Prefiere el background_image_xl_2x oficial
+ * de UFC; el poster vertical es el fallback hasta que lo publiquen.
  */
 export function getEventImageUrl(event: Event): string {
   if (event.hero_image_url) {
@@ -688,9 +625,6 @@ export function getBoutResultHeadline(
   }
 }
 
-/**
- * Obtiene las peleas de un evento
- */
 export async function getEventBouts(eventId: number): Promise<Bout[]> {
   return apiRequest<Bout[]>(`/events/${eventId}/bouts`);
 }
@@ -770,9 +704,6 @@ export interface CreatePickRequest {
   picked_round?: number;
 }
 
-/**
- * Crea o actualiza un pick
- */
 export async function createPick(pick: CreatePickRequest): Promise<Pick> {
   return apiRequest<Pick>('/picks', {
     method: 'POST',
@@ -780,24 +711,14 @@ export async function createPick(pick: CreatePickRequest): Promise<Pick> {
   });
 }
 
-/**
- * Obtiene los picks del usuario actual para un evento
- * @param eventId - ID del evento (requerido)
- */
 export async function getMyPicks(eventId: number): Promise<Pick[]> {
   return apiRequest<Pick[]>(`/picks/me?event_id=${eventId}`);
 }
 
-/**
- * Obtiene todos los picks del usuario actual (multiple eventos)
- */
 export async function getAllMyPicks(): Promise<Pick[]> {
   return apiRequest<Pick[]>('/picks/me/all');
 }
 
-/**
- * Obtiene todos los picks del usuario actual con detalles completos (fighters, event info, etc.)
- */
 export async function getAllMyPicksDetailed(): Promise<DetailedPick[]> {
   return apiRequest<DetailedPick[]>('/picks/me/detailed');
 }
@@ -830,9 +751,6 @@ export interface LeaderboardResponse {
   user_position?: LeaderboardEntry;
 }
 
-/**
- * Obtiene el leaderboard global
- */
 export async function getGlobalLeaderboard(params?: {
   year?: number;
   limit?: number;
@@ -845,9 +763,6 @@ export async function getGlobalLeaderboard(params?: {
   return apiRequest<LeaderboardResponse>(`/leaderboard/global${query ? `?${query}` : ''}`);
 }
 
-/**
- * Obtiene el leaderboard de un evento específico
- */
 export async function getEventLeaderboard(eventId: number, limit?: number): Promise<LeaderboardResponse> {
   const searchParams = new URLSearchParams();
   if (limit) searchParams.set('limit', String(limit));
@@ -856,9 +771,6 @@ export async function getEventLeaderboard(eventId: number, limit?: number): Prom
   return apiRequest<LeaderboardResponse>(`/leaderboard/event/${eventId}${query ? `?${query}` : ''}`);
 }
 
-/**
- * Obtiene el leaderboard por categoría
- */
 export async function getCategoryLeaderboard(
   category: string,
   params?: {
@@ -874,9 +786,6 @@ export async function getCategoryLeaderboard(
   return apiRequest<LeaderboardResponse>(`/leaderboard/category/${category}${query ? `?${query}` : ''}`);
 }
 
-/**
- * Obtiene la posición del usuario actual en el leaderboard
- */
 export async function getMyLeaderboardPosition(category: string = 'global'): Promise<{
   rank: number | null;
   entry: LeaderboardEntry | null;
@@ -899,9 +808,6 @@ export interface HealthStatus {
   version: string;
 }
 
-/**
- * Verifica el estado del backend
- */
 export async function checkHealth(): Promise<HealthStatus> {
   return apiRequest<HealthStatus>('/health');
 }
@@ -1066,9 +972,6 @@ export interface UserPicksStats {
   };
 }
 
-/**
- * Obtiene el perfil público de un usuario
- */
 export async function getUserProfile(userId: string): Promise<PublicUserProfile> {
   return apiRequest<PublicUserProfile>(`/users/${userId}`);
 }
@@ -1080,9 +983,6 @@ export async function getUserMissionProfile(
   return apiRequest<UserMissionProfile>(`/missions/users/${userId}`);
 }
 
-/**
- * Obtiene los picks de un usuario (solo picks locked/públicos)
- */
 export async function getUserPicks(userId: string, params?: {
   event_id?: number;
   year?: number;
@@ -1101,9 +1001,6 @@ export async function getUserPicks(userId: string, params?: {
   return apiRequest<UserPick[]>(`/users/${userId}/picks${query ? `?${query}` : ''}`);
 }
 
-/**
- * Obtiene las estadísticas de picks de un usuario
- */
 export async function getUserPicksStats(userId: string, year?: number): Promise<UserPicksStats> {
   const searchParams = new URLSearchParams();
   if (year) searchParams.set('year', String(year));
