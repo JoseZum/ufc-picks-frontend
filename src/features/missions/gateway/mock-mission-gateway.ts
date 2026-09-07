@@ -48,9 +48,11 @@ function hydrateTarget(mission: ActiveMissionVM): ActiveMissionVM {
  */
 function describeSelection(selection: MockSelection): SelectionPartVM[] {
   const boutById = (id: number) => LAB_BOUTS.find((b) => b.id === id);
-  const fighterName = (boutId: number, corner: 'red' | 'blue') => {
+  // Las legs de combo no siempre traen esquina: sin ella no hay peleador que nombrar.
+  const fighterName = (boutId: number, corner: 'red' | 'blue' | undefined) => {
     const bout = boutById(boutId);
-    return bout ? getFighterDisplayName(corner === 'red' ? bout.red : bout.blue) : 'Fighter';
+    if (!bout || !corner) return 'Fighter';
+    return getFighterDisplayName(corner === 'red' ? bout.red : bout.blue);
   };
 
   switch (selection.kind) {
