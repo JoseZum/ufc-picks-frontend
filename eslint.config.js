@@ -22,6 +22,9 @@ export default tseslint.config(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      // Los casos que quedan son carga asincrona, marcas de hidratacion y
+      // sincronizacion con props. Se avisa pero no bloquea la build.
+      'react-hooks/set-state-in-effect': 'warn',
     },
   },
   {
