@@ -319,7 +319,7 @@ function EventTimingCard({
             <div className="event-timing-card__header" onClick={onToggle} style={{ cursor: 'pointer' }}>
                 <div className="event-timing-card__info">
                     <h3>{event.name}</h3>
-                    <p>{formatDate(event.date)} // {event.location?.venue || 'TBA'}</p>
+                    <p>{formatDate(event.date)} {'//'} {event.location?.venue || 'TBA'}</p>
                 </div>
                 {(() => {
                     const isLive = event.status === 'scheduled' && new Date() >= getEventDateTime(event);

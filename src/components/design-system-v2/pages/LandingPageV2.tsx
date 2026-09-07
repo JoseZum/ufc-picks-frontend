@@ -201,7 +201,7 @@ export const LandingPageV2 = () => {
                                 <div className="hero__event-overlay">
                                     <h1 className="hero__event-title">{renderEventTitle(nextEvent.name)}</h1>
                                     <p className="hero__event-sub">
-                                        {formatEventDate(nextEvent.date)} // {nextEvent.location?.venue || 'VENUE TBA'}
+                                        {formatEventDate(nextEvent.date)} {'//'} {nextEvent.location?.venue || 'VENUE TBA'}
                                     </p>
                                 </div>
                             )}

@@ -160,7 +160,7 @@ function Title({ size = 'lg' }: { size?: 'lg' | 'md' }) {
 function Meta() {
   return (
     <p className="hmg-meta">
-      {EVENT.date} // {EVENT.venue}
+      {EVENT.date} {'//'} {EVENT.venue}
     </p>
   );
 }
