@@ -1,8 +1,4 @@
-/**
- * React Hooks para usar la API con React Query
- *
- * Estos hooks manejan el estado de carga, errores y cache automaticamente.
- */
+// Hooks de React Query sobre la capa de api: carga, errores y cache.
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { type CreatePickRequest } from './api';
@@ -11,9 +7,6 @@ import api, { type CreatePickRequest } from './api';
 // AUTH HOOKS
 // ============================================
 
-/**
- * Hook para obtener el usuario actual
- */
 export function useCurrentUser() {
   return useQuery({
     queryKey: ['currentUser'],
@@ -24,9 +17,7 @@ export function useCurrentUser() {
   });
 }
 
-/**
- * Hook para login con Google (id_token flow - legacy)
- */
+// Flujo antiguo con id_token; el nuevo botón usa useGoogleAccessTokenLogin.
 export function useGoogleLogin() {
   const queryClient = useQueryClient();
 
@@ -39,9 +30,6 @@ export function useGoogleLogin() {
   });
 }
 
-/**
- * Hook para login con Google (access_token flow - custom button)
- */
 export function useGoogleAccessTokenLogin() {
   const queryClient = useQueryClient();
 
@@ -53,9 +41,6 @@ export function useGoogleAccessTokenLogin() {
   });
 }
 
-/**
- * Hook para logout
- */
 export function useLogout() {
   const queryClient = useQueryClient();
 
@@ -65,9 +50,6 @@ export function useLogout() {
   };
 }
 
-/**
- * Hook para actualizar perfil
- */
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
@@ -84,9 +66,6 @@ export function useUpdateProfile() {
 // EVENTS HOOKS
 // ============================================
 
-/**
- * Hook para obtener lista de eventos
- */
 export function useEvents(params?: { status?: string; limit?: number }) {
   return useQuery({
     queryKey: ['events', params],
@@ -95,9 +74,6 @@ export function useEvents(params?: { status?: string; limit?: number }) {
   });
 }
 
-/**
- * Hook para obtener un evento especifico
- */
 export function useEvent(eventId: number) {
   return useQuery({
     queryKey: ['event', eventId],
@@ -111,9 +87,6 @@ export function useEvent(eventId: number) {
 // BOUTS HOOKS
 // ============================================
 
-/**
- * Hook para obtener las peleas de un evento
- */
 export function useEventBouts(eventId: number, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['bouts', eventId],
@@ -127,9 +100,6 @@ export function useEventBouts(eventId: number, options?: { enabled?: boolean }) 
 // PICKS HOOKS
 // ============================================
 
-/**
- * Hook para obtener los picks del usuario para un evento
- */
 export function useMyPicks(eventId: number) {
   return useQuery({
     queryKey: ['myPicks', eventId],
@@ -139,9 +109,6 @@ export function useMyPicks(eventId: number) {
   });
 }
 
-/**
- * Hook para obtener todos los picks del usuario
- */
 export function useAllMyPicks() {
   return useQuery({
     queryKey: ['allMyPicks'],
@@ -151,9 +118,6 @@ export function useAllMyPicks() {
   });
 }
 
-/**
- * Hook para obtener todos los picks del usuario con información completa de fighters y eventos
- */
 export function useAllMyPicksDetailed() {
   return useQuery({
     queryKey: ['allMyPicksDetailed'],
@@ -163,9 +127,6 @@ export function useAllMyPicksDetailed() {
   });
 }
 
-/**
- * Hook para obtener los picks del usuario con información completa de los bouts
- */
 export function useMyPicksWithBouts(eventId: number) {
   const { data: picks, ...picksQuery } = useMyPicks(eventId);
   const { data: bouts, ...boutsQuery } = useEventBouts(eventId);
@@ -181,9 +142,6 @@ export function useMyPicksWithBouts(eventId: number) {
   };
 }
 
-/**
- * Hook para crear un pick
- */
 export function useCreatePick() {
   const queryClient = useQueryClient();
 
@@ -200,9 +158,6 @@ export function useCreatePick() {
 // LEADERBOARD HOOKS
 // ============================================
 
-/**
- * Hook para obtener el leaderboard global
- */
 export function useGlobalLeaderboard(params?: { year?: number; limit?: number }) {
   return useQuery({
     queryKey: ['leaderboard', 'global', params],
@@ -216,9 +171,6 @@ export function useGlobalLeaderboard(params?: { year?: number; limit?: number })
   });
 }
 
-/**
- * Hook para obtener el leaderboard de un evento
- */
 export function useEventLeaderboard(eventId: number, limit?: number) {
   return useQuery({
     queryKey: ['leaderboard', 'event', eventId, limit],
@@ -233,9 +185,6 @@ export function useEventLeaderboard(eventId: number, limit?: number) {
   });
 }
 
-/**
- * Hook para obtener el leaderboard por categoría
- */
 export function useCategoryLeaderboard(category: string, params?: { year?: number; limit?: number }) {
   return useQuery({
     queryKey: ['leaderboard', 'category', category, params],
@@ -249,9 +198,6 @@ export function useCategoryLeaderboard(category: string, params?: { year?: numbe
   });
 }
 
-/**
- * Hook para obtener la posición del usuario actual
- */
 export function useMyLeaderboardPosition(category: string = 'global') {
   return useQuery({
     queryKey: ['leaderboard', 'me', category],
@@ -267,9 +213,6 @@ export function useMyLeaderboardPosition(category: string = 'global') {
 // HEALTH HOOKS
 // ============================================
 
-/**
- * Hook para verificar el estado del backend
- */
 export function useHealthCheck() {
   return useQuery({
     queryKey: ['health'],
@@ -283,9 +226,6 @@ export function useHealthCheck() {
 // PUBLIC USER PROFILE HOOKS
 // ============================================
 
-/**
- * Hook para obtener el perfil público de un usuario
- */
 export function useUserProfile(userId: string) {
   return useQuery({
     queryKey: ['userProfile', userId],
@@ -295,9 +235,6 @@ export function useUserProfile(userId: string) {
   });
 }
 
-/**
- * Hook para obtener los picks de un usuario
- */
 export function useUserPicks(userId: string, params?: {
   event_id?: number;
   year?: number;
@@ -313,9 +250,6 @@ export function useUserPicks(userId: string, params?: {
   });
 }
 
-/**
- * Hook para obtener las estadísticas de picks de un usuario
- */
 /**
  * Another user's mission standing for the profile card.
  *
