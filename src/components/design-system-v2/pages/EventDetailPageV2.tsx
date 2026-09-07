@@ -8,8 +8,8 @@ import { MobileNav } from '../MobileNav';
 import { useCurrentUser, useEvent, useEventBouts, useMyPicks } from '@/lib/hooks';
 import {
     type Bout,
-    getApiUrl,
     getAuthToken,
+    getFightCardImage,
     getBoutResultLabel,
     getBoutResultOutcome,
     getEventDateTime,
@@ -203,13 +203,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
         if (!token) return;
 
         try {
-            const resp = await fetch(`${getApiUrl()}/events/${eventId}/fight-card-image`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (!resp.ok) throw new Error('Failed to generate fight card');
-
-            const blob = await resp.blob();
+            const blob = await getFightCardImage(eventId);
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
