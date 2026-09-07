@@ -1,7 +1,7 @@
 /**
  * Mock adapter for `MissionGateway`.
  *
- * A thin translation over the existing deterministic Lab gateway — it does not
+ * A thin translation over the existing deterministic Lab gateway, it does not
  * reimplement any fixture behaviour. Its job is to speak the production
  * boundary's vocabulary (event-scoped requests, offers instead of offer ids,
  * celebration ids instead of array positions) so the same contract suite can be

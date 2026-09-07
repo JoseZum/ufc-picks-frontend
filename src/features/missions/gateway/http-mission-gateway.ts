@@ -9,8 +9,8 @@
  *   GET  {api}/missions/profile
  *   POST {api}/missions/celebrations/{celebration_id}/ack   -> 204
  *
- * Auth reuses the application's existing scheme — the bearer token stored by
- * `@/lib/api` — because there is exactly one login in this product and missions
+ * Auth reuses the application's existing scheme, the bearer token stored by
+ * `@/lib/api`, because there is exactly one login in this product and missions
  * do not get their own.
  *
  * Two things this adapter gets right that the first version did not, both of

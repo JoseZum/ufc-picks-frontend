@@ -1,5 +1,5 @@
 /**
- * FE-000A — MissionGateway-shaped boundary for the Lab.
+ * FE-000A, MissionGateway-shaped boundary for the Lab.
  *
  * The interface mirrors the intended shape of the future gateway (D-ARCH-011)
  * so surfaces never touch fixtures directly, but the payloads are mock-only
@@ -44,9 +44,9 @@ export interface MissionLabGateway {
 // ---------------------------------------------------------------------------
 
 /**
- * The boundary the real surfaces talk to. Two adapters implement it — `mock`
+ * The boundary the real surfaces talk to. Two adapters implement it, `mock`
  * (deterministic fixtures, used by the Lab and by tests) and `http` (the real
- * API) — and one shared contract suite runs against both, so a surface cannot
+ * API), and one shared contract suite runs against both, so a surface cannot
  * tell them apart.
  *
  * Every method returns presentation-ready view models. No caller of this

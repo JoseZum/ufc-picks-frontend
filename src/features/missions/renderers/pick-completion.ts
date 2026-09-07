@@ -2,8 +2,8 @@
  * What a mission still needs before it can write a valid canonical pick.
  *
  * A mission with a pick effect rewrites the user's pick on the bouts it binds,
- * and the backend only accepts a COMPLETE pick: a winner, a method, and — for
- * anything that is not a decision — a round. Several catalog entries bind the
+ * and the backend only accepts a COMPLETE pick: a winner, a method, and, for
+ * anything that is not a decision, a round. Several catalog entries bind the
  * winner and leave the rest open, so on a bout the user never picked there is
  * nothing to inherit those fields from and the selection is refused with
  * `A complete canonical pick method is required`.
@@ -13,8 +13,8 @@
  * to ask for; the drawer only renders it.
  *
  * The rules below mirror `selection.py` deliberately. React is not the
- * authority — a wrong answer here produces a refusal from the server, never a
- * bad write — but asking for a field the server would not have needed is a
+ * authority, a wrong answer here produces a refusal from the server, never a
+ * bad write, but asking for a field the server would not have needed is a
  * worse experience than not asking at all.
  */
 
@@ -30,7 +30,7 @@ export interface PickGap {
   needsMethod: boolean;
   /** Only ever true once a method is known and it is not a decision. */
   needsRound: boolean;
-  /** The method already settled — by the mission or by an existing pick. */
+  /** The method already settled, by the mission or by an existing pick. */
   knownMethod?: WinMethod;
 }
 
@@ -71,8 +71,8 @@ function boundBouts(
         },
       ];
     case 'COMBO_BUILDER': {
-      // A leg whose method the catalog fixed carries NO method in the draft —
-      // the payload rejects echoing it — so the fixed value has to be read off
+      // A leg whose method the catalog fixed carries NO method in the draft, 
+      // the payload rejects echoing it, so the fixed value has to be read off
       // the offer. Missing that, a KO HAT TRICK would ask the user to choose a
       // method it already decided, and the server would refuse the conflict.
       const specs = new Map(
@@ -104,7 +104,7 @@ function boundBouts(
  *
  * Returns an empty list for every mission that writes no picks, for every bout
  * the mission already pinned down, and for every bout the user has already
- * picked completely — which is the common case once someone has filled a card.
+ * picked completely, which is the common case once someone has filled a card.
  */
 export function pickGapsFor(
   offer: MissionOffer,

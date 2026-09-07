@@ -14,7 +14,7 @@
  *
  * `selection_spec` is the one place that needs real work. The backend sends a
  * RAW DOMAIN SNAPSHOT of the mission definition, not a UI-shaped object, so the
- * picker inputs are DERIVED here — `requiresMethod` from the presence of
+ * picker inputs are DERIVED here, `requiresMethod` from the presence of
  * `METHOD` in `bound_pick_fields`, method spellings from the backend enum, leg
  * keys straight off the definition. Deriving is not computing: nothing below
  * decides whether a mission is complete, eligible or rewarded.
@@ -28,9 +28,9 @@
  *  - Slots are ONE-BASED on the wire (`slot: 1|2|3`). No re-basing happens here.
  *
  * GAPS against the current contract (report, do not paper over):
- *  1. `ONE_TO_GO` — the UI has a "1 to go" state; the API only reports
+ *  1. `ONE_TO_GO`, the UI has a "1 to go" state; the API only reports
  *     ACTIVE/COMPLETED/FAILED/VOID, so it can never be produced over HTTP.
- *  2. `near-completion` monthly — same reason.
+ *  2. `near-completion` monthly, same reason.
  *  3. Split progress (`current`/`total`/`unit`) and comparison progress are not
  *     on the wire, so the meter renders the sentence form only. Parsing
  *     `progress_text` would be domain logic in React and is not done.
@@ -119,11 +119,11 @@ const PLACEHOLDER_EVENT_ART = '/placeholder-event.svg';
  * `getEventArtUrl` was the wrong accessor: it only ever returns the image an
  * admin uploaded by hand, so on an ordinary event it is null and the strip
  * rendered as a flat panel. `getEventImageUrl` is what the Home hero and the
- * event detail page use — official wide art, falling back to the poster.
+ * event detail page use, official wide art, falling back to the poster.
  *
  * Its own last resort is a generic placeholder, and stretching that across the
  * strip looks worse than no image at all, so it is treated as "no art" and the
- * plain panel — a supported design state — shows instead.
+ * plain panel, a supported design state, shows instead.
  */
 function cardArtFor(event: Event | undefined): string | null {
   if (!event) return null;
@@ -246,7 +246,7 @@ export function monthLabelFrom(now: Date): string {
 }
 
 /**
- * `month_key` is "YYYY-MM" — a key, not copy. Formatting it is presentation;
+ * `month_key` is "YYYY-MM", a key, not copy. Formatting it is presentation;
  * the month it names is backend truth and is never shifted by a local timezone
  * (hence UTC noon rather than a bare `new Date(key)`).
  */
@@ -286,7 +286,7 @@ function toComboLegs(spec: ComboSelectionSpecWire): ComboLegOffer[] {
 /**
  * The one-line rule shown above the builder's leg counter.
  *
- * The backend has no such sentence — it has a structured definition — so this
+ * The backend has no such sentence, it has a structured definition, so this
  * assembles display copy from it, the same category of work as `lockLabelFor`.
  * It states what the legs ARE; it never decides whether a draft satisfies them.
  */
@@ -419,7 +419,7 @@ export function toMissionOffer(dto: MissionOfferDTO): MissionOffer {
 /**
  * Read the bout/corner the assignment points at out of the persisted selection.
  *
- * Identifier lookup only — it resolves a portrait. It never reads a method, a
+ * Identifier lookup only, it resolves a portrait. It never reads a method, a
  * round or a target, because those are inputs to a rule the backend already
  * applied.
  */
@@ -751,7 +751,7 @@ export function toSelectionPayload(
 // Idempotency
 // ---------------------------------------------------------------------------
 
-/** FNV-1a, 32-bit. Not security — just a short stable digest of a request. */
+/** FNV-1a, 32-bit. Not security, just a short stable digest of a request. */
 function fnv1a(input: string): string {
   let hash = 0x811c9dc5;
   for (let i = 0; i < input.length; i += 1) {

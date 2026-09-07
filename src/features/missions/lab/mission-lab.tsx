@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — development-only Mission Lab shell (D-UI-006).
+ * FE-000A, development-only Mission Lab shell (D-UI-006).
  *
  * Scenario switcher over the deterministic mock gateway. This component is only
  * reachable through the /mission-lab route, which refuses to render outside

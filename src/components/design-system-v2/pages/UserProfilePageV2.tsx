@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * `/users/[userId]` — the public profile.
+ * `/users/[userId]`, the public profile.
  *
  * Renders exactly what the dialog renders. The previous version of this page
  * was a separate, older layout, so opening someone from a leaderboard and

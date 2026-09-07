@@ -1,5 +1,5 @@
 /**
- * FE-000A Mission Lab — presentation-only mock models.
+ * FE-000A Mission Lab, presentation-only mock models.
  *
  * These types exist so the local /mission-lab prototype can render every
  * mission surface deterministically. They are NOT Contract V1: field names,
@@ -115,7 +115,7 @@ export interface TargetFightMissionOffer extends MissionOfferBase {
  *
  * `key` is load-bearing: the select command addresses legs by key, so a leg
  * without one cannot be submitted. `method` and `allowedMethods` are mutually
- * exclusive by construction — a fixed method is chosen by the catalog, an
+ * exclusive by construction, a fixed method is chosen by the catalog, an
  * `allowedMethods` list is chosen by the user.
  */
 export interface ComboLegOffer {
@@ -172,7 +172,7 @@ export type MissionOffer =
   | CardPropMissionOffer;
 
 // ---------------------------------------------------------------------------
-// Selection payloads (what the drawer would submit — mock only)
+// Selection payloads (what the drawer would submit, mock only)
 // ---------------------------------------------------------------------------
 
 export type MockSelection =
@@ -188,7 +188,7 @@ export type MockSelection =
   | {
       kind: 'COMBO_BUILDER';
       /**
-       * `key` addresses the leg in the definition — the select command requires
+       * `key` addresses the leg in the definition, the select command requires
        * it. `corner` and `method` are present only for the leg shapes that
        * accept them: a FIGHT leg carries neither, and a fixed-method leg
        * carries no method.
@@ -323,7 +323,7 @@ export type MonthlyVM =
 
 export interface HomeMissionsVM {
   event: LabEventContext;
-  /** e.g. "MISSIONS LOCK WITH PRELIM PICKS — 01D 04H". Display-only. */
+  /** e.g. "MISSIONS LOCK WITH PRELIM PICKS, 01D 04H". Display-only. */
   lockLabel: string;
   monthly: MonthlyVM;
   slots: MissionSlotVM[];
@@ -466,7 +466,7 @@ export interface CardControlVM {
   updatedAt: string | null;
   /** How many ACTIVE assignments a VOID settled. */
   voidedAssignments: number;
-  /** Missions users hold on this card — what a VOID would settle. */
+  /** Missions users hold on this card, what a VOID would settle. */
   selectedAssignments: number;
   revision: number;
 }

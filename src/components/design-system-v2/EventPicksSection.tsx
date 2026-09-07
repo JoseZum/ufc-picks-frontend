@@ -140,7 +140,7 @@ export const EventPicksSection = ({
 
                 // What the user actually said. Matched back to a corner so the
                 // name renders through the same display pipeline as the fighter
-                // blocks — the stored pick is a plain string.
+                // blocks, the stored pick is a plain string.
                 const pickedName = (pick.picked_fighter_name ?? '').toLowerCase().trim();
                 const pickedCorner =
                     pickedName === getNormalizedFighterName(bout.fighters.red)
@@ -216,7 +216,7 @@ export const EventPicksSection = ({
                                 </div>
                             </div>
                         </div>
-                        {/* LO QUE ELIGIÓ EL USUARIO — siempre neutro: el color
+                        {/* LO QUE ELIGIÓ EL USUARIO, siempre neutro: el color
                             vive en la columna del resultado, no aquí. */}
                         <div className="pick-row__outcome pick-row__outcome--pick">
                             <div className="pick-row__cell-label">{pickColumnLabel}</div>

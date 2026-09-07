@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — irreversible selection drawer (D-UI-004).
+ * FE-000A, irreversible selection drawer (D-UI-004).
  *
  * Two explicit steps: pick, then confirm. On <=520px CSS the drawer becomes
  * full-screen via missions.css. Built on the existing Radix Dialog primitive so
@@ -58,7 +58,7 @@ function fighterName(bouts: LabBout[], boutId: number, corner: 'red' | 'blue'): 
  * Ask for the fields the mission binds but leaves open.
  *
  * This is a real pick being written on the user's behalf, so it says so. The
- * alternative — inventing a method server-side — would silently put a pick in
+ * alternative, inventing a method server-side, would silently put a pick in
  * someone's card that they never made.
  */
 function PickCompletionStep({

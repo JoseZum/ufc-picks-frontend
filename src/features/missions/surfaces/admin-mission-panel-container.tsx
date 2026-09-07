@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Slice 4 — the Admin mission panel against the real API.
+ * Slice 4, the Admin mission panel against the real API.
  *
  * The panel renders and confirms; this container is what actually calls the
  * gateway, so a rejected action surfaces its reason instead of appearing to
@@ -104,7 +104,7 @@ export function AdminMissionPanelContainer({
       const preview = await admin.previewReconciliation({ eventId: events[0].id });
 
       // The month this panel administers. A missing configuration is a real
-      // state — no month has been drafted yet — and is shown as such rather
+      // state, no month has been drafted yet, and is shown as such rather
       // than failing the whole panel.
       const monthKey = monthKeyFor(new Date());
       const monthly = await admin.getMonthly(monthKey).catch((cause: unknown) => {
@@ -115,7 +115,7 @@ export function AdminMissionPanelContainer({
       });
       // A month nobody has drafted still needs the template list, or the
       // operator is shown an empty selector and cannot author the month at all
-      // — which is exactly how August ended up stuck on "NOT CONFIGURED".
+      //, which is exactly how August ended up stuck on "NOT CONFIGURED".
       const templates = monthly
         ? undefined
         : await admin.getMonthlyTemplates().catch(() => []);

@@ -711,7 +711,7 @@ export interface UserMissionHistoryEntry {
   event_label?: string | null;
 }
 
-/** `GET /missions/users/{id}` — the public subset of a mission profile. */
+/** `GET /missions/users/{id}`, the public subset of a mission profile. */
 export interface UserMissionProfile {
   user_id: string;
   lifetime_xp: number;

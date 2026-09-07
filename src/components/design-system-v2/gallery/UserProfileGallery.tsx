@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Four takes on the public profile — the page you land on from a leaderboard.
+ * Four takes on the public profile, the page you land on from a leaderboard.
  *
  * All four answer the same brief: who is this person, how good are they, what
  * have their missions earned them, and what did they actually pick. They differ only
@@ -142,7 +142,7 @@ function EventGrid() {
 }
 
 // ---------------------------------------------------------------------------
-// 01 — DOSSIER: identity rail on the left, everything else reads as a file.
+// 01, DOSSIER: identity rail on the left, everything else reads as a file.
 // ---------------------------------------------------------------------------
 
 function VariantDossier() {
@@ -186,7 +186,7 @@ function VariantDossier() {
 }
 
 // ---------------------------------------------------------------------------
-// 02 — TALE OF THE TAPE: the level is the headline, like a fighter banner.
+// 02, TALE OF THE TAPE: the level is the headline, like a fighter banner.
 // ---------------------------------------------------------------------------
 
 function VariantTape() {
@@ -235,7 +235,7 @@ function VariantTape() {
 }
 
 // ---------------------------------------------------------------------------
-// 03 — LADDER: rank first. For the profile you reach from a leaderboard.
+// 03, LADDER: rank first. For the profile you reach from a leaderboard.
 // ---------------------------------------------------------------------------
 
 function VariantLadder() {
@@ -296,7 +296,7 @@ function VariantLadder() {
 }
 
 // ---------------------------------------------------------------------------
-// 04 — TIMELINE: one card per row, missions earned attached to the card.
+// 04, TIMELINE: one card per row, missions earned attached to the card.
 // ---------------------------------------------------------------------------
 
 function VariantTimeline() {

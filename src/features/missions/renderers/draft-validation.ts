@@ -1,5 +1,5 @@
 /**
- * FE-000A — presentation gate for the selection drawer.
+ * FE-000A, presentation gate for the selection drawer.
  *
  * Answers only "can the user press Continue", never "is this selection legal".
  * Eligibility stays backend authority. Kept JSX-free so the node test runner
@@ -18,7 +18,7 @@ const ALL_METHODS: WinMethod[] = ['KO/TKO', 'Submission', 'Decision'];
 /**
  * Methods a TARGET_FIGHTER definition accepts. A mission that needs an exact
  * finishing round can never accept Decision, so that is enforced here as well
- * as in the catalog data — the picker and the gate agree by construction.
+ * as in the catalog data, the picker and the gate agree by construction.
  */
 export function allowedMethodsFor(offer: TargetFighterMissionOffer): WinMethod[] {
   const declared = offer.allowedMethods ?? ALL_METHODS;

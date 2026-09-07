@@ -1,5 +1,5 @@
 /**
- * FE-000A — deterministic mock gateway.
+ * FE-000A, deterministic mock gateway.
  *
  * Reads the scenario fixtures, keeps in-memory selection state so a simulated
  * selection survives re-renders within the Lab session, and fabricates the

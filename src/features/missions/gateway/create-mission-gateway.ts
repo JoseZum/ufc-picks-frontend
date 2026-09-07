@@ -1,7 +1,7 @@
 /**
  * Chooses which `MissionGateway` adapter the running app uses.
  *
- * Default is `http` — the real API. Set `NEXT_PUBLIC_MISSION_GATEWAY=mock` to
+ * Default is `http`, the real API. Set `NEXT_PUBLIC_MISSION_GATEWAY=mock` to
  * drive the production surfaces from the deterministic fixtures instead, which
  * is how the Home integration is exercised locally while the mission endpoints
  * are still being built. It is an explicit opt-in: a failing HTTP call never

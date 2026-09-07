@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — Home mission surface (monthly + three slots).
+ * FE-000A, Home mission surface (monthly + three slots).
  *
  * Add-only block designed to sit below the leaderboard on Home, using the same
  * broadcast language as the rest of V2: stamped red section title, real card

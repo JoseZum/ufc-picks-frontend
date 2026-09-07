@@ -1,11 +1,11 @@
 /**
- * FE-000A Mission Lab — deterministic scenario fixtures.
+ * FE-000A Mission Lab, deterministic scenario fixtures.
  *
  * Every value below is static and pre-resolved. Fighters/imagery reference the
  * real UFC Fight Night: Medić vs. Rodriguez card through the existing image
  * pipeline (FighterImage handles fallbacks). Milos Janicic legitimately has no
  * photo upstream, so the missing-imagery scenario exercises the real
- * placeholder path — that is intentional, not a broken fixture.
+ * placeholder path, that is intentional, not a broken fixture.
  */
 
 import type { Fighter } from '@/lib/api';

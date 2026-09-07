@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * Slice 3 — the Profile Mission Hub against the real API.
+ * Slice 3, the Profile Mission Hub against the real API.
  *
  * The hub itself is presentational: it renders a `ProfileMissionHubVM` and
- * nothing else. This container owns the states that surround it — loading,
- * signed out, error, and the empty profile of a user who has not played yet —
- * plus celebration acknowledgement, which must refresh the hub so an
+ * nothing else. This container owns the states that surround it, loading,
+ * signed out, error, and the empty profile of a user who has not played yet, * plus celebration acknowledgement, which must refresh the hub so an
  * acknowledged celebration does not come back on the next render.
  */
 
@@ -28,7 +27,7 @@ type Phase =
   | { status: 'error'; message: string };
 
 export interface ProfileMissionHubContainerProps {
-  /** Absent means signed out — the hub is account-scoped, so it does not load. */
+  /** Absent means signed out, the hub is account-scoped, so it does not load. */
   isAuthenticated: boolean;
   userName: string;
   memberSince: string;

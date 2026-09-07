@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — Profile Mission Hub (D-UI-002).
+ * FE-000A, Profile Mission Hub (D-UI-002).
  *
  * Replaces the fake achievements grid with XP/level/title, the single Card
  * Streak, active missions and basic history. Level numbers arrive pre-resolved

@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — celebrations (D-UI-005).
+ * FE-000A, celebrations (D-UI-005).
  *
  * Mission completion = compact sonner toast. Level-up, title change and Card
  * Streak milestones = short full-screen takeover with explicit acknowledgement.
@@ -19,7 +19,7 @@ export function showMissionToast(name: string, xp: number) {
   });
 }
 
-/** A mission was just locked into a slot. No XP yet — it is only pending. */
+/** A mission was just locked into a slot. No XP yet, it is only pending. */
 export function showSelectionToast(name: string, xp: number) {
   toast.success(`MISSION LOCKED IN: ${name}`, {
     description: `Worth ${xp} XP if you complete it. This choice is final.`,

@@ -3,7 +3,7 @@
 /**
  * The public profile as a dialog.
  *
- * It holds the WHOLE profile and scrolls — there is no "view full profile"
+ * It holds the WHOLE profile and scrolls, there is no "view full profile"
  * link, because there is nothing else to see. `/users/[userId]` renders the
  * identical component for anyone who arrives by URL.
  *

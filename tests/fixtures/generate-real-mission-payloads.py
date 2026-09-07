@@ -9,7 +9,7 @@ Nothing here describes the API. Every payload is produced by importing the
 backend's own pydantic response models and its reviewed catalog, then dumping
 them exactly as FastAPI serializes a `response_model` (`model_dump(mode="json")`).
 If the backend contract changes, re-running this file changes the fixture and the
-frontend tests fail — which is the entire point.
+frontend tests fail, which is the entire point.
 
 Run from the backend checkout so `app` is importable:
 

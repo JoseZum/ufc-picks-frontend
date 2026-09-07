@@ -1,14 +1,14 @@
 'use client';
 
 /**
- * FE-000A — Admin mission panel prototype.
+ * FE-000A, Admin mission panel prototype.
  *
  * Monthly lifecycle (DRAFT/ACTIVE/CLOSED), per-event close/reopen/VOID and a
  * read-only reconciliation preview.
  *
  * The panel itself performs no request. When a caller supplies `onAction` the
  * confirmed action is handed to it and the caller talks to the gateway; without
- * one — the Lab — the action is simulated into the local audit log. That is why
+ * one, the Lab, the action is simulated into the local audit log. That is why
  * the confirmation copy is chosen from the same signal.
  */
 

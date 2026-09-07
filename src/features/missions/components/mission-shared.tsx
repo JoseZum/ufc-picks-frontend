@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — shared mission presentation primitives (badges, progress bar,
+ * FE-000A, shared mission presentation primitives (badges, progress bar,
  * active/settled mission card). Pure presentation over the mock view models.
  */
 
@@ -108,8 +108,7 @@ export function ProgressBar({
 }
 
 /**
- * The user's choice: every role muted, every value in the status colour —
- * including each leg of a combo, which is why the parts arrive as data.
+ * The user's choice: every role muted, every value in the status colour, * including each leg of a combo, which is why the parts arrive as data.
  */
 function SelectionLine({ mission }: { mission: ActiveMissionVM }) {
   const parts: SelectionPartVM[] =
@@ -139,8 +138,7 @@ function SelectionLine({ mission }: { mission: ActiveMissionVM }) {
  * night, and by then "THREE STRIKES" no longer tells anyone what they signed
  * up for. It stays collapsed so the card keeps its shape, and it is a real
  * `<button>` with `aria-expanded` so it works from the keyboard. The same
- * component is used by Home, your own history and someone else's profile —
- * whoever is reading needs the rules just as much.
+ * component is used by Home, your own history and someone else's profile, * whoever is reading needs the rules just as much.
  */
 function MissionBrief({ text }: { text?: string }) {
   const [open, setOpen] = React.useState(false);

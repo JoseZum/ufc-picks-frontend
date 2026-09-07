@@ -2,7 +2,7 @@
  * Wire-level mission API contracts.
  *
  * These types describe exactly what `app/modules/missions/contracts.py` serves
- * and what `app/modules/missions/router.py` accepts — nothing else. They are
+ * and what `app/modules/missions/router.py` accepts, nothing else. They are
  * deliberately separate from the presentation view models in
  * `mission-mock-models.ts`: the wire shape belongs to the backend, the view
  * models belong to the UI, and `gateway/mission-api-mappers` is the single place
@@ -13,7 +13,7 @@
  * keep that from recurring:
  *
  *  1. Every type here mirrors a pydantic model by name and by field. If the
- *     backend calls it `slot`, so do we — no renaming, no re-basing an index.
+ *     backend calls it `slot`, so do we, no renaming, no re-basing an index.
  *  2. `selection_spec` is a RAW DOMAIN SNAPSHOT
  *     (`definition.selection.model_dump(mode="json")`), not a UI-shaped object.
  *     Whatever a picker needs is derived from it in the mapper, never invented
@@ -92,13 +92,13 @@ export type MissionApiErrorCode =
   | 'ASSIGNMENT_MISSING';
 
 // ---------------------------------------------------------------------------
-// selection_spec — raw domain snapshots (domain/definitions.py)
+// selection_spec, raw domain snapshots (domain/definitions.py)
 // ---------------------------------------------------------------------------
 
 /** `PickField`. Arrives inside an unordered array. */
 export type PickFieldWire = 'WINNER' | 'METHOD' | 'ROUND';
 
-/** `WinMethod`. Backend spelling — `KO_TKO`, not `KO/TKO`. */
+/** `WinMethod`. Backend spelling, `KO_TKO`, not `KO/TKO`. */
 export type WinMethodWire = 'KO_TKO' | 'SUBMISSION' | 'DECISION';
 
 export type WinnerBindingWire =
@@ -128,7 +128,7 @@ export interface TargetFighterSelectionSpecWire {
   title_bouts_only: boolean;
 }
 
-/** `TargetFightSelectionSpec`. Present and non-null — the old DTO said `null`. */
+/** `TargetFightSelectionSpec`. Present and non-null, the old DTO said `null`. */
 export interface TargetFightSelectionSpecWire {
   outcome: TargetFightOutcomeWire;
   required_round: number | null;
@@ -165,7 +165,7 @@ export interface CardPropSelectionSpecWire {
   frozen_ratio: number | null;
   /**
    * The line a ratio-based prop is asking the user to beat, already resolved
-   * against the card. Absent for props whose target is static — their
+   * against the card. Absent for props whose target is static, their
    * description states the number outright.
    */
   displayed_target?: number | null;
@@ -174,7 +174,7 @@ export interface CardPropSelectionSpecWire {
 }
 
 // ---------------------------------------------------------------------------
-// MissionOfferView — one selectable option inside a slot
+// MissionOfferView, one selectable option inside a slot
 // ---------------------------------------------------------------------------
 
 interface MissionOfferCommon {
@@ -225,7 +225,7 @@ export type MissionOfferDTO =
   | CardPropMissionOfferDTO;
 
 // ---------------------------------------------------------------------------
-// SelectedMissionView — an assignment the user already owns
+// SelectedMissionView, an assignment the user already owns
 // ---------------------------------------------------------------------------
 
 export interface SelectedMissionDTO {
@@ -301,7 +301,7 @@ export interface MissionSlotDTO {
 }
 
 export interface MonthlyMissionDTO {
-  /** e.g. "2026-08". A key, not display copy — the UI formats the label. */
+  /** e.g. "2026-08". A key, not display copy, the UI formats the label. */
   month_key: string;
   mission_id: string;
   name: string;
@@ -329,7 +329,7 @@ export interface MissionHomeResponseDTO {
 
 /**
  * Selection payload, mirroring `domain/selections.py`. Those models are
- * `extra="forbid"`, so an unknown key is a 422 — this is the complete and exact
+ * `extra="forbid"`, so an unknown key is a 422, this is the complete and exact
  * set of fields each family may send.
  *
  * `kind` is included for symmetry but the router overwrites it from the offer's
@@ -389,7 +389,7 @@ export interface MissionSelectRequestDTO {
 export type MissionSelectResponseDTO = SelectedMissionDTO;
 
 // ---------------------------------------------------------------------------
-// Errors — FastAPI wraps EVERYTHING in `detail`
+// Errors, FastAPI wraps EVERYTHING in `detail`
 // ---------------------------------------------------------------------------
 
 /** The body of a mission `HTTPException`: `{"detail": {"code", "message"}}`. */
@@ -499,7 +499,7 @@ export type ProofOptionsCoverEveryInteraction = Expect<
 
 /**
  * `pick_effect` is a free axis: fixing the interaction must not narrow the set
- * of pick effects. Five proofs, one per family — if anyone folds the effect
+ * of pick effects. Five proofs, one per family, if anyone folds the effect
  * into the discriminant these stop resolving to `true`.
  */
 export type ProofPickEffectFreeForAuto = Expect<
@@ -562,7 +562,7 @@ export interface MonthlyParameterDTO {
   maximum?: number | null;
 }
 
-/** `GET /admin/missions/monthly/templates` — the 18 reviewed templates. */
+/** `GET /admin/missions/monthly/templates`, the 18 reviewed templates. */
 export interface MonthlyTemplateDTO {
   mission_id: string;
   name: string;

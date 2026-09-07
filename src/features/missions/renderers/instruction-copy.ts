@@ -1,5 +1,5 @@
 /**
- * FE-000A — instruction copy rules (presentation only, JSX-free so it can be
+ * FE-000A, instruction copy rules (presentation only, JSX-free so it can be
  * unit tested).
  *
  * The drawer shows two catalog strings above the picker: the required-selection

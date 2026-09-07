@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * The public profile — one component, two frames.
+ * The public profile, one component, two frames.
  *
  * This IS the profile: the dialog and the `/users/[userId]` page render the
  * same thing, so there is nothing to click through to and no second, older

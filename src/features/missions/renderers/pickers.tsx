@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — the five interaction pickers used inside the selection drawer.
+ * FE-000A, the five interaction pickers used inside the selection drawer.
  *
  * Each picker maps offer + card context + current draft selection to UI, and
  * reports draft changes upward. Validity is purely presentational here (can
@@ -31,14 +31,14 @@ export interface PickerProps {
 
 export type MissionPicker = (props: PickerProps) => React.ReactNode;
 
-/** The tale of the tape line: record only — country adds nothing to the pick. */
+/** The tale of the tape line: record only, country adds nothing to the pick. */
 function tapeLine(fighter: LabBout['red']): string {
   const record = fighter.record_at_fight;
   return record ? `${record.wins}-${record.losses}-${record.draws}` : '';
 }
 
 // ---------------------------------------------------------------------------
-// AUTO — nothing to pick; the confirmation itself is the decision.
+// AUTO, nothing to pick; the confirmation itself is the decision.
 // ---------------------------------------------------------------------------
 
 const AutoPicker: MissionPicker = ({ onDraft }) => {
@@ -55,7 +55,7 @@ const AutoPicker: MissionPicker = ({ onDraft }) => {
 };
 
 // ---------------------------------------------------------------------------
-// TARGET_FIGHTER — one fighter, optional method/round (EXACT SCRIPT).
+// TARGET_FIGHTER, one fighter, optional method/round (EXACT SCRIPT).
 // ---------------------------------------------------------------------------
 
 const TargetFighterPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => {
@@ -159,7 +159,7 @@ const TargetFighterPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) =>
 };
 
 // ---------------------------------------------------------------------------
-// TARGET_FIGHT — one bout.
+// TARGET_FIGHT, one bout.
 // ---------------------------------------------------------------------------
 
 const TargetFightPicker: MissionPicker = ({ bouts, draft, onDraft }) => {
@@ -194,7 +194,7 @@ const TargetFightPicker: MissionPicker = ({ bouts, draft, onDraft }) => {
 };
 
 // ---------------------------------------------------------------------------
-// COMBO_BUILDER — 2/3 legs with per-leg labels when asymmetric.
+// COMBO_BUILDER, 2/3 legs with per-leg labels when asymmetric.
 // ---------------------------------------------------------------------------
 
 const ComboBuilderPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => {
@@ -230,7 +230,7 @@ const ComboBuilderPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => 
       legs.splice(existing, 1);
       return commit(legs);
     }
-    if (current.legs.length >= combo.legCount) return; // full — remove one first
+    if (current.legs.length >= combo.legCount) return; // full, remove one first
     commit([...current.legs, { boutId }]);
   };
 
@@ -244,7 +244,7 @@ const ComboBuilderPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => 
     } else if (legs.length < combo.legCount) {
       legs = [...legs, { boutId, corner }];
     } else {
-      return; // builder full — must remove a leg first
+      return; // builder full, must remove a leg first
     }
     commit(legs);
   };
@@ -372,7 +372,7 @@ const ComboBuilderPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => 
 };
 
 // ---------------------------------------------------------------------------
-// CARD_PROP — accept / A-B choice / exact count stepper.
+// CARD_PROP, accept / A-B choice / exact count stepper.
 // ---------------------------------------------------------------------------
 
 const CardPropPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => {
@@ -450,7 +450,7 @@ const CardPropPicker: MissionPicker = ({ offer, bouts, draft, onDraft }) => {
 };
 
 // ---------------------------------------------------------------------------
-// Registry — the Strategy map for the five families.
+// Registry, the Strategy map for the five families.
 // ---------------------------------------------------------------------------
 
 export const MISSION_PICKERS: Record<MissionInteractionType, MissionPicker> = {

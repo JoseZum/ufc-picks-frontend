@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * FE-000A — every mission interaction shape on one page (dev-only review aid).
+ * FE-000A, every mission interaction shape on one page (dev-only review aid).
  *
  * Renders each distinct picker configuration live, inside a drawer-width plate,
  * so the five families and their variants can be judged side by side without
