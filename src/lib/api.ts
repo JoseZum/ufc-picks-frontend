@@ -75,12 +75,55 @@ async function apiRequest<T>(
     headers,
   });
 
-  // Manejar errores HTTP
+  return handleResponse<T>(response);
+}
+
+/**
+ * Sube un archivo. No fija Content-Type: el navegador pone el boundary
+ * correcto de multipart al pasarle un FormData.
+ */
+async function apiUpload<T>(endpoint: string, body: FormData): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    method: 'POST',
+    headers,
+    body,
+  });
+
+  return handleResponse<T>(response);
+}
+
+/**
+ * Descarga un endpoint como blob (imágenes generadas en el backend).
+ */
+async function apiBlob(endpoint: string): Promise<Blob> {
+  const headers: Record<string, string> = {};
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
+  const response = await fetch(`${API_URL}${endpoint}`, { headers });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.blob();
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Error desconocido' }));
     const detail = error.detail;
     const message = typeof detail === 'string' ? detail : JSON.stringify(detail) || `HTTP ${response.status}`;
     throw new Error(message);
+  }
+
+  // 204 y respuestas vacías no traen JSON que parsear.
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json();
@@ -239,6 +282,13 @@ export async function getEvents(params?: {
  */
 export async function getEvent(eventId: number): Promise<Event> {
   return apiRequest<Event>(`/events/${eventId}`);
+}
+
+/**
+ * Devuelve la imagen PNG de la cartelera con los picks del usuario.
+ */
+export async function getFightCardImage(eventId: number): Promise<Blob> {
+  return apiBlob(`/events/${eventId}/fight-card-image`);
 }
 
 /**
@@ -885,8 +935,8 @@ export async function unlockBoutPicks(boutId: number): Promise<{ success: boolea
 }
 
 export interface UpdateEventTimingRequest {
-  card_start_time_utc: string;
-  picks_lock_time_utc: string;
+  card_start_time_utc?: string;
+  picks_lock_time_utc?: string;
 }
 
 export async function updateEventTiming(
@@ -897,6 +947,73 @@ export async function updateEventTiming(
     method: 'PUT',
     body: JSON.stringify(timing),
   });
+}
+
+// ============================================
+// ADMIN - RESULTADOS Y PELEAS
+// ============================================
+
+export interface UpdateBoutResultRequest {
+  winner: string;
+  method: string;
+  round?: number;
+  time?: string;
+}
+
+export interface UpdateBoutResultResponse {
+  points_assigned?: { picks_processed?: number };
+}
+
+export async function updateBoutResult(
+  boutId: number,
+  result: UpdateBoutResultRequest
+): Promise<UpdateBoutResultResponse> {
+  return apiRequest(`/admin/bouts/${boutId}/result`, {
+    method: 'PUT',
+    body: JSON.stringify(result),
+  });
+}
+
+export async function deleteBoutResult(boutId: number): Promise<void> {
+  await apiRequest(`/admin/bouts/${boutId}/result`, { method: 'DELETE' });
+}
+
+export async function updateBoutDetails(
+  boutId: number,
+  details: Record<string, unknown>
+): Promise<{ updated_fields?: string[] }> {
+  return apiRequest(`/admin/bouts/${boutId}/details`, {
+    method: 'PUT',
+    body: JSON.stringify(details),
+  });
+}
+
+export async function deleteBout(
+  boutId: number
+): Promise<{ picks_deleted?: number; users_affected?: number }> {
+  return apiRequest(`/admin/bouts/${boutId}`, { method: 'DELETE' });
+}
+
+// ============================================
+// ADMIN - IMÁGENES
+// ============================================
+
+export async function uploadEventArt(eventId: number, file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append('file', file);
+  await apiUpload(`/admin/events/${eventId}/event-art`, formData);
+}
+
+export async function deleteEventArt(eventId: number): Promise<void> {
+  await apiRequest(`/admin/events/${eventId}/event-art`, { method: 'DELETE' });
+}
+
+export async function uploadFighterPhoto(
+  file: File
+): Promise<{ s3_key: string; cloudfront_url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return apiUpload('/admin/fighters/photo', formData);
 }
 
 // ============================================
