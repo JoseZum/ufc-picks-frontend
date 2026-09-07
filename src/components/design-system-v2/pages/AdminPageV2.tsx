@@ -7,8 +7,17 @@ import { useEvents, useEventBouts, useCurrentUser } from '@/lib/hooks';
 import { AdminMissionPanelContainer } from '@/features/missions/surfaces/admin-mission-panel-container';
 import '@/features/missions/missions.css';
 import {
-    getAuthToken,
+    deleteBout,
+    deleteBoutResult,
+    deleteEventArt,
     getBoutResultLabel,
+    lockEventPicks,
+    unlockEventPicks,
+    updateBoutDetails,
+    updateBoutResult,
+    updateEventTiming,
+    uploadEventArt,
+    uploadFighterPhoto,
     getFighterDisplayName,
     getFighterShortName,
     completeEvent,
@@ -148,16 +157,7 @@ function EventTimingTab() {
     const handleLockPicks = async (eventId: number) => {
         setLocking(eventId);
         try {
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/lock-picks`,
-                {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to lock picks');
+            await lockEventPicks(eventId);
             alert('✅ Picks locked successfully');
             refetch();
         } catch (error) {
@@ -171,16 +171,7 @@ function EventTimingTab() {
     const handleUnlockPicks = async (eventId: number) => {
         setLocking(eventId);
         try {
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/unlock-picks`,
-                {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to unlock picks');
+            await unlockEventPicks(eventId);
             alert('✅ Picks unlocked successfully');
             refetch();
         } catch (error) {
@@ -250,23 +241,10 @@ function EventTimingTab() {
                     onSave={async (eventDate, picksLockDate) => {
                         setSaving(event.id);
                         try {
-                            const token = getAuthToken();
-                            const response = await fetch(
-                                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${event.id}/timing`,
-                                {
-                                    method: 'PUT',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${token}`,
-                                    },
-                                    body: JSON.stringify({
-                                        event_date: eventDate || undefined,
-                                        picks_lock_date: picksLockDate || undefined,
-                                    }),
-                                }
-                            );
-
-                            if (!response.ok) throw new Error('Failed to update timing');
+                            await updateEventTiming(event.id, {
+                                card_start_time_utc: eventDate || undefined,
+                                picks_lock_time_utc: picksLockDate || undefined,
+                            });
                             alert('✅ Event timing updated');
                             refetch();
                         } catch (error) {
@@ -511,26 +489,12 @@ function BoutResultCard({
 
         setSaving(true);
         try {
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/bouts/${bout.id}/result`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                        winner,
-                        method,
-                        round: round ? parseInt(round) : undefined,
-                        time: time || undefined,
-                    }),
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to save result');
-            const result = await response.json();
+            const result = await updateBoutResult(bout.id, {
+                winner,
+                method,
+                round: round ? parseInt(round) : undefined,
+                time: time || undefined,
+            });
             alert(`✅ Result saved! ${result.points_assigned?.picks_processed || 0} picks processed`);
             onSuccess();
         } catch (error) {
@@ -546,16 +510,7 @@ function BoutResultCard({
 
         setSaving(true);
         try {
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/bouts/${bout.id}/result`,
-                {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (!response.ok) throw new Error('Failed to delete result');
+            await deleteBoutResult(bout.id);
             alert('✅ Result deleted and points reverted');
             onSuccess();
         } catch (error) {
@@ -715,24 +670,7 @@ function EventArtTab() {
     const handleUpload = async (eventId: number, file: File) => {
         setUploading(eventId);
         try {
-            const token = getAuthToken();
-            const formData = new FormData();
-            formData.append('file', file);
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/event-art`,
-                {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                    body: formData,
-                }
-            );
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.detail || 'Upload failed');
-            }
-
+            await uploadEventArt(eventId, file);
             alert('✅ Event art uploaded successfully');
             refetch();
         } catch (error: any) {
@@ -748,16 +686,7 @@ function EventArtTab() {
 
         setDeleting(eventId);
         try {
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/events/${eventId}/event-art`,
-                {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (!response.ok) throw new Error('Delete failed');
+            await deleteEventArt(eventId);
             alert('✅ Event art deleted');
             refetch();
         } catch (error) {
@@ -885,25 +814,7 @@ function PhotoUploaderTab() {
 
         setUploading(true);
         try {
-            const token = getAuthToken();
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/fighters/photo`,
-                {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${token}` },
-                    body: formData,
-                }
-            );
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.detail || 'Upload failed');
-            }
-
-            const data = await response.json();
+            const data = await uploadFighterPhoto(selectedFile);
             alert(`✅ Foto subida correctamente: ${data.s3_key}`);
             setResultUrl(data.cloudfront_url);
         } catch (error: any) {
@@ -1152,21 +1063,7 @@ function BoutManageCard({
                 return;
             }
 
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/bouts/${bout.id}/details`,
-                {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(payload),
-                }
-            );
-
-            if (!response.ok) throw new Error('Error al guardar detalles');
-            const result = await response.json();
+            const result = await updateBoutDetails(bout.id, payload);
             alert(`✅ Pelea actualizada. Campos: ${result.updated_fields?.join(', ') || 'ninguno'}`);
             onSuccess();
         } catch (error) {
@@ -1183,17 +1080,7 @@ function BoutManageCard({
 
         setSaving(true);
         try {
-            const token = getAuthToken();
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/admin/bouts/${bout.id}`,
-                {
-                    method: 'DELETE',
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            if (!response.ok) throw new Error('Error al eliminar pelea');
-            const result = await response.json();
+            const result = await deleteBout(bout.id);
             alert(`✅ Pelea eliminada. ${result.picks_deleted || 0} picks borrados, ${result.users_affected || 0} usuarios afectados.`);
             onSuccess();
         } catch (error) {
