@@ -37,7 +37,6 @@ import {
     formatSectionTime,
     getMostRecentlyLockedSection,
     getNextSectionLock,
-    getSectionLockIso,
     getSectionStartIso,
     groupBoutsBySection,
     isoToLocalDateTimeInput,
@@ -217,7 +216,7 @@ export const EventDetailPageV2 = ({ params }: EventDetailPageV2Props) => {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-        } catch (err) {
+        } catch {
             // silenciar error
         }
     };

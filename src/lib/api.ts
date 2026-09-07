@@ -441,10 +441,7 @@ export function getFighterShortName(fighter?: Partial<Fighter> | null): string {
  * Helper to get fighter image URL from Tapology THROUGH NGINX PROXY
  * Returns placeholder if no tapology_id available
  */
-export function getFighterImageUrl(
-  fighter: Fighter,
-  size: 'small' | 'medium' | 'large' = 'small'
-): string {
+export function getFighterImageUrl(fighter: Fighter): string {
   // If no profile_image_url, show placeholder
   if (!fighter.profile_image_url) {
     return '/placeholder-fighter.svg';
@@ -479,11 +476,8 @@ export const FIGHTER_PLACEHOLDER = '/placeholder-fighter.svg';
  * La última entrada siempre es el placeholder, así el consumidor sabe que
  * cuando llega ahí debe rendirse.
  */
-export function getFighterImageCandidates(
-  fighter: Fighter,
-  size: 'small' | 'medium' | 'large' = 'small'
-): string[] {
-  const base = getFighterImageUrl(fighter, size);
+export function getFighterImageCandidates(fighter: Fighter): string[] {
+  const base = getFighterImageUrl(fighter);
 
   if (base === FIGHTER_PLACEHOLDER) {
     return [FIGHTER_PLACEHOLDER];

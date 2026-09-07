@@ -5,18 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api, {
-  type Event,
-  type Bout,
-  type Pick,
-  type DetailedPick,
-  type User,
-  type CreatePickRequest,
-  type LeaderboardEntry,
-  type PublicUserProfile,
-  type UserPick,
-  type UserPicksStats,
-} from './api';
+import api, { type CreatePickRequest } from './api';
 
 // ============================================
 // AUTH HOOKS
@@ -200,7 +189,7 @@ export function useCreatePick() {
 
   return useMutation({
     mutationFn: (pick: CreatePickRequest) => api.createPick(pick),
-    onSuccess: (newPick) => {
+    onSuccess: () => {
       // Invalidar los picks para que se recarguen
       queryClient.invalidateQueries({ queryKey: ['myPicks'] });
     },

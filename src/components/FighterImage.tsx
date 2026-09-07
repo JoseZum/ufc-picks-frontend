@@ -22,14 +22,10 @@ import {
 interface FighterImageProps
   extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   fighter: Fighter;
-  size?: 'small' | 'medium' | 'large';
 }
 
-export function FighterImage({ fighter, size = 'small', ...imgProps }: FighterImageProps) {
-  const candidates = useMemo(
-    () => getFighterImageCandidates(fighter, size),
-    [fighter, size]
-  );
+export function FighterImage({ fighter, ...imgProps }: FighterImageProps) {
+  const candidates = useMemo(() => getFighterImageCandidates(fighter), [fighter]);
 
   const [index, setIndex] = useState(0);
 
@@ -61,19 +57,17 @@ export function FighterImage({ fighter, size = 'small', ...imgProps }: FighterIm
  */
 interface FighterPhotoProps extends React.HTMLAttributes<HTMLDivElement> {
   fighter: Fighter;
-  size?: 'small' | 'medium' | 'large';
   backgroundPosition?: string;
 }
 
 export function FighterPhoto({
   fighter,
-  size = 'small',
   backgroundPosition = 'center',
   style,
   children,
   ...rest
 }: FighterPhotoProps) {
-  const url = useResolvedFighterImage(fighter, size);
+  const url = useResolvedFighterImage(fighter);
   return (
     <div
       {...rest}
@@ -94,14 +88,11 @@ export function FighterPhoto({
  * (no hay evento onError disponible). Pre-carga los candidatos en orden y
  * devuelve la primera URL que cargue correctamente, o el placeholder.
  */
-export function useResolvedFighterImage(
-  fighter: Fighter,
-  size: 'small' | 'medium' | 'large' = 'small'
-): string {
+export function useResolvedFighterImage(fighter: Fighter): string {
   // Clave estable para no relanzar el efecto en cada render.
-  const stableKey = `${getFighterImageUrl(fighter, size)}|${size}`;
+  const stableKey = getFighterImageUrl(fighter);
   const candidates = useMemo(
-    () => getFighterImageCandidates(fighter, size),
+    () => getFighterImageCandidates(fighter),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [stableKey]
   );

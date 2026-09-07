@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { UserTapeCard } from '../UserTapeCard';
 import { NavBarV2 } from '../NavBarV2';
@@ -57,7 +56,7 @@ const EventVsCard = ({ bout, label, eventId }: { bout: Bout; label: string; even
                     <div className="split__side split__side--red">
                         {/* headshot en columna propia: nunca se superpone al texto */}
                         <div className="split__photo" aria-hidden="true">
-                            <FighterImage fighter={red} alt="" size="medium" />
+                            <FighterImage fighter={red} alt="" />
                         </div>
                         <div className="split__info">
                         <span className="split__tag">Red Corner</span>
@@ -85,7 +84,7 @@ const EventVsCard = ({ bout, label, eventId }: { bout: Bout; label: string; even
 
                     <div className="split__side split__side--blue">
                         <div className="split__photo" aria-hidden="true">
-                            <FighterImage fighter={blue} alt="" size="medium" />
+                            <FighterImage fighter={blue} alt="" />
                         </div>
                         <div className="split__info">
                         <span className="split__tag">Blue Corner</span>
@@ -131,7 +130,6 @@ const renderEventTitle = (name: string) => {
 };
 
 export const LandingPageV2 = () => {
-    const router = useRouter();
     // Clicking a predictor opens their card here rather than navigating away:
     // you are usually mid-scroll on Home and do not want to lose your place.
     const [tapeUserId, setTapeUserId] = React.useState<string | null>(null);

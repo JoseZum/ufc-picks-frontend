@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { V2Layout } from '../V2Layout';
 import { NavBarV2 } from '../NavBarV2';
 import { MobileNav } from '../MobileNav';
-import { useEvents, useCurrentUser } from '@/lib/hooks';
+import { useEvents } from '@/lib/hooks';
 import { getEventPosterUrl, getEventDateTime, Event } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import { formatEventDate, getDaysUntilEvent } from '@/lib/dateUtils';
@@ -22,7 +21,6 @@ function isGenericFuturePlaceholder(event: Event): boolean {
 }
 
 export const EventsPageV2 = () => {
-    const router = useRouter();
     const [filter, setFilter] = useState<'upcoming' | 'completed'>('upcoming');
 
     // Fetch events - SEPARATE CALLS for upcoming and completed
@@ -34,8 +32,6 @@ export const EventsPageV2 = () => {
         status: 'completed',
         limit: 50
     });
-
-    const { data: currentUser } = useCurrentUser();
 
     // Hide far-away generic placeholder events while keeping specifically named events visible.
     const upcomingEventsAll = (upcomingData?.events || []).filter(e => {

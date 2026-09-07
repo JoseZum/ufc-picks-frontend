@@ -4,7 +4,7 @@
  * Handles timezone conversion and formatting for events stored in ET (Eastern Time)
  */
 
-import { Event, getEventDateTime } from './api';
+import { Event } from './api';
 
 /**
  * Format event date for display (e.g., "SAT FEB 07 2026")
