@@ -1,41 +1,34 @@
 /**
- * Wire-level mission API contracts.
+ * Contratos de la API de misiones, tal como los sirve el backend.
  *
- * These types describe exactly what `app/modules/missions/contracts.py` serves
- * and what `app/modules/missions/router.py` accepts, nothing else. They are
- * deliberately separate from the presentation view models in
- * `mission-mock-models.ts`: the wire shape belongs to the backend, the view
- * models belong to the UI, and `gateway/mission-api-mappers` is the single place
- * allowed to translate between them.
+ * Describen exactamente lo que mandan `contracts.py` y `router.py`, y nada
+ * más. Van aparte de los view models de `mission-mock-models.ts` a propósito:
+ * la forma del wire es del backend, los view models son de la UI, y el único
+ * sitio que traduce entre ambos es `gateway/mission-api-mappers`.
  *
- * This file was previously written against an invented shape, which is why Home
- * collapsed every slot to 1 and every selection returned 422. The rules that
- * keep that from recurring:
+ * Este archivo llegó a estar escrito contra una forma inventada, y por eso
+ * Home colapsaba todos los slots a 1 y cada selección devolvía 422. Las reglas
+ * que evitan que vuelva a pasar:
  *
- *  1. Every type here mirrors a pydantic model by name and by field. If the
- *     backend calls it `slot`, so do we, no renaming, no re-basing an index.
- *  2. `selection_spec` is a RAW DOMAIN SNAPSHOT
- *     (`definition.selection.model_dump(mode="json")`), not a UI-shaped object.
- *     Whatever a picker needs is derived from it in the mapper, never invented
- *     here. Its enum values are backend spellings (`KO_TKO`), not display copy.
- *  3. `frozenset` fields (`bound_pick_fields`, `allowed_methods`) serialize as
- *     JSON arrays in NON-DETERMINISTIC ORDER. Never index into them; the mapper
- *     sorts before use.
- *  4. The tests feed these types a payload generated from the backend's own
- *     models (`tests/fixtures/real-mission-payloads.json`), so a contract drift
- *     fails the suite instead of the browser.
+ *  1. Cada tipo copia un modelo de pydantic por nombre y por campo. Si el
+ *     backend lo llama `slot`, aquí también, sin renombrar ni reindexar.
+ *  2. `selection_spec` es un snapshot crudo del dominio, no un objeto con
+ *     forma de UI. Lo que un picker necesita se deriva en el mapper. Sus enums
+ *     son los del backend (`KO_TKO`), no texto para mostrar.
+ *  3. `bound_pick_fields` y `allowed_methods` son `frozenset` y su orden en
+ *     JSON no es determinista: nunca se indexan, el mapper los ordena.
+ *  4. Los tests alimentan estos tipos con un payload generado por los propios
+ *     modelos del backend, así una desviación del contrato rompe la suite y no
+ *     el navegador.
  *
- * Two axes, modelled independently on purpose:
+ * Hay dos ejes, modelados por separado a propósito: `interaction` es el
+ * discriminante y decide qué picker se renderiza, mientras que `pick_effect`
+ * dice qué le hace la misión a los picks del usuario. Cualquier interacción
+ * admite cualquiera de los tres efectos, y las pruebas de compilación del final
+ * del archivo rompen la build si alguien fusiona los dos ejes.
  *
- *  - `interaction` is the discriminant. It decides which picker renders and
- *    which `selection_spec` travels with the option.
- *  - `pick_effect` is NOT part of that discriminant. It describes what accepting
- *    the mission does to the user's canonical picks, and every interaction may
- *    carry any of the three effects. The compile-time proofs at the bottom of
- *    this file fail the build if the two axes are ever collapsed into one.
- *
- * Nothing here computes anything. Progress text, percentages, lock reasons,
- * VOID reasons, XP and selection summaries all arrive already resolved.
+ * Aquí no se calcula nada: textos de progreso, porcentajes, razones de bloqueo
+ * y de VOID, XP y resúmenes llegan ya resueltos.
  */
 
 import type {
