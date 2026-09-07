@@ -1,14 +1,12 @@
 /**
- * FE-000A Mission Lab, presentation-only mock models.
+ * Modelos de presentación del Mission Lab, solo para el prototipo local.
  *
- * These types exist so the local /mission-lab prototype can render every
- * mission surface deterministically. They are NOT Contract V1: field names,
- * shapes and enums may all change when the real contract is designed after
- * backend review. Nothing here may be imported by production surfaces.
+ * Existen para que /mission-lab renderice cada superficie de forma
+ * determinista. No son el contrato real: nombres, formas y enums pueden
+ * cambiar. Ninguna superficie de producción debe importarlos.
  *
- * Domain rules (XP, eligibility, completion, streak advancement, reward
- * idempotency) remain backend authority; every "resolved" number in these
- * models arrives pre-computed from fixtures, never derived in React.
+ * XP, elegibilidad, completado, streak y la idempotencia de premios siguen
+ * siendo del backend: los números ya vienen resueltos desde los fixtures.
  */
 
 import type { Fighter } from '@/lib/api';
