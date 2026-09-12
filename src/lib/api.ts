@@ -167,18 +167,6 @@ export function logout() {
   setAuthToken(null);
 }
 
-export interface UpdateProfileRequest {
-  name?: string;
-  profile_picture?: string;
-}
-
-export async function updateProfile(data: UpdateProfileRequest): Promise<User> {
-  return apiRequest<User>('/auth/me', {
-    method: 'PUT',
-    body: JSON.stringify(data),
-  });
-}
-
 // ============================================
 // EVENTS ENDPOINTS
 // ============================================
@@ -677,25 +665,6 @@ export interface Pick {
   created_at: string;
 }
 
-export interface DetailedPick {
-  id: string;
-  bout_id: number;
-  event_id: number;
-  event_name?: string;
-  event_date?: string;
-  picked_fighter_name: string;
-  picked_method: 'DEC' | 'KO/TKO' | 'SUB';
-  picked_round?: number;
-  is_correct?: boolean;
-  points_awarded: number;
-  locked: boolean;
-  created_at: string;
-  fighter_red?: string;
-  fighter_blue?: string;
-  weight_class?: string;
-  result?: BoutResult;
-}
-
 export interface CreatePickRequest {
   event_id: number;
   bout_id: number;
@@ -717,10 +686,6 @@ export async function getMyPicks(eventId: number): Promise<Pick[]> {
 
 export async function getAllMyPicks(): Promise<Pick[]> {
   return apiRequest<Pick[]>('/picks/me/all');
-}
-
-export async function getAllMyPicksDetailed(): Promise<DetailedPick[]> {
-  return apiRequest<DetailedPick[]>('/picks/me/detailed');
 }
 
 /**
@@ -771,21 +736,6 @@ export async function getEventLeaderboard(eventId: number, limit?: number): Prom
   return apiRequest<LeaderboardResponse>(`/leaderboard/event/${eventId}${query ? `?${query}` : ''}`);
 }
 
-export async function getCategoryLeaderboard(
-  category: string,
-  params?: {
-    year?: number;
-    limit?: number;
-  }
-): Promise<LeaderboardResponse> {
-  const searchParams = new URLSearchParams();
-  if (params?.year) searchParams.set('year', String(params.year));
-  if (params?.limit) searchParams.set('limit', String(params.limit));
-
-  const query = searchParams.toString();
-  return apiRequest<LeaderboardResponse>(`/leaderboard/category/${category}${query ? `?${query}` : ''}`);
-}
-
 export async function getMyLeaderboardPosition(category: string = 'global'): Promise<{
   rank: number | null;
   entry: LeaderboardEntry | null;
@@ -796,20 +746,6 @@ export async function getMyLeaderboardPosition(category: string = 'global'): Pro
   return apiRequest<{ rank: number | null; entry: LeaderboardEntry | null }>(
     `/leaderboard/me?${searchParams.toString()}`
   );
-}
-
-// ============================================
-// HEALTH CHECK
-// ============================================
-
-export interface HealthStatus {
-  status: string;
-  database: string;
-  version: string;
-}
-
-export async function checkHealth(): Promise<HealthStatus> {
-  return apiRequest<HealthStatus>('/health');
 }
 
 // ============================================
@@ -1016,7 +952,6 @@ const api = {
   loginWithGoogleAccessToken,
   getCurrentUser,
   logout,
-  updateProfile,
   setAuthToken,
   getAuthToken,
   isAuthenticated,
@@ -1032,13 +967,11 @@ const api = {
   createPick,
   getMyPicks,
   getAllMyPicks,
-  getAllMyPicksDetailed,
   cleanupPendingPicks,
 
   // Leaderboard
   getGlobalLeaderboard,
   getEventLeaderboard,
-  getCategoryLeaderboard,
   getMyLeaderboardPosition,
 
   // Admin - Picks Locks
@@ -1049,7 +982,6 @@ const api = {
   updateEventTiming,
 
   // Health
-  checkHealth,
 
   // Public User Profiles
   getUserProfile,
