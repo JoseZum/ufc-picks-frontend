@@ -26,20 +26,6 @@ export function formatEventDate(event: Event | { date: string; start_time_et?: s
 }
 
 /**
- * Format event date short (e.g., "FEB 07")
- */
-export function formatEventDateShort(event: Event | { date: string; start_time_et?: string; timezone?: string }): string {
-  // Parse the date directly without timezone conversion
-  const [year, month, day] = event.date.split('-').map(Number);
-  const dateObj = new Date(year, month - 1, day);
-
-  return dateObj.toLocaleDateString('en-US', {
-    month: 'short',
-    day: '2-digit'
-  }).toUpperCase();
-}
-
-/**
  * Get days left until event
  *
  * Calcula días hasta el evento usando la fecha y hora ET correctamente
@@ -80,13 +66,3 @@ export function isEventStillVisible(event: Event | { date: string }): boolean {
   return new Date() < cutoff;
 }
 
-/**
- * Format days left until event for display
- */
-export function formatDaysLeft(event: Event | { date: string; start_time_et?: string; timezone?: string }): string {
-  const days = getDaysUntilEvent(event);
-  if (days < 0) return 'PAST';
-  if (days === 0) return 'TODAY';
-  if (days === 1) return '1 DAY';
-  return `${days} DAYS`;
-}
