@@ -900,6 +900,12 @@ export async function deleteBout(
   return apiRequest(`/admin/bouts/${boutId}`, { method: 'DELETE' });
 }
 
+export async function cancelBout(
+  boutId: number
+): Promise<{ picks_deleted?: number; users_affected?: number }> {
+  return apiRequest(`/admin/bouts/${boutId}/cancel`, { method: 'POST' });
+}
+
 // ============================================
 // ADMIN - IMÁGENES
 // ============================================
