@@ -894,12 +894,6 @@ export async function updateBoutDetails(
   });
 }
 
-export async function deleteBout(
-  boutId: number
-): Promise<{ picks_deleted?: number; users_affected?: number }> {
-  return apiRequest(`/admin/bouts/${boutId}`, { method: 'DELETE' });
-}
-
 export async function cancelBout(
   boutId: number
 ): Promise<{ picks_deleted?: number; users_affected?: number }> {
