@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useEvents, useEventBouts } from '@/lib/hooks';
 import {
-    deleteBout,
+    cancelBout,
     updateBoutDetails,
     getFighterDisplayName,
     type Bout,
@@ -156,18 +156,18 @@ function BoutManageCard({
         }
     };
 
-    // Elimina la pelea y todos sus picks asociados
-    const handleDelete = async () => {
-        if (!window.confirm('¿Eliminar esta pelea completamente? Se borrarán todos los picks asociados.')) return;
+    // Saca la pelea de la card y borra todos sus picks asociados
+    const handleCancel = async () => {
+        if (!window.confirm('¿Cancelar esta pelea? Saldrá de la cartelera y se borrarán todos los picks asociados.')) return;
 
         setSaving(true);
         try {
-            const result = await deleteBout(bout.id);
-            alert(`✅ Pelea eliminada. ${result.picks_deleted || 0} picks borrados, ${result.users_affected || 0} usuarios afectados.`);
+            const result = await cancelBout(bout.id);
+            alert(`✅ Pelea cancelada. ${result.picks_deleted || 0} picks borrados, ${result.users_affected || 0} usuarios afectados.`);
             onSuccess();
         } catch (error) {
             console.error(error);
-            alert('❌ Error al eliminar pelea');
+            alert('❌ Error al cancelar pelea');
         } finally {
             setSaving(false);
         }
@@ -303,10 +303,10 @@ function BoutManageCard({
                     <div className="admin-btn-group" style={{ marginTop: '1.5rem' }}>
                         <button
                             className="admin-btn admin-btn--danger"
-                            onClick={handleDelete}
+                            onClick={handleCancel}
                             disabled={saving}
                         >
-                            {saving ? 'DELETING...' : 'DELETE BOUT'}
+                            {saving ? 'CANCELLING...' : 'CANCEL BOUT'}
                         </button>
                         <button
                             className="admin-btn admin-btn--primary"
