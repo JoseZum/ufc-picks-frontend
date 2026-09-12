@@ -50,18 +50,6 @@ export function useLogout() {
   };
 }
 
-export function useUpdateProfile() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: { name?: string; profile_picture?: string }) =>
-      api.updateProfile(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-    },
-  });
-}
-
 // ============================================
 // EVENTS HOOKS
 // ============================================
@@ -118,30 +106,6 @@ export function useAllMyPicks() {
   });
 }
 
-export function useAllMyPicksDetailed() {
-  return useQuery({
-    queryKey: ['allMyPicksDetailed'],
-    queryFn: () => api.getAllMyPicksDetailed(),
-    enabled: api.isAuthenticated(),
-    staleTime: 30 * 1000,
-  });
-}
-
-export function useMyPicksWithBouts(eventId: number) {
-  const { data: picks, ...picksQuery } = useMyPicks(eventId);
-  const { data: bouts, ...boutsQuery } = useEventBouts(eventId);
-
-  return {
-    ...picksQuery,
-    ...boutsQuery,
-    isLoading: picksQuery.isLoading || boutsQuery.isLoading,
-    data: picks && bouts ? picks.map(pick => {
-      const bout = bouts.find(b => b.id === pick.bout_id);
-      return { pick, bout };
-    }).filter(item => item.bout !== undefined) : undefined,
-  };
-}
-
 export function useCreatePick() {
   const queryClient = useQueryClient();
 
@@ -185,19 +149,6 @@ export function useEventLeaderboard(eventId: number, limit?: number) {
   });
 }
 
-export function useCategoryLeaderboard(category: string, params?: { year?: number; limit?: number }) {
-  return useQuery({
-    queryKey: ['leaderboard', 'category', category, params],
-    queryFn: async () => {
-      const response = await api.getCategoryLeaderboard(category, params);
-      return response.entries;
-    },
-    staleTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-  });
-}
-
 export function useMyLeaderboardPosition(category: string = 'global') {
   return useQuery({
     queryKey: ['leaderboard', 'me', category],
@@ -206,19 +157,6 @@ export function useMyLeaderboardPosition(category: string = 'global') {
     staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
-  });
-}
-
-// ============================================
-// HEALTH HOOKS
-// ============================================
-
-export function useHealthCheck() {
-  return useQuery({
-    queryKey: ['health'],
-    queryFn: api.checkHealth,
-    refetchInterval: 30 * 1000, // Cada 30 segundos
-    retry: 1,
   });
 }
 
