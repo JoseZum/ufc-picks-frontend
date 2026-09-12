@@ -12,7 +12,7 @@ import { formatEventDate } from '@/lib/dateUtils';
 
 // Calcula puntos basado en el pick y el resultado de la pelea.
 // 1 punto por acertar el ganador, +1 por el método, +1 por el round (no aplica a decisión).
-export function computePoints(pick: any, bout: any): number {
+function computePoints(pick: any, bout: any): number {
     if (pick.is_correct !== true || !bout?.result) return 0;
 
     let points = 1; // Acertó el ganador
