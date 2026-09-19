@@ -104,8 +104,6 @@ function BoutManageCard({
     const [cardSection, setCardSection] = useState('');
     const [orderOverall, setOrderOverall] = useState('');
     const [orderSection, setOrderSection] = useState('');
-    const [isMainEvent, setIsMainEvent] = useState(false);
-    const [isCoMain, setIsCoMain] = useState(false);
 
     const [saving, setSaving] = useState(false);
 
@@ -136,8 +134,6 @@ function BoutManageCard({
             if (cardSection) payload.card_section = cardSection;
             if (orderOverall) payload.order_overall = parseInt(orderOverall);
             if (orderSection) payload.order_section = parseInt(orderSection);
-            payload.is_main_event = isMainEvent;
-            payload.is_co_main = isCoMain;
 
             if (Object.keys(payload).length === 0) {
                 alert('No hay cambios para guardar');
@@ -280,22 +276,6 @@ function BoutManageCard({
                                 onChange={(e) => setIsBmfTitleFight(e.target.checked)}
                             />
                             BMF TITLE FIGHT
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ccc', cursor: 'pointer' }}>
-                            <input
-                                type="checkbox"
-                                checked={isMainEvent}
-                                onChange={(e) => setIsMainEvent(e.target.checked)}
-                            />
-                            MAIN EVENT
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ccc', cursor: 'pointer' }}>
-                            <input
-                                type="checkbox"
-                                checked={isCoMain}
-                                onChange={(e) => setIsCoMain(e.target.checked)}
-                            />
-                            CO-MAIN EVENT
                         </label>
                     </div>
 
